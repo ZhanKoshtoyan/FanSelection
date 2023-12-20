@@ -120,7 +120,6 @@ public interface IFan
 
     public double VolumeFlowOnPolynomial =>
         MethodOfHalfDivision.Calculate(
-            UserInput.UserInputWorkPoint.TotalPressureDeviation,
             Data.MinVolumeFlow,
             Data.MaxVolumeFlow,
             Data.TotalPressureCoefficients,
@@ -159,7 +158,9 @@ public interface IFan
     /// </summary>
     public double StaticPressure =>
         Math.Round(TotalPressure - 0.5 * AirInTests.Density.KilogramsPerCubicMeter
-            * Math.Pow(AirVelocity, 2),0);
+            * Math.Pow(AirVelocity, 2),
+            0
+        );
 
     /// <summary>
     ///     Расчетный полный КПД вентилятора, [%]
@@ -214,7 +215,7 @@ public interface IFan
             Size,
             ImpellerRotationSpeed,
             Size
-            );
+        );
 
     /// <summary>
     ///     Уровень звуковой мощности на частоте 125Гц

@@ -81,7 +81,7 @@ public static class SimilarityCalculator
     ) =>
         Math.Round(
             oldNoise +
-             50 * Math.Log10(
+            50 * Math.Log10(
                 (double) newImpellerRotationSpeed / oldImpellerRotationSpeed
             )
             + 70 * Math.Log10((double) newSize / oldSize),

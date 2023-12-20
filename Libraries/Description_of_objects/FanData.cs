@@ -6,6 +6,11 @@
 public record FanData
 {
     /// <summary>
+    ///     Исполнение вентилятора
+    /// </summary>
+    public required string Version { get; init; }
+
+    /// <summary>
     ///     Типоразмер
     /// </summary>
     public required string Size { get; init; }

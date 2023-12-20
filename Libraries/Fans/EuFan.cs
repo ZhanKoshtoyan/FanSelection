@@ -66,5 +66,4 @@ public class EuFan : IFan
             UserInput.UserInputWorkPoint.VolumeFlow,
             ((IFan) this).Size
         );
-
 }

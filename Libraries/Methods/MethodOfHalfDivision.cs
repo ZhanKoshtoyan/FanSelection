@@ -5,7 +5,6 @@ namespace Libraries.Methods;
 public static class MethodOfHalfDivision
 {
     public static double Calculate(
-        double error,
         double minVolumeFlow,
         double maxVolumeFlow,
         PolynomialType coefficients,
@@ -14,7 +13,7 @@ public static class MethodOfHalfDivision
     )
     {
         var constDependencePq = inputTotalPressure / Math.Pow(inputVolumeFlow, 2);
-        error = 0.00001;
+        var error = 0.00001;
         var desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
         while (maxVolumeFlow - minVolumeFlow >= 2 * error)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Libraries.Description_of_objects.UserInput;
 
-public class UserInputWorkPoint
+public record UserInputWorkPoint
 {
     /// <summary>
     ///     Объемный расход воздуха, который ввел пользователь;  [м3/ч]
@@ -10,10 +10,10 @@ public class UserInputWorkPoint
     /// <summary>
     ///     Полное давление воздуха, которое ввел пользователь; [Па]
     /// </summary>
-    public required double TotalPressure { get; set; }
+    public required double TotalPressure { get; init; }
 
     /// <summary>
     ///     Допустимая погрешность подбора по полному давлению воздуха, которое ввел пользователь; [%]
     /// </summary>
-    public required double TotalPressureDeviation { get; set; }
+    public required double TotalPressureDeviation { get; init; }
 }

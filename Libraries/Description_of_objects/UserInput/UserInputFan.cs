@@ -1,11 +1,11 @@
 ﻿namespace Libraries.Description_of_objects.UserInput;
 
-public class UserInputFan
+public record UserInputFan
 {
     /// <summary>
     ///     Исполнение вентилятора
     /// </summary>
-    public required int? FanVersion { get; set; }
+    public required int? FanVersion { get; init; }
 
     /// <summary>
     ///     Типоразмер вентилятора, которое ввел пользователь

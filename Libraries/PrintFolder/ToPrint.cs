@@ -11,6 +11,10 @@ public static class ToPrint
         string? endingOfTheWord2;
         switch (sortFans.Count)
         {
+            case 0:
+                endingOfTheWord1 = "подобрано";
+                endingOfTheWord2 = "вентиляторов";
+                break;
             case 1:
                 endingOfTheWord1 = "подобран";
                 endingOfTheWord2 = "вентилятор";
@@ -46,9 +50,9 @@ public static class ToPrint
                 + $"\nРасчетный полный КПД вентилятора: {fan.Efficiency} %;"
                 + $"\nСкорость воздуха: {fan.AirVelocity} м/с;"
                 + $"\nНоминальная мощность: {fan.Data.NominalPower} кВт;"
-                + $"\nУровень звуковой мощности по октавам: {fan.OctaveNoise63:0.0}; {fan.OctaveNoise125:0.0}; {fan
-                .OctaveNoise250:0.0}; {fan.OctaveNoise500:0.0}; {fan.OctaveNoise1000:0.0}; {fan.OctaveNoise2000:0.0}; {fan.OctaveNoise4000:0.0}; {fan.OctaveNoise8000:0.0} [дБ];"
-                + $"\nСуммарный уровень звуковой мощности с корректировкой фильтра А частот: 63; 125; 250; 500; 1к; 2к; 4к; 8к [Гц]: {fan.SumNoiseA:0.0} дБ(А)"
+                + $"\nУровень звуковой мощности на выходе по октавам: {fan.OctaveNoise63:0.0}; {fan.OctaveNoise125:0.0}; {fan
+                    .OctaveNoise250:0.0}; {fan.OctaveNoise500:0.0}; {fan.OctaveNoise1000:0.0}; {fan.OctaveNoise2000:0.0}; {fan.OctaveNoise4000:0.0}; {fan.OctaveNoise8000:0.0} [дБ];"
+                + $"\nСуммарный уровень звуковой мощности частот: 63; 125; 250; 500; 1к; 2к; 4к; 8к [Гц]  с корректировкой фильтра А на выходе: {fan.SumNoiseA:0.0} [дБ(А)]"
             );
         }
     }

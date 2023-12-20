@@ -23,8 +23,8 @@ public abstract class SortFans
             .Where(
                 f =>
                     userInput.UserInputWorkPoint.VolumeFlow >= f.MinVolumeFlow
-                    && userInput.UserInputWorkPoint.VolumeFlow
-                    <= f.MaxVolumeFlow
+                    &&
+                    userInput.UserInputWorkPoint.VolumeFlow <= f.MaxVolumeFlow
             )
             .ToList();
 
@@ -87,8 +87,7 @@ public abstract class SortFans
                     f =>
                         Math.Abs(
                             userInput.UserInputFan.ImpellerRotationSpeed.GetValueOrDefault()
-                            - Math.Round(f.ImpellerRotationSpeed / 500.0)
-                            * 500
+                            - f.NominalImpellerRotationSpeed
                         ) < 0.05
                 )
                 .ToList();
@@ -97,49 +96,6 @@ public abstract class SortFans
         //------------------------------------------------------------------------------------------------------------
 
         List<T>? sortDeviationFansList = null;
-        /*// Создаем словарь для соответствия значений userInput.FanVersion и кода
-        var fanVersionCodeMap = new Dictionary<string, Action>
-        {
-            {
-                FanVersion.Values[0], () =>
-                {
-                    sortDeviationFansList = sortInputFansList
-                        .Select(
-                            elementFanData => new OsuDu(elementFanData, userInput) as IFan
-                        )
-                        .Where(
-                            fan =>
-                                Math.Abs(fan.TotalPressureDeviation)
-                                <= userInput.UserInputWorkPoint.TotalPressureDeviation
-                        )
-                        .ToList();
-                }
-            },
-            {
-                FanVersion.Values[1], () =>
-                {
-                    sortDeviationFansList = sortInputFansList
-                        .Select(
-                            elementFanData => new EuFan(elementFanData, userInput) as IFan
-                        )
-                        .Where(
-                            fan =>
-                                Math.Abs(fan.TotalPressureDeviation)
-                                <= userInput.UserInputWorkPoint.TotalPressureDeviation
-                        )
-                        .ToList();
-                }
-            }
-        };
-
-        // Выполняем выбор кода на основе значения userInput.FanVersion
-        if (fanVersionCodeMap.TryGetValue(userInput.UserInputFan.FanVersion
-                ?? throw new InvalidOperationException("Не найден элемент в массиве FanVersion.Values"),
-                out var value
-            ))
-        {
-            value.Invoke();
-        }*/
 
         switch (userInput.UserInputFan.FanVersion)
         {
@@ -149,9 +105,10 @@ public abstract class SortFans
                         elementFanData =>
                             new OsuDu(elementFanData, userInput)
                     )
+                    .Where(fan => ((IFan) fan).Data.Version == FanVersion.Values.OsuDu.ToString())
                     .Where(
                         fan =>
-                            Math.Abs(((IFan)fan).TotalPressureDeviation)
+                            Math.Abs(((IFan) fan).TotalPressureDeviation)
                             <= userInput
                                 .UserInputWorkPoint
                                 .TotalPressureDeviation
@@ -165,9 +122,10 @@ public abstract class SortFans
                         elementFanData =>
                             new EuFan(elementFanData, userInput)
                     )
+                    .Where(fan => ((IFan) fan).Data.Version == FanVersion.Values.EuFan.ToString())
                     .Where(
                         fan =>
-                            Math.Abs(((IFan)fan).TotalPressureDeviation)
+                            Math.Abs(((IFan) fan).TotalPressureDeviation)
                             <= userInput
                                 .UserInputWorkPoint
                                 .TotalPressureDeviation
