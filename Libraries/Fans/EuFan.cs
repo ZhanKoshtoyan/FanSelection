@@ -59,11 +59,13 @@ public class EuFan : IFan
 
     public int ImpellerRotationSpeed =>
         (int)
-        SimilarityCalculator.SimilarImpellerRotationSpeed(
-            ((IFan) this).VolumeFlowOnPolynomial,
+        SimilarityCalculator.DerivedFromPvImpellerRotationSpeed(
+            ((IFan) this).TotalPressure,
             Data.ImpellerRotationSpeed,
             ((IFan) this).Size,
-            UserInput.UserInputWorkPoint.VolumeFlow,
-            ((IFan) this).Size
+            ((IFan) this).UserInputAir,
+            UserInput.UserInputWorkPoint.TotalPressure,
+            ((IFan) this).Size,
+            ((IFan) this).AirInTests
         );
 }

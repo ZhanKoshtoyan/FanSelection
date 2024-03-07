@@ -18,7 +18,7 @@ public static class SimilarityCalculator
             0
         );
 
-    public static double SimilarImpellerRotationSpeed(
+    public static double DerivedFromQImpellerRotationSpeed(
         double oldVolumeFlow,
         int oldImpellerRotationSpeed,
         int oldSize,
@@ -29,6 +29,26 @@ public static class SimilarityCalculator
             Math.Pow(newVolumeFlow / oldVolumeFlow, 1)
             * oldImpellerRotationSpeed
             * Math.Pow((double) oldSize / newSize, 3),
+            0
+        );
+
+    public static double DerivedFromPvImpellerRotationSpeed(
+        double oldPressure,
+        int oldImpellerRotationSpeed,
+        int oldSize,
+        IHumidAir oldAirDensity,
+        double newPressure,
+        int newSize,
+        IHumidAir newAirDensity
+    ) =>
+        Math.Round(
+            oldImpellerRotationSpeed
+            *
+            Math.Pow(newPressure / oldPressure, 0.5)
+            *
+            Math.Pow((double) oldSize / newSize, 1)
+            *
+            Math.Pow(oldAirDensity.Density / newAirDensity.Density, 0.5),
             0
         );
 

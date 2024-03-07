@@ -1,4 +1,5 @@
 ﻿using Libraries.Description_of_objects;
+using Libraries.Description_of_objects.Parameters;
 using Libraries.Description_of_objects.UserInput;
 using Libraries.Methods;
 using SharpProp;
@@ -147,18 +148,24 @@ public interface IFan
             PolynomialCalculator.Calculate(Data.TotalPressureCoefficients, VolumeFlowOnPolynomial),
             Data.ImpellerRotationSpeed,
             Size,
-            UserInputAir,
+            AirInTests,
             ImpellerRotationSpeed,
             Size,
-            AirInTests
+            UserInputAir
         );
+
+    /// <summary>
+    ///     Расчетное динамическое давление воздуха, [Па]
+    /// </summary>
+    public double DynamicPressure =>
+        0.5 * UserInputAir.Density.KilogramsPerCubicMeter
+        * Math.Pow(AirVelocity, 2);
 
     /// <summary>
     ///     Расчетное статическое давление воздуха, [Па]
     /// </summary>
     public double StaticPressure =>
-        Math.Round(TotalPressure - 0.5 * AirInTests.Density.KilogramsPerCubicMeter
-            * Math.Pow(AirVelocity, 2),
+        Math.Round(TotalPressure - DynamicPressure,
             0
         );
 
@@ -185,10 +192,10 @@ public interface IFan
             PolynomialCalculator.Calculate(Data.PowerCoefficients, VolumeFlowOnPolynomial),
             Data.ImpellerRotationSpeed,
             Size,
-            UserInputAir,
+            AirInTests,
             ImpellerRotationSpeed,
             Size,
-            AirInTests
+            UserInputAir
         );
 
     /// <summary>
@@ -382,4 +389,40 @@ public interface IFan
             return Math.Round(10 * Math.Log10(sum), 1);
         }
     }
+
+    /*public DataCurve[] OriginalCurve => new DataCurve[]
+    {
+        new DataCurve
+        {
+            VolumeFlow = Data.MinVolumeFlow,
+            TotalPressure = SimilarityCalculator.SimilarPressure(
+                PolynomialCalculator.Calculate(Data.TotalPressureCoefficients, Data.MinVolumeFlow),
+                Data.ImpellerRotationSpeed,
+                Size,
+                UserInputAir,
+                ImpellerRotationSpeed,
+                Size,
+                AirInTests
+            ),
+            StaticPressure = Math.Round(TotalPressure - 0.5 * AirInTests.Density.KilogramsPerCubicMeter
+                * Math.Pow(SimilarityCalculator.SimilarVolumeFlow(
+                    Data.MinVolumeFlow,
+                    Data.ImpellerRotationSpeed,
+                    Size,
+                    ImpellerRotationSpeed,
+                    Size
+                ), 2),
+                0
+            ),
+            DynamicPressure = OriginalCurve[0].TotalPressure-OriginalCurve[0].StaticPressure,
+            Size = Size,
+            ImpellerRotationSpeed = ImpellerRotationSpeed,
+            Air = null,
+            TotalEfficiency = 0,
+            StaticEfficiency = 0,
+            Power = 0,
+            ConstDependencePq = 0
+        }
+    };*/
+
 }
