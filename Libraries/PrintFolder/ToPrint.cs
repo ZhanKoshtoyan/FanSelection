@@ -52,8 +52,19 @@ public static class ToPrint
                 + $"\nНоминальная мощность: {fan.Data.NominalPower} кВт;"
                 + $"\nУровень звуковой мощности на выходе по октавам: {fan.OctaveNoise63:0.0}; {fan.OctaveNoise125:0.0}; {fan
                     .OctaveNoise250:0.0}; {fan.OctaveNoise500:0.0}; {fan.OctaveNoise1000:0.0}; {fan.OctaveNoise2000:0.0}; {fan.OctaveNoise4000:0.0}; {fan.OctaveNoise8000:0.0} [дБ];"
-                + $"\nСуммарный уровень звуковой мощности частот: 63; 125; 250; 500; 1к; 2к; 4к; 8к [Гц]  с корректировкой фильтра А на выходе: {fan.SumNoiseA:0.0} [дБ(А)]"
+                + $"\nСуммарный уровень звуковой мощности частот: 63; 125; 250; 500; 1к; 2к; 4к; 8к [Гц]  с корректировкой фильтра А на выходе: {fan.SumNoiseA:0.0} [дБ(А)];"
+                + $"\n\nD = {fan.NewCurve[0].DcSize*10} [мм], "
+                + $"p = {fan.NewCurve[0].DcAir.Density.Value:0.000} [кг/м3], "
+                + $"n = {fan.NewCurve[0].DcImpellerRotationSpeed} [об/мин]:\n"
             );
+
+            fan.NewCurve.ToList().ForEach(f => Console.WriteLine(
+                $"{f.DcIndex+1}: "
+                + $"Q = {f.DcVolumeFlow} [м3/ч], "
+                + $"Pv = {f.DcTotalPressure} [Па], "
+                + $"N = {f.DcPower:0.00} [кВт]"
+                ));
         }
+
     }
 }

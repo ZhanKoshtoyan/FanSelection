@@ -54,12 +54,12 @@ public record FanData
     /// <summary>
     ///     Минимальный объем воздуха, [м3/ч]
     /// </summary>
-    public required int MinVolumeFlow { get; init; }
+    public required double MinVolumeFlow { get; init; }
 
     /// <summary>
     ///     Максимальный объем воздуха, [м3/ч]
     /// </summary>
-    public required int MaxVolumeFlow { get; init; }
+    public required double MaxVolumeFlow { get; init; }
 
     /// <summary>
     ///     Коэффиуиенты полинома 6-й степени Pv(Q) - полного давления от объемного воздуха

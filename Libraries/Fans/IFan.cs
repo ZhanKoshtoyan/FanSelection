@@ -2,6 +2,7 @@
 using Libraries.Description_of_objects.Parameters;
 using Libraries.Description_of_objects.UserInput;
 using Libraries.Methods;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using SharpProp;
 using UnitsNet.NumberExtensions.NumberToLength;
 using UnitsNet.NumberExtensions.NumberToRelativeHumidity;
@@ -74,7 +75,7 @@ public interface IFan
     public UserInput UserInput { get; }
 
     /// <summary>
-    ///     Нормальное плотность воздуха при 20[°C], 50[%], 20 [метрах] над ур.моря
+    ///     Нормальное плотность воздуха при 20[°C], 50[%], 20 [метрах] над ур.моря, [кг/м3]
     /// </summary>
     public IHumidAir AirInTests =>
         new HumidAir().WithState(
@@ -91,23 +92,23 @@ public interface IFan
         );
 
     public int RoundedImpellerRotationSpeed =>
-        (int) (
+        (int)(
             UserInput.UserInputFan.ImpellerRotationSpeed == 0
                 ? Data.NominalImpellerRotationSpeed
                 : Math.Round(
                     (double)
-                    UserInput.UserInputFan.ImpellerRotationSpeed.GetValueOrDefault(),
+                        UserInput.UserInputFan.ImpellerRotationSpeed.GetValueOrDefault(),
                     0
                 )
         );
 
     public int NominalPower =>
-        (int) (
+        (int)(
             UserInput.UserInputFan.NominalPower == 0
                 ? Math.Round(Data.NominalPower * 100, 1)
                 : Math.Round(
                     UserInput.UserInputFan.NominalPower.GetValueOrDefault()
-                    * 100,
+                        * 100,
                     1
                 )
         );
@@ -145,7 +146,10 @@ public interface IFan
     /// </summary>
     public double TotalPressure =>
         SimilarityCalculator.SimilarPressure(
-            PolynomialCalculator.Calculate(Data.TotalPressureCoefficients, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.TotalPressureCoefficients,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             AirInTests,
@@ -158,25 +162,21 @@ public interface IFan
     ///     Расчетное динамическое давление воздуха, [Па]
     /// </summary>
     public double DynamicPressure =>
-        0.5 * UserInputAir.Density.KilogramsPerCubicMeter
+        0.5
+        * UserInputAir.Density.KilogramsPerCubicMeter
         * Math.Pow(AirVelocity, 2);
 
     /// <summary>
     ///     Расчетное статическое давление воздуха, [Па]
     /// </summary>
     public double StaticPressure =>
-        Math.Round(TotalPressure - DynamicPressure,
-            0
-        );
+        Math.Round(TotalPressure - DynamicPressure, 0);
 
     /// <summary>
     ///     Расчетный полный КПД вентилятора, [%]
     /// </summary>
     public double Efficiency =>
-        Math.Round(VolumeFlow / 3600 * TotalPressure
-            / (Power * 1000) * 100,
-            1
-        );
+        Math.Round(VolumeFlow / 3600 * TotalPressure / (Power * 1000) * 100, 1);
 
     /// <summary>
     ///     Скорость воздуха, [м/с]
@@ -189,7 +189,10 @@ public interface IFan
     /// </summary>
     public double Power =>
         SimilarityCalculator.SimilarPower(
-            PolynomialCalculator.Calculate(Data.PowerCoefficients, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.PowerCoefficients,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             AirInTests,
@@ -202,13 +205,20 @@ public interface IFan
     ///     Погрешность подбора по объемному расходу воздуха, [%]
     /// </summary>
     public double VolumeFlowDeviation =>
-        Math.Round((1 - UserInput.UserInputWorkPoint.VolumeFlow / VolumeFlow) * 100, 2);
+        Math.Round(
+            (1 - UserInput.UserInputWorkPoint.VolumeFlow / VolumeFlow) * 100,
+            2
+        );
 
     /// <summary>
     ///     Погрешность подбора по полному давлению воздуха, [%]
     /// </summary>
     public double TotalPressureDeviation =>
-        Math.Round((1 - UserInput.UserInputWorkPoint.TotalPressure / TotalPressure) * 100, 2);
+        Math.Round(
+            (1 - UserInput.UserInputWorkPoint.TotalPressure / TotalPressure)
+                * 100,
+            2
+        );
 
     //____________________________________________________________________________________________________________________________
 
@@ -217,7 +227,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise63 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients63, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients63,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -229,7 +242,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise125 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients125, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients125,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -241,7 +257,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise250 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients250, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients250,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -253,7 +272,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise500 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients500, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients500,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -265,7 +287,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise1000 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients1000, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients1000,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -277,7 +302,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise2000 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients2000, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients2000,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -289,7 +317,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise4000 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients4000, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients4000,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -301,7 +332,10 @@ public interface IFan
     /// </summary>
     public double OctaveNoise8000 =>
         SimilarityCalculator.SimilarNoise(
-            PolynomialCalculator.Calculate(Data.OctaveNoiseCoefficients8000, VolumeFlowOnPolynomial),
+            PolynomialCalculator.Calculate(
+                Data.OctaveNoiseCoefficients8000,
+                VolumeFlowOnPolynomial
+            ),
             Data.ImpellerRotationSpeed,
             Size,
             ImpellerRotationSpeed,
@@ -363,7 +397,8 @@ public interface IFan
     ///     Уровень звуковой мощности частоты 8000Гц с поправкой на частотную коррекцию спектра А {ГОСТ 53188.1-2019, стр.15,
     ///     п.5.5.8, табл.3}
     /// </summary>
-    public double OctaveNoiseA8000 => Math.Round(OctaveNoise8000 + NoiseCorrectionA8000, 1);
+    public double OctaveNoiseA8000 =>
+        Math.Round(OctaveNoise8000 + NoiseCorrectionA8000, 1);
 
     /// <summary>
     ///     Суммарный уровень звуковой мощности частот: 63, 125, 250, 500, 1к, 2к, 4к, 8к [Гц]
@@ -390,39 +425,62 @@ public interface IFan
         }
     }
 
-    /*public DataCurve[] OriginalCurve => new DataCurve[]
-    {
-        new DataCurve
+    private const int CountArray = 8;
+
+    public IEnumerable<DataCurve> OriginalCurve => Enumerable.Range(0, CountArray).Select(i => i switch
         {
-            VolumeFlow = Data.MinVolumeFlow,
-            TotalPressure = SimilarityCalculator.SimilarPressure(
-                PolynomialCalculator.Calculate(Data.TotalPressureCoefficients, Data.MinVolumeFlow),
-                Data.ImpellerRotationSpeed,
-                Size,
-                UserInputAir,
+            0 => DataCurveCalculate(Data.MinVolumeFlow),
+            CountArray-1 => DataCurveCalculate(Data.MaxVolumeFlow),
+            _ => DataCurveCalculate((Data
+                .MaxVolumeFlow - Data.MinVolumeFlow) / (CountArray-1) * i + Data.MinVolumeFlow)
+        }
+    ).ToArray();
+
+    public DataCurve[] NewCurve => OriginalCurve.Select((workPoint, index) => new DataCurve
+        {
+            DcIndex = index,
+            DcVolumeFlow = SimilarityCalculator.SimilarVolumeFlow(
+                workPoint.DcVolumeFlow,
+                workPoint.DcImpellerRotationSpeed,
+                workPoint.DcSize,
+                ImpellerRotationSpeed,
+                Size),
+            DcTotalPressure = SimilarityCalculator.SimilarPressure(
+                workPoint.DcTotalPressure,
+                workPoint.DcImpellerRotationSpeed,
+                workPoint.DcSize,
+                workPoint.DcAir,
                 ImpellerRotationSpeed,
                 Size,
-                AirInTests
-            ),
-            StaticPressure = Math.Round(TotalPressure - 0.5 * AirInTests.Density.KilogramsPerCubicMeter
-                * Math.Pow(SimilarityCalculator.SimilarVolumeFlow(
-                    Data.MinVolumeFlow,
-                    Data.ImpellerRotationSpeed,
-                    Size,
-                    ImpellerRotationSpeed,
-                    Size
-                ), 2),
-                0
-            ),
-            DynamicPressure = OriginalCurve[0].TotalPressure-OriginalCurve[0].StaticPressure,
-            Size = Size,
-            ImpellerRotationSpeed = ImpellerRotationSpeed,
-            Air = null,
-            TotalEfficiency = 0,
-            StaticEfficiency = 0,
-            Power = 0,
-            ConstDependencePq = 0
+                UserInputAir),
+            DcSize = workPoint.DcSize,
+            DcImpellerRotationSpeed = ImpellerRotationSpeed,
+            DcAir = UserInputAir,
+            DcPower = SimilarityCalculator.SimilarPower(
+                workPoint.DcPower,
+                workPoint.DcImpellerRotationSpeed,
+                workPoint.DcSize,
+                workPoint.DcAir,
+                ImpellerRotationSpeed,
+                Size,
+                UserInputAir)
         }
-    };*/
+    ).ToArray();
 
+    private DataCurve DataCurveCalculate(double volumeFlow) =>
+        new()
+        {
+            DcVolumeFlow = volumeFlow,
+            DcTotalPressure = PolynomialCalculator.Calculate(
+                Data.TotalPressureCoefficients,
+                volumeFlow
+            ),
+            DcSize = Size,
+            DcImpellerRotationSpeed = Data.ImpellerRotationSpeed,
+            DcAir = AirInTests,
+            DcPower = PolynomialCalculator.Calculate(
+                Data.PowerCoefficients,
+                volumeFlow
+            )
+        };
 }
