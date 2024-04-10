@@ -84,7 +84,7 @@ public static class DimensionlessData
         double totalNormalPressure
     ) =>
         impellerRotationSpeed
-        * Math.Pow(volumeFlow, 0.5)
+        * Math.Pow(volumeFlow / 3600, 0.5)
         * Math.Pow(totalNormalPressure / 9.80665, -0.75);
 
     public static double SizeCoefficient(
@@ -101,6 +101,6 @@ public static class DimensionlessData
         double totalNormalPressure
     ) =>
         size
-        * Math.Pow(volumeFlow, -0.5)
+        * Math.Pow(volumeFlow / 3600, -0.5)
         * Math.Pow(totalNormalPressure / 9.80665, 0.25);
 }

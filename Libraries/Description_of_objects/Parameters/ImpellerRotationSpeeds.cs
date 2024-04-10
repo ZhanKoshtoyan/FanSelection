@@ -9,7 +9,8 @@ public static class ImpellerRotationSpeeds
     {
         3000,
         1500,
-        1000
+        1000,
+        //750
     };
 
     /// <summary>
@@ -19,6 +20,7 @@ public static class ImpellerRotationSpeeds
     {
         3000,
         1500,
-        1000
+        1000,
+        //750
     };
 }

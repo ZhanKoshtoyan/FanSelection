@@ -47,13 +47,12 @@ public interface IFan
             );
 
     public double NominalPower =>
-    UserInput.UserInputFan.NominalPower == 0
-        ? Math.Round(Data.NominalPower * 100, 1)
-        : Math.Round(
-            UserInput.UserInputFan.NominalPower.GetValueOrDefault()
-            * 100,
-            1
-        );
+        UserInput.UserInputFan.NominalPower == 0
+            ? Math.Round(Data.NominalPower * 100, 1)
+            : Math.Round(
+                UserInput.UserInputFan.NominalPower.GetValueOrDefault() * 100,
+                1
+            );
 
     /// <summary>
     ///     Проектное наименование вентилятора
@@ -63,7 +62,7 @@ public interface IFan
     public double ImpellerRotationSpeed { get; }
 
     public double VolumeFlowOnPolynomial =>
-    Calculate.MethodOfHalfDivision(
+        Calculate.MethodOfHalfDivision(
             Data.MinVolumeFlow,
             Data.MaxVolumeFlow,
             Data.TotalPressureCoefficients,
@@ -104,27 +103,25 @@ public interface IFan
     ///     Расчетное динамическое давление воздуха, [Па]
     /// </summary>
     public double DynamicPressure =>
-        0.5
-        * UserInputAir.Density.KilogramsPerCubicMeter
-        * Math.Pow(AirVelocity, 2);
+        Calculate.DynamicPressure(UserInputAir, AirVelocity);
 
     /// <summary>
     ///     Расчетное статическое давление воздуха, [Па]
     /// </summary>
     public double StaticPressure =>
-        Math.Round(TotalPressure - DynamicPressure, 0);
+        Calculate.StaticPressure(TotalPressure, DynamicPressure);
 
     /// <summary>
     ///     Расчетный полный КПД вентилятора, [%]
     /// </summary>
     public double Efficiency =>
-        Math.Round(VolumeFlow / 3600 * TotalPressure / (Power * 1000) * 100, 1);
+        Calculate.Efficiency(VolumeFlow, TotalPressure, Power);
 
     /// <summary>
     ///     Скорость воздуха, [м/с]
     /// </summary>
     public double AirVelocity =>
-        Math.Round(VolumeFlow / 3600 / Data.InletCrossSection, 1);
+        Calculate.AirVelocity(VolumeFlow, Data.InletCrossSection);
 
     /// <summary>
     ///     Расчетная мощность в рабочей точке, [кВт]
@@ -147,18 +144,17 @@ public interface IFan
     ///     Погрешность подбора по объемному расходу воздуха, [%]
     /// </summary>
     public double VolumeFlowDeviation =>
-        Math.Round(
-            (1 - UserInput.UserInputWorkPoint.VolumeFlow / VolumeFlow) * 100,
-            2
+        Calculate.VolumeFlowDeviation(
+            UserInput.UserInputWorkPoint.VolumeFlow,
+            VolumeFlow
         );
 
     /// <summary>
     ///     Погрешность подбора по полному давлению воздуха, [%]
     /// </summary>
     public double TotalPressureDeviation =>
-        Math.Round(
-            (1 - UserInput.UserInputWorkPoint.TotalPressure / TotalPressure)
-                * 100,
-            2
+        Calculate.TotalPressureDeviation(
+            UserInput.UserInputWorkPoint.TotalPressure,
+            TotalPressure
         );
 }
