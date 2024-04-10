@@ -255,4 +255,4 @@ var userInput = new UserInput
 FanSelector.DoIt(userInput);
 
 // Console.WriteLine("Нажмите любую клавишу чтобы закрыть программу.");
-Console.ReadLine();
+// Console.ReadLine();

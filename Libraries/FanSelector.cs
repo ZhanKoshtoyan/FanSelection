@@ -2,6 +2,7 @@
 using Libraries.Description_of_objects.UserInput;
 using Libraries.Fans;
 using Libraries.Loader;
+using Libraries.PrintFolder;
 using Libraries.Validate_and_sort;
 
 namespace Libraries;
@@ -29,11 +30,11 @@ public static class FanSelector
         {
             case 0:
                 sortFans = SortFans.Sort<OsuDu>(fansList, userInput);
-                ToPrint.ToPrint.Print((List<OsuDu>) sortFans, userInput);
+                ToPrint.Print((List<OsuDu>) sortFans, userInput);
                 break;
             case 1:
                 sortFans = SortFans.Sort<EuFan>(fansList, userInput);
-                ToPrint.ToPrint.Print((List<EuFan>) sortFans, userInput);
+                ToPrint.Print((List<EuFan>) sortFans, userInput);
                 break;
         }
     }

@@ -5,35 +5,35 @@ public static class Sizes
     /// <summary>
     ///     Типоразмер вентилятора: короткое название
     /// </summary>
-    public static readonly int[] Values =
+    public static readonly double[] Values =
     {
-        40,
-        45,
-        50,
-        56,
-        63,
-        71,
-        80,
-        90,
-        100,
-        112,
-        125
+        400,
+        450,
+        500,
+        560,
+        630,
+        710,
+        800,
+        900,
+        1000,
+        1120,
+        1250
     };
 
     /// <summary>
     ///     Типоразмер вентилятора: полное название
     /// </summary>
-    public static readonly int[] Names =
+    public static readonly double[] Names =
     {
-        40,
-        50,
-        56,
-        63,
-        71,
-        80,
-        90,
-        100,
-        112,
-        125
+        400,
+        500,
+        560,
+        630,
+        710,
+        800,
+        900,
+        1000,
+        1120,
+        1250
     };
 }

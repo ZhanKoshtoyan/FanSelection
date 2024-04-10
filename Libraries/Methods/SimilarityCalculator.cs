@@ -6,39 +6,39 @@ public static class SimilarityCalculator
 {
     public static double SimilarVolumeFlow(
         double oldVolumeFlow,
-        int oldImpellerRotationSpeed,
-        int oldSize,
-        int newImpellerRotationSpeed,
-        int newSize
+        double oldImpellerRotationSpeed,
+        double oldSize,
+        double newImpellerRotationSpeed,
+        double newSize
     ) =>
         Math.Round(
             oldVolumeFlow
-            * Math.Pow((double) newImpellerRotationSpeed / oldImpellerRotationSpeed, 1)
-            * Math.Pow((double) newSize / oldSize, 3),
+            * Math.Pow(newImpellerRotationSpeed / oldImpellerRotationSpeed, 1)
+            * Math.Pow(newSize / oldSize, 3),
             0
         );
 
     public static double DerivedFromQImpellerRotationSpeed(
         double oldVolumeFlow,
-        int oldImpellerRotationSpeed,
-        int oldSize,
+        double oldImpellerRotationSpeed,
+        double oldSize,
         double newVolumeFlow,
-        int newSize
+        double newSize
     ) =>
         Math.Round(
             Math.Pow(newVolumeFlow / oldVolumeFlow, 1)
             * oldImpellerRotationSpeed
-            * Math.Pow((double) oldSize / newSize, 3),
+            * Math.Pow(oldSize / newSize, 3),
             0
         );
 
     public static double DerivedFromPvImpellerRotationSpeed(
         double oldPressure,
-        int oldImpellerRotationSpeed,
-        int oldSize,
+        double oldImpellerRotationSpeed,
+        double oldSize,
         IHumidAir oldAirDensity,
         double newPressure,
-        int newSize,
+        double newSize,
         IHumidAir newAirDensity
     ) =>
         Math.Round(
@@ -46,7 +46,7 @@ public static class SimilarityCalculator
             *
             Math.Pow(newPressure / oldPressure, 0.5)
             *
-            Math.Pow((double) oldSize / newSize, 1)
+            Math.Pow(oldSize / newSize, 1)
             *
             Math.Pow(oldAirDensity.Density / newAirDensity.Density, 0.5),
             0
@@ -54,57 +54,57 @@ public static class SimilarityCalculator
 
     public static double SimilarPower(
         double oldPower,
-        int oldImpellerRotationSpeed,
-        int oldSize,
+        double oldImpellerRotationSpeed,
+        double oldSize,
         IHumidAir oldAirDensity,
-        int newImpellerRotationSpeed,
-        int newSize,
+        double newImpellerRotationSpeed,
+        double newSize,
         IHumidAir newAirDensity
     ) =>
         Math.Round(
             oldPower
             * Math.Pow(
-                (double) newImpellerRotationSpeed / oldImpellerRotationSpeed,
+                newImpellerRotationSpeed / oldImpellerRotationSpeed,
                 3
             )
-            * Math.Pow((double) newSize / oldSize, 5)
+            * Math.Pow(newSize / oldSize, 5)
             * Math.Pow(newAirDensity.Density / oldAirDensity.Density, 1),
             2
         );
 
     public static double SimilarPressure(
         double oldPressure,
-        int oldImpellerRotationSpeed,
-        int oldSize,
+        double oldImpellerRotationSpeed,
+        double oldSize,
         IHumidAir oldAirDensity,
-        int newImpellerRotationSpeed,
-        int newSize,
+        double newImpellerRotationSpeed,
+        double newSize,
         IHumidAir newAirDensity
     ) =>
         Math.Round(
             oldPressure
             * Math.Pow(
-                (double) newImpellerRotationSpeed / oldImpellerRotationSpeed,
+                newImpellerRotationSpeed / oldImpellerRotationSpeed,
                 2
             )
-            * Math.Pow((double) newSize / oldSize, 2)
+            * Math.Pow(newSize / oldSize, 2)
             * Math.Pow(newAirDensity.Density / oldAirDensity.Density, 1),
             0
         );
 
     public static double SimilarNoise(
         double oldNoise,
-        int oldImpellerRotationSpeed,
-        int oldSize,
-        int newImpellerRotationSpeed,
-        int newSize
+        double oldImpellerRotationSpeed,
+        double oldSize,
+        double newImpellerRotationSpeed,
+        double newSize
     ) =>
         Math.Round(
             oldNoise +
             50 * Math.Log10(
-                (double) newImpellerRotationSpeed / oldImpellerRotationSpeed
+                newImpellerRotationSpeed / oldImpellerRotationSpeed
             )
-            + 70 * Math.Log10((double) newSize / oldSize),
-            1
+            + 70 * Math.Log10(newSize / oldSize),
+            2
         );
 }

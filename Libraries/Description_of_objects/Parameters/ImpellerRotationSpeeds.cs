@@ -5,7 +5,7 @@ public static class ImpellerRotationSpeeds
     /// <summary>
     ///     Скорость вращения крыльчатки: короткое название
     /// </summary>
-    public static readonly int[] Values =
+    public static readonly double[] Values =
     {
         3000,
         1500,
@@ -15,7 +15,7 @@ public static class ImpellerRotationSpeeds
     /// <summary>
     ///     Скорость вращения крыльчатки: полное название
     /// </summary>
-    public static readonly int[] Names =
+    public static readonly double[] Names =
     {
         3000,
         1500,

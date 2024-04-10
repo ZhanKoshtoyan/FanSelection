@@ -10,7 +10,7 @@ public record UserInputFan
     /// <summary>
     ///     Типоразмер вентилятора, которое ввел пользователь
     /// </summary>
-    public int? Size { get; init; }
+    public double? Size { get; init; }
 
     /// <summary>
     ///     Длина корпуса, которое ввел пользователь
@@ -30,7 +30,7 @@ public record UserInputFan
     /// <summary>
     ///     Скорость вращения крыльчатки, которое ввел пользователь; [об/мин]
     /// </summary>
-    public int? ImpellerRotationSpeed { get; init; }
+    public double? ImpellerRotationSpeed { get; init; }
 
     /// <summary>
     ///     Материал исполнения корпуса, которое ввел пользователь

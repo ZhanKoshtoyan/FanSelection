@@ -5,7 +5,7 @@ using Libraries.Methods;
 
 namespace Libraries.Fans;
 
-public class EuFan : IFan
+public class EuFan : IFan, IFanNoise, IFanCurves, IFanDimensionlessData
 {
     public EuFan(FanData data, UserInput userInput)
     {
@@ -14,8 +14,7 @@ public class EuFan : IFan
     }
 
     private int FanOperatingMaxTemperature =>
-        (int)
-        (
+        (int) (
             UserInput.UserInputAir.FanOperatingMaxTemperature == 0
                 ? FanOperatingMaxTemperatures.Values.GetValue(0)
                 : UserInput.UserInputAir.FanOperatingMaxTemperature
@@ -49,16 +48,15 @@ public class EuFan : IFan
                 : UserInput.UserInputFan.CaseExecutionMaterial
         )!;
 
-    public FanData Data { get; }
-    public UserInput UserInput { get; }
+    public FanData Data { get;}
+    public UserInput UserInput { get;}
 
     // Формирование проектного наименования ===========================================================================
     public string ProjectId =>
-        $"ЕУ.{FanOperatingMaxTemperature}.{((IFan) this).Size:000}.{CaseLength}.{ImpellerRotationDirection}.{((IFan) this).NominalPower:0000}.{((IFan) this).RoundedImpellerRotationSpeed:0000}.{CaseMaterial}.Y2";
+        $"ЕУ.{FanOperatingMaxTemperature}.{((IFan) this).Size * 100:000}.{CaseLength}.{ImpellerRotationDirection}.{((IFan) this).NominalPower:0000}.{((IFan) this).RoundedImpellerRotationSpeed:0000}.{CaseMaterial}.Y2";
     //=================================================================================================================
 
-    public int ImpellerRotationSpeed =>
-        (int)
+    public double ImpellerRotationSpeed =>
         SimilarityCalculator.DerivedFromPvImpellerRotationSpeed(
             ((IFan) this).TotalPressure,
             Data.ImpellerRotationSpeed,
@@ -66,6 +64,6 @@ public class EuFan : IFan
             ((IFan) this).UserInputAir,
             UserInput.UserInputWorkPoint.TotalPressure,
             ((IFan) this).Size,
-            ((IFan) this).AirInTests
+            FanData.AirInTests
         );
 }

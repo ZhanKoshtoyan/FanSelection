@@ -5,7 +5,7 @@ public static class FanOperatingMaxTemperatures
     /// <summary>
     ///     Максимальная температура эксплуатации: короткое название
     /// </summary>
-    public static readonly int[] Values =
+    public static readonly double[] Values =
     {
         300,
         400
@@ -14,7 +14,7 @@ public static class FanOperatingMaxTemperatures
     /// <summary>
     ///     Максимальная температура эксплуатации: полное название
     /// </summary>
-    public static readonly int[] Names =
+    public static readonly double[] Names =
     {
         300,
         400

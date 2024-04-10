@@ -1,4 +1,9 @@
-﻿namespace Libraries.Description_of_objects;
+﻿using SharpProp;
+using UnitsNet.NumberExtensions.NumberToLength;
+using UnitsNet.NumberExtensions.NumberToRelativeHumidity;
+using UnitsNet.NumberExtensions.NumberToTemperature;
+
+namespace Libraries.Description_of_objects;
 
 /// <summary>
 ///     Информация о вентиляторе
@@ -14,6 +19,16 @@ public record FanData
     ///     Типоразмер
     /// </summary>
     public required string Size { get; init; }
+
+    /// <summary>
+    ///     Нормальное плотность воздуха при 20[°C], 50[%], 20 [метрах] над ур.моря, [кг/м3]
+    /// </summary>
+    public static IHumidAir AirInTests =>
+        new HumidAir().WithState(
+            InputHumidAir.Altitude(20.Meters()),
+            InputHumidAir.Temperature(20.DegreesCelsius()),
+            InputHumidAir.RelativeHumidity(50.Percent())
+        );
 
     /*/// <summary>
     /// Длина корпуса. Допустимые значения: ("1" - полногабаритный; "2" - короткий)
@@ -39,12 +54,12 @@ public record FanData
     /// <summary>
     ///     Номинальная скорость вращения крыльчатки, [об/мин]
     /// </summary>
-    public required int NominalImpellerRotationSpeed { get; init; }
+    public required double NominalImpellerRotationSpeed { get; init; }
 
     /// <summary>
     ///     Скорость вращения крыльчатки, [об/мин]
     /// </summary>
-    public required int ImpellerRotationSpeed { get; init; }
+    public required double ImpellerRotationSpeed { get; init; }
 
     /*/// <summary>
     /// Материал корпуса. Допустимые значения: "ZN" - оцинкованная сталь, "NR" - нержавеющая сталь или "KR" - кислотостойкая нержавеющая сталь.
@@ -73,7 +88,7 @@ public record FanData
     public required PolynomialType PowerCoefficients { get; init; }
 
     /// <summary>
-    ///     Площадь сечения на входе, [м2]
+    ///     Площадь сечения на выходе, [м2]
     /// </summary>
     public required double InletCrossSection { get; init; }
 

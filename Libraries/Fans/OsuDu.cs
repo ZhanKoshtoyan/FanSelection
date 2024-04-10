@@ -4,7 +4,7 @@ using Libraries.Description_of_objects.UserInput;
 
 namespace Libraries.Fans;
 
-public class OsuDu : IFan
+public class OsuDu : IFan, IFanNoise, IFanCurves, IFanDimensionlessData
 {
     public OsuDu(FanData data, UserInput userInput)
     {
@@ -12,8 +12,8 @@ public class OsuDu : IFan
         UserInput = userInput;
     }
 
-    private int FanOperatingMaxTemperature =>
-        (int)
+    private double FanOperatingMaxTemperature =>
+        (double)
         (
             UserInput.UserInputAir.FanOperatingMaxTemperature == 0
                 ? FanOperatingMaxTemperatures.Values.GetValue(0)
@@ -49,13 +49,13 @@ public class OsuDu : IFan
         )!;
 
     public FanData Data { get; }
-    public UserInput UserInput { get; }
+    public UserInput UserInput { get;}
 
     // Формирование проектного наименования ===========================================================================
     public string ProjectId =>
-        $"ОСУ-ДУ.{FanOperatingMaxTemperature}.{((IFan) this).Size:000}.{CaseLength}.{ImpellerRotationDirection}.{((IFan) this).NominalPower:0000}.{((IFan) this).RoundedImpellerRotationSpeed:0000}.{CaseMaterial}.Y2";
+        $"ОСУ-ДУ.{FanOperatingMaxTemperature}.{((IFan) this).Size * 100:000}.{CaseLength}.{ImpellerRotationDirection}.{
+        ((IFan) this).NominalPower:0000}.{((IFan) this).RoundedImpellerRotationSpeed:0000}.{CaseMaterial}.Y2";
     //=================================================================================================================
 
-    public int ImpellerRotationSpeed =>
-        Data.ImpellerRotationSpeed;
+    public double ImpellerRotationSpeed => Data.ImpellerRotationSpeed;
 }
