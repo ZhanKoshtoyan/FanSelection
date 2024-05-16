@@ -1,4 +1,4 @@
-﻿namespace Libraries.Description_of_objects;
+﻿namespace Libraries.StructureOfObjects;
 
 public record PolynomialType
 {

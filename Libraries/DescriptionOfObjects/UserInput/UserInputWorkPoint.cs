@@ -1,4 +1,7 @@
-﻿namespace Libraries.Description_of_objects.UserInput;
+﻿using Libraries.Methods;
+using Libraries.StructureOfObjects;
+
+namespace Libraries.DescriptionOfObjects.UserInput;
 
 public record UserInputWorkPoint
 {
@@ -15,5 +18,7 @@ public record UserInputWorkPoint
     /// <summary>
     ///     Допустимая погрешность подбора по полному давлению воздуха, которое ввел пользователь; [%]
     /// </summary>
-    public required double TotalPressureDeviation { get; init; }
+    public double? TotalPressureDeviation { get; set; } = 30;
+
+
 }

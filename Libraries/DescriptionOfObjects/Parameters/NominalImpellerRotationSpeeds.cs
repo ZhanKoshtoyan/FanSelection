@@ -1,6 +1,6 @@
-﻿namespace Libraries.Description_of_objects.Parameters;
+﻿namespace Libraries.DescriptionOfObjects.Parameters;
 
-public static class ImpellerRotationSpeeds
+public static class NominalImpellerRotationSpeeds
 {
     /// <summary>
     ///     Скорость вращения крыльчатки: короткое название
@@ -22,5 +22,13 @@ public static class ImpellerRotationSpeeds
         1500,
         1000,
         //750
+    };
+
+    public static readonly double[] NumberOfPoles =
+    {
+        2,
+        4,
+        6,
+        //8
     };
 }

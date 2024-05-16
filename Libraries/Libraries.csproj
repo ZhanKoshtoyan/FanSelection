@@ -21,10 +21,13 @@
 
     <ItemGroup>
         <None Update="Fans.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Fans.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="AirElectricMotors.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

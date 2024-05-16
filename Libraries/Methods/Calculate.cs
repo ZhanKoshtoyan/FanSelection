@@ -1,5 +1,8 @@
-﻿using Libraries.Description_of_objects;
+﻿using Libraries.DescriptionOfObjects.Parameters;
+using Libraries.Fans;
+using Libraries.StructureOfObjects;
 using SharpProp;
+using System.Text;
 
 namespace Libraries.Methods;
 
@@ -10,30 +13,42 @@ public static class Calculate
         var sum = fullBandNoise.Sum(
             singleOctave => Math.Pow(10, singleOctave / 10)
         );
-        return Math.Round(10 * Math.Log10(sum), 2);
+        return 10 * Math.Log10(sum);
     }
 
-    public static double MethodOfHalfDivision(
+    public static double SumNoise(
+        IEnumerable<(int Frequency, double Value)> octaveNoise
+    )
+    {
+        var sum = octaveNoise.Sum(
+            singleOctave => Math.Pow(10, singleOctave.Value / 10)
+        );
+        return 10 * Math.Log10(sum);
+    }
+
+    public static double MethodOfHalfDivisionVolumeFlow(
         double minVolumeFlow,
         double maxVolumeFlow,
-        PolynomialType coefficients,
+        PolynomialType totalPressureCoefficients,
         double inputVolumeFlow,
         double inputTotalPressure
     )
     {
-        var constDependencePq =
-            inputTotalPressure / Math.Pow(inputVolumeFlow, 2);
-        const double error = 0.00001;
+        var constDependencePq = FanSystemCharacteristicCoefficient(
+            inputTotalPressure,
+            inputVolumeFlow
+        );
+        const double error = 0.001;
         var desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
         while (maxVolumeFlow - minVolumeFlow >= 2 * error)
         {
             if (
                 (
-                    Polynomial(coefficients, minVolumeFlow)
+                    Polynomial(totalPressureCoefficients, minVolumeFlow)
                     - constDependencePq * Math.Pow(minVolumeFlow, 2)
                 )
                     * (
-                        Polynomial(coefficients, desiredValue)
+                        Polynomial(totalPressureCoefficients, desiredValue)
                         - constDependencePq * Math.Pow(desiredValue, 2)
                     )
                 < 0
@@ -50,37 +65,71 @@ public static class Calculate
         }
 
         // Console.WriteLine("{0:0.00000000}", desiredValue);
-        return Math.Round(desiredValue, 0);
+        return desiredValue;
+    }
+
+    public static double MethodOfHalfDivisionEfficiency(
+        double minVolumeFlow,
+        double maxVolumeFlow,
+        PolynomialType efficiencyCoefficients,
+        double inputVolumeFlow,
+        double inputTotalPressure
+    )
+    {
+        var constDependencePq =
+            inputTotalPressure / Math.Pow(inputVolumeFlow, 2);
+        const double error = 0.00001;
+        var desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
+        while (maxVolumeFlow - minVolumeFlow >= 2 * error)
+        {
+            if (
+                (Polynomial(efficiencyCoefficients, minVolumeFlow))
+                    * (Polynomial(efficiencyCoefficients, desiredValue))
+                < 0
+            )
+            {
+                maxVolumeFlow = desiredValue;
+            }
+            else
+            {
+                minVolumeFlow = desiredValue;
+            }
+
+            desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
+        }
+
+        // Console.WriteLine("{0:0.00000000}", desiredValue);
+        return desiredValue;
     }
 
     /// <summary>
     /// Расчет значения по известным коэффициентам полинома по методу наименьших квадратов
     /// </summary>
-    /// <param name="coefficients"></param>
-    /// <param name="inputVolumeFlow"></param>
+    /// <param name="coefficientsEntity"></param>
+    /// <param name="entity"></param>
     /// <returns></returns>
     public static double Polynomial(
-        PolynomialType coefficients,
-        double inputVolumeFlow
+        PolynomialType coefficientsEntity,
+        double entity
     ) =>
-        coefficients.SixthCoefficient * Math.Pow(inputVolumeFlow, 6)
-        + coefficients.FifthCoefficient * Math.Pow(inputVolumeFlow, 5)
-        + coefficients.FourthCoefficient * Math.Pow(inputVolumeFlow, 4)
-        + coefficients.ThirdCoefficient * Math.Pow(inputVolumeFlow, 3)
-        + coefficients.SecondCoefficient * Math.Pow(inputVolumeFlow, 2)
-        + coefficients.FirstCoefficient * Math.Pow(inputVolumeFlow, 1)
-        + coefficients.ZeroCoefficient;
+        coefficientsEntity.SixthCoefficient * Math.Pow(entity, 6)
+        + coefficientsEntity.FifthCoefficient * Math.Pow(entity, 5)
+        + coefficientsEntity.FourthCoefficient * Math.Pow(entity, 4)
+        + coefficientsEntity.ThirdCoefficient * Math.Pow(entity, 3)
+        + coefficientsEntity.SecondCoefficient * Math.Pow(entity, 2)
+        + coefficientsEntity.FirstCoefficient * Math.Pow(entity, 1)
+        + coefficientsEntity.ZeroCoefficient;
 
     public static double Efficiency(
         double volumeFlow,
         double pressure,
         double power
-    ) => Math.Round(volumeFlow / 3600 * pressure / (power * 1000) * 100, 1);
+    ) => volumeFlow * pressure / (3600 * 1000 * power) * 100;
 
     public static double AirVelocity(
         double volumeFlow,
         double inletCrossSection
-    ) => Math.Round(volumeFlow / 3600 / inletCrossSection, 1);
+    ) => volumeFlow / (3600 * inletCrossSection);
 
     public static double DynamicPressure(IHumidAir air, double airVelocity) =>
         0.5 * air.Density.KilogramsPerCubicMeter * Math.Pow(airVelocity, 2);
@@ -88,15 +137,120 @@ public static class Calculate
     public static double StaticPressure(
         double totalPressure,
         double dynamicPressure
-    ) => Math.Round(totalPressure - dynamicPressure, 0);
+    ) => totalPressure - dynamicPressure;
 
-    public static double VolumeFlowDeviation(
-        double userInputVolumeFlow,
-        double volumeFlow
-    ) => Math.Round((1 - userInputVolumeFlow / volumeFlow) * 100, 2);
+    public static double Deviation(
+        double userInputValue,
+        double calculatedValue
+    ) => (1 - userInputValue / calculatedValue) * 100;
 
-    public static double TotalPressureDeviation(
-        double userInputTotalPressure,
-        double totalPressure
-    ) => Math.Round((1 - userInputTotalPressure / totalPressure) * 100, 2);
+    /// <summary>
+    /// Расчет основных параметров для расхода воздуха на OriginalCurve
+    /// </summary>
+    /// <param name="volumeFlow"></param>
+    /// <param name="totalPressureCoefficients"></param>
+    /// <param name="size"></param>
+    /// <param name="impellerRotationSpeed"></param>
+    /// <param name="powerCoefficients"></param>
+    /// <returns></returns>
+    public static DataCurve DataCurveCalculate(
+        double volumeFlow,
+        PolynomialType totalPressureCoefficients,
+        double size,
+        double impellerRotationSpeed,
+        PolynomialType powerCoefficients
+    ) =>
+        new()
+        {
+            DcVolumeFlow = volumeFlow,
+            DcTotalPressure = Polynomial(totalPressureCoefficients, volumeFlow),
+            DcSize = size,
+            DcImpellerRotationSpeed = impellerRotationSpeed,
+            DcAir = FanData.AirInTests,
+            DcPower = Polynomial(powerCoefficients, volumeFlow)
+        };
+
+    public static string GetOctaveNoiseAString(
+        List<(int Frequency, double Value)> octaveNoiseA
+    )
+    {
+        var sb = new StringBuilder();
+        foreach (var octave in octaveNoiseA)
+        {
+            sb.Append($"{octave.Value:0.0}; ");
+        }
+        return sb.ToString().TrimEnd(' ', ';');
+    }
+
+    public static double Share(double value1, double value2) =>
+        Math.Abs(value1 - value2) / value2;
+
+    public static double ImpellerRotationFrequency(
+        double impellerRotationSpeed,
+        double nominalImpellerRotationSpeed
+    )
+    {
+        var index = Array.IndexOf(
+            NominalImpellerRotationSpeeds.Values,
+            nominalImpellerRotationSpeed
+        );
+        if (index == -1)
+        {
+            throw new ArgumentException(
+                "Значение не найдено в массиве NominalImpellerRotationSpeeds.Values."
+            );
+        }
+        return impellerRotationSpeed
+            / 60
+            * NominalImpellerRotationSpeeds.NumberOfPoles[index]
+            / 2;
+    }
+
+    /// <summary>
+    /// Нахождение объемного потока воздуха для конкретного вентилятора через быстроходность в рабочей точке;
+    /// </summary>
+    /// <param name="areaOfWheelDisc"></param>
+    /// <param name="circumferentialSpeed"></param>
+    /// <param name="inputTotalNormalPressure"></param>
+    /// <param name="inputVolumeFlow"></param>
+    /// <param name="air"></param>
+    /// <param name="specificSpeed"></param>
+    /// <returns></returns>
+    public static double VolumeFlowFoundThroughSpecificSpeed(
+        double areaOfWheelDisc,
+        double circumferentialSpeed,
+        double inputTotalNormalPressure,
+        double inputVolumeFlow,
+        IHumidAir air,
+        double specificSpeed
+    ) =>
+        137.58573
+        / Math.Pow(areaOfWheelDisc * circumferentialSpeed, 0.5)
+        * Math.Pow(
+            2
+                * FanSystemCharacteristicCoefficient(
+                    inputTotalNormalPressure,
+                    inputVolumeFlow / 3600
+                )
+                / (
+                    air.Density.KilogramsPerCubicMeter
+                    * Math.Pow(circumferentialSpeed, 2)
+                ),
+            -0.75
+        )
+        * 3600
+        / specificSpeed;
+
+    /// <summary>
+    /// Коэффициент характеристики системы вентилятора, который учитывает
+    /// отношение объемного потока воздуха и полного давления с учетом сети
+    /// воздуховодов перед и после вентилятора;
+    /// </summary>
+    /// <param name="inputTotalPressure"></param>
+    /// <param name="inputVolumeFlow"></param>
+    /// <returns></returns>
+    private static double FanSystemCharacteristicCoefficient(
+        double inputTotalPressure,
+        double inputVolumeFlow
+    ) => inputTotalPressure / Math.Pow(inputVolumeFlow, 2);
 }

@@ -4,6 +4,8 @@ namespace Libraries.Methods;
 
 public static class DimensionlessData
 {
+    private const double AccelerationOfFreeFall = 9.80665;
+
     /// <summary>
     /// Oкружная скорость по концам лопаток [м/с] {size = м; impellerRotationSpeed = об/мин}
     /// </summary>
@@ -34,7 +36,7 @@ public static class DimensionlessData
         double volumeFlow,
         double areaOfWheelDisc,
         double circumferentialSpeed
-    ) => volumeFlow / (areaOfWheelDisc * circumferentialSpeed);
+    ) => volumeFlow / (3600 * areaOfWheelDisc * circumferentialSpeed);
 
     public static double PressureCoefficient(
         double pressure,
@@ -85,13 +87,13 @@ public static class DimensionlessData
     ) =>
         impellerRotationSpeed
         * Math.Pow(volumeFlow / 3600, 0.5)
-        * Math.Pow(totalNormalPressure / 9.80665, -0.75);
+        * Math.Pow(totalNormalPressure / AccelerationOfFreeFall, -0.75);
 
     public static double SizeCoefficient(
         double performanceCoefficient,
         double totalPressureCoefficient
     ) =>
-        0.56119365
+        0.56128879
         * Math.Pow(performanceCoefficient, -0.5)
         * Math.Pow(totalPressureCoefficient, 0.25);
 
@@ -100,7 +102,25 @@ public static class DimensionlessData
         double volumeFlow,
         double totalNormalPressure
     ) =>
-        size
+        size / 1000
         * Math.Pow(volumeFlow / 3600, -0.5)
-        * Math.Pow(totalNormalPressure / 9.80665, 0.25);
+        * Math.Pow(totalNormalPressure / AccelerationOfFreeFall, 0.25);
+
+    public static double CalculatedSizeOrImpellerRotationSpeed(
+        double sizeOrImpellerRotationSpeed,
+        double totalNormalPressure,
+        double totalPressureCoefficient,
+        IHumidAir air
+    ) =>
+        60
+        / (Math.PI * sizeOrImpellerRotationSpeed)
+        * Math.Pow(
+            2
+                * totalNormalPressure
+                / (
+                    totalPressureCoefficient
+                    * air.Density.KilogramsPerCubicMeter
+                ),
+            0.5
+        );
 }

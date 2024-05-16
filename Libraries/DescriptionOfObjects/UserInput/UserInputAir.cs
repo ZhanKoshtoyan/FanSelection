@@ -1,24 +1,28 @@
-﻿namespace Libraries.Description_of_objects.UserInput;
+﻿
+namespace Libraries.DescriptionOfObjects.UserInput;
 
 public class UserInputAir
 {
     /// <summary>
     ///     Минимальная температура эксплуатации, которое ввел пользователь; [°C]
     /// </summary>
-    public required double FanOperatingMinTemperature { get; init; }
+    public double? FanOperatingMinTemperature { get; set; } = 20;
 
     /// <summary>
     ///     Относительная влажность температуры ежедневной эксплуатации (по умолчанию = 0), которое ввел пользователь; [%]
     /// </summary>
-    public double? RelativeHumidity { get; init; } = 0;
+    public double? RelativeHumidity { get; set; } = 0;
 
     /// <summary>
     ///     Высота над уровнем моря (по умолчанию = 20), которое ввел пользователь; [м]
     /// </summary>
-    public double? Altitude { get; init; } = 20;
+    public double? Altitude { get; set; } = 20;
 
     /// <summary>
-    ///     Максимальная температура эксплуатации, которое ввел пользователь; [°C]
+    ///     Максимальная температура эксплуатации, которое ввел пользователь, [°C]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanOperatingMaxTemperatures
     /// </summary>
-    public double? FanOperatingMaxTemperature { get; init; }
+    public double? FanOperatingMaxTemperature { get; set; }
+
+
+
 }

@@ -1,6 +1,6 @@
 ﻿using SharpProp;
 
-namespace Libraries.Description_of_objects.Parameters;
+namespace Libraries.DescriptionOfObjects.Parameters;
 
 public record DataCurve
 {

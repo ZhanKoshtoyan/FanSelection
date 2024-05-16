@@ -1,69 +1,18 @@
-﻿using Libraries.Description_of_objects;
-using Libraries.Description_of_objects.Parameters;
-using Libraries.Description_of_objects.UserInput;
+﻿using Libraries.DescriptionOfObjects.Parameters;
+using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Methods;
+using Libraries.StructureOfObjects;
+using System.Runtime.CompilerServices;
 
 namespace Libraries.Fans;
 
-public class EuFan : IFan, IFanNoise, IFanCurves, IFanDimensionlessData
+public class EuFan : FanWithFrequencyConverter
 {
-    public EuFan(FanData data, UserInput userInput)
+    public EuFan(FanData data, UserInput userInput): base(data, userInput)
     {
         Data = data;
         UserInput = userInput;
+        ProjectId = $"ЕУ.{((IFan)this).FanOperatingMaxTemperature}.{((IFan)this).Size * 100:000}.{((IFan)this).FanBodyLength}.{((IFan)this).ImpellerRotationDirection}.{(
+            (IFan)this).NominalPower * 100:0000}.{((IFan)this).NominalImpellerRotationSpeed:0000}.{((IFan)this).CaseExecutionMaterial}.Y2";
     }
-
-    private int FanOperatingMaxTemperature =>
-        (int) (
-            UserInput.UserInputAir.FanOperatingMaxTemperature == 0
-                ? FanOperatingMaxTemperatures.Values.GetValue(0)
-                : UserInput.UserInputAir.FanOperatingMaxTemperature
-        )!;
-
-    private int CaseLength =>
-        (int)
-        (
-            UserInput.UserInputFan.FanBodyLength == 0
-                ? FanBodyLengths.Values.GetValue(0)
-                : UserInput.UserInputFan.FanBodyLength
-        )!;
-
-    private string ImpellerRotationDirection =>
-        (string)
-        (
-            string.IsNullOrEmpty(
-                UserInput.UserInputFan.ImpellerRotationDirection
-            )
-                ? ImpellerRotationDirections.Values.GetValue(0)
-                : UserInput.UserInputFan.ImpellerRotationDirection
-        )!;
-
-    private string CaseMaterial =>
-        (string)
-        (
-            string.IsNullOrEmpty(
-                UserInput.UserInputFan.CaseExecutionMaterial
-            )
-                ? CaseExecutionMaterials.Values.GetValue(0)
-                : UserInput.UserInputFan.CaseExecutionMaterial
-        )!;
-
-    public FanData Data { get;}
-    public UserInput UserInput { get;}
-
-    // Формирование проектного наименования ===========================================================================
-    public string ProjectId =>
-        $"ЕУ.{FanOperatingMaxTemperature}.{((IFan) this).Size * 100:000}.{CaseLength}.{ImpellerRotationDirection}.{((IFan) this).NominalPower:0000}.{((IFan) this).RoundedImpellerRotationSpeed:0000}.{CaseMaterial}.Y2";
-    //=================================================================================================================
-
-    public double ImpellerRotationSpeed =>
-        SimilarityCalculator.DerivedFromPvImpellerRotationSpeed(
-            ((IFan) this).TotalPressure,
-            Data.ImpellerRotationSpeed,
-            ((IFan) this).Size,
-            ((IFan) this).UserInputAir,
-            UserInput.UserInputWorkPoint.TotalPressure,
-            ((IFan) this).Size,
-            FanData.AirInTests
-        );
 }

@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
-using Libraries.Description_of_objects.UserInput;
+using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Fans;
 using Libraries.Loader;
 using Libraries.PrintFolder;
-using Libraries.Validate_and_sort;
+using Libraries.StructureOfObjects;
+using Libraries.ValidateAndSort;
 
 namespace Libraries;
 
@@ -23,18 +24,20 @@ public static class FanSelector
             throw new ArgumentException(allMessages);
         }*/
 
-        var fansList = JsonLoader.Download(UserInput.PathJsonFile);
+        var fansList = JsonLoader.Download<FanData>(
+            UserInput.PathJsonFileFanData
+        );
 
         object? sortFans;
         switch (userInput.UserInputFan.FanVersion)
         {
             case 0:
-                sortFans = SortFans.Sort<OsuDu>(fansList, userInput);
-                ToPrint.Print((List<OsuDu>) sortFans, userInput);
+                sortFans = SortFans2.Sort<OsuDu>(fansList, userInput);
+                ToPrint.Print((List<OsuDu>)sortFans, userInput);
                 break;
             case 1:
-                sortFans = SortFans.Sort<EuFan>(fansList, userInput);
-                ToPrint.Print((List<EuFan>) sortFans, userInput);
+                sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
+                ToPrint.Print((List<EuFan>)sortFans, userInput);
                 break;
         }
     }

@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Libraries.Description_of_objects.Parameters;
-using Libraries.Description_of_objects.UserInput;
+using Libraries.DescriptionOfObjects.Parameters;
+using Libraries.DescriptionOfObjects.UserInput;
 
-namespace Libraries.Validate_and_sort;
+namespace Libraries.ValidateAndSort;
 
 public class UserInputValidator : AbstractValidator<UserInput>
 {
@@ -10,13 +10,13 @@ public class UserInputValidator : AbstractValidator<UserInput>
     {
         RuleFor(input => input.UserInputWorkPoint.VolumeFlow)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("Объем воздуха должен быть >= 0 [м3/ч].");
+            .WithMessage("Объемный расход воздуха должен быть >= 0 [м3/ч].");
         RuleFor(input => input.UserInputWorkPoint.TotalPressure)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Полное давление воздуха должно быть >= 0 [Па].");
         RuleFor(input => input.UserInputWorkPoint.TotalPressureDeviation)
-            .NotEmpty()
             .InclusiveBetween(0, 30)
+            .When(input => input is not null)
             .WithMessage(
                 "Допустимая погрешность подбора по полному давлению воздуха должна быть: >= 0 и <= 30  [%]."
             );
@@ -25,29 +25,34 @@ public class UserInputValidator : AbstractValidator<UserInput>
             .WithMessage(
                 $"Исполнение вентилятора должно быть: {string.Join(", ", FanVersion.Names)}."
             );
+        RuleFor(input => input.UserInputFan.FanLogic)
+            .InclusiveBetween(0, Enum.GetValues(typeof(FanLogic.Values)).Length)
+            .WithMessage(
+                $"Исполнение вентилятора должно быть: {string.Join(", ", FanLogic.Names)}."
+            );
         RuleFor(input => input.UserInputAir.RelativeHumidity)
             .InclusiveBetween(0, 100)
             .When(input => input is not null)
             .WithMessage(
-                "Значение Относительная влажность должна быть: >= 0 и <= 100  [%]."
+                "Значение Относительная влажность воздуха должна быть: >= 0 и <= 100  [%]."
             );
         RuleFor(input => input.UserInputFan.Size.GetValueOrDefault())
             .Must(input => Sizes.Values.Contains(input))
             .When(input => input.UserInputFan.Size != 0)
             .WithMessage(
-                $"Условный размер ОВД должен быть: {string.Join(", ", Sizes.Names)}"
+                $"Условный типоразмер крыльчатки должен быть: {string.Join(", ", Sizes.Names)}"
             );
         RuleFor(input => input.UserInputFan.FanBodyLength.GetValueOrDefault())
             .Must(input => FanBodyLengths.Values.Contains(input))
             .When(input => input.UserInputFan.FanBodyLength != 0)
             .WithMessage(
-                $"Длина корпуса ОВД должна быть : {string.Join(", ", FanBodyLengths.Names)}."
+                $"Длина корпуса функциональной сборки должна быть : {string.Join(", ", FanBodyLengths.Names)}."
             );
         RuleFor(input => input.UserInputAir.FanOperatingMaxTemperature.GetValueOrDefault())
             .Must(input => FanOperatingMaxTemperatures.Values.Contains(input))
             .When(input => input.UserInputAir.FanOperatingMaxTemperature != 0)
             .WithMessage(
-                $"Температура перемещаемой среды ОВД должна быть: {string.Join(", ", FanOperatingMaxTemperatures.Names)} [°C]."
+                $"Температура перемещаемой среды должна быть: {string.Join(", ", FanOperatingMaxTemperatures.Names)} [°C]."
             );
         RuleFor(input => input.UserInputFan.ImpellerRotationDirection)
             .Must(input => ImpellerRotationDirections.Values.Contains(input))
@@ -55,25 +60,31 @@ public class UserInputValidator : AbstractValidator<UserInput>
                 input => !string.IsNullOrEmpty(input.UserInputFan.ImpellerRotationDirection)
             )
             .WithMessage(
-                $"Направление вращения рабочего колеса ОВД должна быть: {string.Join(", ", ImpellerRotationDirections.Names)}."
+                $"Направление вращения крыльчатки должна быть: {string.Join(", ", ImpellerRotationDirections.Names)}."
             );
         RuleFor(input => input.UserInputFan.NominalPower.GetValueOrDefault())
             .Must(input => NominalPowers.Values.Contains(input))
             .When(input => input.UserInputFan.NominalPower != 0)
             .WithMessage(
-                $"Номинальная мощность двигателя ОВД должна быть: {string.Join("; ", NominalPowers.Names)}  [кВт]"
+                $"Номинальная мощность двигателя должна быть: {string.Join("; ", NominalPowers.Names)}  [кВт]"
             );
-        RuleFor(input => input.UserInputFan.ImpellerRotationSpeed.GetValueOrDefault())
-            .Must(input => ImpellerRotationSpeeds.Values.Contains(input))
-            .When(input => input.UserInputFan.ImpellerRotationSpeed != 0)
+        RuleFor(input => input.UserInputFan.NominalImpellerRotationSpeed.GetValueOrDefault())
+            .Must(input => NominalImpellerRotationSpeeds.Values.Contains(input))
+            .When(input => input.UserInputFan.NominalImpellerRotationSpeed != 0)
             .WithMessage(
-                $"Условное число оборотов двигателя ОВД должно быть: {string.Join(", ", ImpellerRotationSpeeds.Names)} [об/мин]."
+                $"Условное число оборотов двигателя должно быть: {string.Join(", ", NominalImpellerRotationSpeeds.Names)} [об/мин]."
             );
         RuleFor(input => input.UserInputFan.CaseExecutionMaterial)
             .Must(input => CaseExecutionMaterials.Values.Contains(input))
             .When(input => !string.IsNullOrEmpty(input.UserInputFan.CaseExecutionMaterial))
             .WithMessage(
-                $"Материал корпуса ОВД должен быть: {string.Join(", ", CaseExecutionMaterials.Names)}."
+                $"Материал корпуса функциональной сборки должен быть: {string.Join(", ", CaseExecutionMaterials.Names)}."
+            );
+        RuleFor(input => input.UserInputFan.RequiredSize)
+            .Must(input => Sizes.Values.Contains(input))
+            .When(input => input.UserInputFan.RequiredSize != 0)
+            .WithMessage(
+                $"Размер крыльчатки должен быть: {string.Join(", ", Sizes.Names)}"
             );
     }
 }

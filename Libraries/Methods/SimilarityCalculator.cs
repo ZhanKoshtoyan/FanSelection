@@ -11,12 +11,9 @@ public static class SimilarityCalculator
         double newImpellerRotationSpeed,
         double newSize
     ) =>
-        Math.Round(
-            oldVolumeFlow
-            * Math.Pow(newImpellerRotationSpeed / oldImpellerRotationSpeed, 1)
-            * Math.Pow(newSize / oldSize, 3),
-            0
-        );
+        oldVolumeFlow
+        * Math.Pow(newImpellerRotationSpeed / oldImpellerRotationSpeed, 1)
+        * Math.Pow(newSize / oldSize, 3);
 
     public static double DerivedFromQImpellerRotationSpeed(
         double oldVolumeFlow,
@@ -25,12 +22,9 @@ public static class SimilarityCalculator
         double newVolumeFlow,
         double newSize
     ) =>
-        Math.Round(
-            Math.Pow(newVolumeFlow / oldVolumeFlow, 1)
-            * oldImpellerRotationSpeed
-            * Math.Pow(oldSize / newSize, 3),
-            0
-        );
+        Math.Pow(newVolumeFlow / oldVolumeFlow, 1)
+        * oldImpellerRotationSpeed
+        * Math.Pow(oldSize / newSize, 3);
 
     public static double DerivedFromPvImpellerRotationSpeed(
         double oldPressure,
@@ -41,16 +35,10 @@ public static class SimilarityCalculator
         double newSize,
         IHumidAir newAirDensity
     ) =>
-        Math.Round(
-            oldImpellerRotationSpeed
-            *
-            Math.Pow(newPressure / oldPressure, 0.5)
-            *
-            Math.Pow(oldSize / newSize, 1)
-            *
-            Math.Pow(oldAirDensity.Density / newAirDensity.Density, 0.5),
-            0
-        );
+        oldImpellerRotationSpeed
+        * Math.Pow(newPressure / oldPressure, 0.5)
+        * Math.Pow(oldSize / newSize, 1)
+        * Math.Pow(oldAirDensity.Density.KilogramsPerCubicMeter / newAirDensity.Density.KilogramsPerCubicMeter, 0.5);
 
     public static double SimilarPower(
         double oldPower,
@@ -61,16 +49,10 @@ public static class SimilarityCalculator
         double newSize,
         IHumidAir newAirDensity
     ) =>
-        Math.Round(
-            oldPower
-            * Math.Pow(
-                newImpellerRotationSpeed / oldImpellerRotationSpeed,
-                3
-            )
-            * Math.Pow(newSize / oldSize, 5)
-            * Math.Pow(newAirDensity.Density / oldAirDensity.Density, 1),
-            2
-        );
+        oldPower
+        * Math.Pow(newImpellerRotationSpeed / oldImpellerRotationSpeed, 3)
+        * Math.Pow(newSize / oldSize, 5)
+        * Math.Pow(newAirDensity.Density.KilogramsPerCubicMeter / oldAirDensity.Density.KilogramsPerCubicMeter, 1);
 
     public static double SimilarPressure(
         double oldPressure,
@@ -81,16 +63,10 @@ public static class SimilarityCalculator
         double newSize,
         IHumidAir newAirDensity
     ) =>
-        Math.Round(
-            oldPressure
-            * Math.Pow(
-                newImpellerRotationSpeed / oldImpellerRotationSpeed,
-                2
-            )
-            * Math.Pow(newSize / oldSize, 2)
-            * Math.Pow(newAirDensity.Density / oldAirDensity.Density, 1),
-            0
-        );
+        oldPressure
+        * Math.Pow(newImpellerRotationSpeed / oldImpellerRotationSpeed, 2)
+        * Math.Pow(newSize / oldSize, 2)
+        * Math.Pow(newAirDensity.Density.KilogramsPerCubicMeter / oldAirDensity.Density.KilogramsPerCubicMeter, 1);
 
     public static double SimilarNoise(
         double oldNoise,
@@ -99,12 +75,7 @@ public static class SimilarityCalculator
         double newImpellerRotationSpeed,
         double newSize
     ) =>
-        Math.Round(
-            oldNoise +
-            50 * Math.Log10(
-                newImpellerRotationSpeed / oldImpellerRotationSpeed
-            )
-            + 70 * Math.Log10(newSize / oldSize),
-            2
-        );
+        oldNoise
+        + 50 * Math.Log10(newImpellerRotationSpeed / oldImpellerRotationSpeed)
+        + 70 * Math.Log10(newSize / oldSize);
 }

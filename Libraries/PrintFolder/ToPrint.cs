@@ -1,11 +1,14 @@
-﻿using Libraries.Description_of_objects.UserInput;
+﻿using Libraries.DescriptionOfObjects.Parameters;
+using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Fans;
+using Libraries.Methods;
 
 namespace Libraries.PrintFolder;
 
 public static class ToPrint
 {
-    public static void Print<T>(List<T> sortFans, UserInput userInput) where T : IFan, IFanNoise, IFanCurves, IFanDimensionlessData
+    public static void Print<T>(List<T> sortFans, UserInput userInput)
+        where T : IFan
     {
         string? endingOfTheWord1;
         string? endingOfTheWord2;
@@ -31,39 +34,63 @@ public static class ToPrint
                 break;
         }
 
-        Console.WriteLine($"\nВсего {endingOfTheWord1} {sortFans.Count} {endingOfTheWord2}.");
+        Console.WriteLine(
+            $"\nВсего {endingOfTheWord1} {sortFans.Count} {endingOfTheWord2}."
+        );
 
         foreach (var fan in sortFans)
         {
             Console.WriteLine(
-                $"\n\nТипоразмер: {fan.Size * 1000}"
-                + $"\nНаименование: {fan.ProjectId}"
-                + $"\nОбъем воздуха, введенный пользователем: {userInput.UserInputWorkPoint.VolumeFlow} м3/ч;"
-                + $"\nПолное давление воздуха, введенное пользователем: {userInput.UserInputWorkPoint.TotalPressure} Па;"
-                + $"\nРасчетный объем воздуха: {fan.VolumeFlow} Па;"
-                + $"\nРасчетное полное давление воздуха: {fan.TotalPressure} Па;"
-                + $"\nПогрешность подбора по объемному расходу воздуха: {fan.VolumeFlowDeviation: +0.0;-0.0;0} %;"
-                + $"\nПогрешность подбора по полному давлению воздуха: {fan.TotalPressureDeviation: +0.0;-0.0;0} %;"
-                + $"\nРасчетное статическое давление воздуха: {fan.StaticPressure} Па;"
-                + $"\nСкорость вращения крыльчатки: {((IFan)fan).ImpellerRotationSpeed} об/мин;"
-                + $"\nРасчетная мощность в рабочей точке: {fan.Power} кВт;"
-                + $"\nРасчетный полный КПД вентилятора: {fan.Efficiency} %;"
-                + $"\nСкорость воздуха: {fan.AirVelocity} м/с;"
-                + $"\nНоминальная мощность: {((IFan)fan).Data.NominalPower} кВт;"
-                + $"\nУровень звуковой мощности на выходе по октавам: {fan.OctaveNoise63:0.0}; {fan.OctaveNoise125:0.0}; {fan.OctaveNoise250:0.0}; {fan.OctaveNoise500:0.0}; {fan.OctaveNoise1000:0.0}; {fan.OctaveNoise2000:0.0}; {fan.OctaveNoise4000:0.0}; {fan.OctaveNoise8000:0.0} [дБ];"
-                + $"\nСуммарный уровень звуковой мощности частот: 63; 125; 250; 500; 1к; 2к; 4к; 8к [Гц]  с корректировкой фильтра А на выходе: {fan.SumNoiseA:0.0} [дБ(А)];"
-                + $"\n\nD = {fan.NewCurve[0].DcSize * 1000} [мм], "
-                + $"p = {fan.NewCurve[0].DcAir.Density.Value:0.000} [кг/м3], "
-                + $"n = {fan.NewCurve[0].DcImpellerRotationSpeed} [об/мин]:\n"
+                $"\n\nТипоразмер: {fan.Size * 1000:0}"
+                    + $"\nНаименование: {fan.ProjectId}"
+                    + $"\nОбъем воздуха, введенный пользователем: {userInput.UserInputWorkPoint.VolumeFlow} м3/ч;"
+                    + $"\nПолное давление воздуха, введенное пользователем: {userInput.UserInputWorkPoint.TotalPressure} Па;"
+                    + $"\nРасчетный объем воздуха: {fan.VolumeFlow:0} Па;"
+                    + $"\nРасчетное полное давление воздуха: {fan.TotalPressure:0} Па;"
+                    + $"\nПогрешность подбора по объемному расходу воздуха: {fan.VolumeFlowDeviation: +0.0;-0.0;0} %;"
+                    + $"\nПогрешность подбора по полному давлению воздуха: {fan.TotalPressureDeviation: +0.0;-0.0;0} %;"
+                    + $"\n\nРасход объемного воздуха на исходной кривой вентилятора: {fan.VolumeFlowOnPolynomial} м3/ч;"
+                    + $"\nПолное давление воздуха на исходной кривой вентилятора: {fan.TotalPressureOnPolynomial} Па;"
+                    + $"\n Номинальная скорость вращения крыльчатки {fan.Data.ImpellerRotationSpeed} об/мин;\n"
+                    /*+ (FanLogic.Values)userInput.UserInputFan.FanLogic switch
+                    {
+                        FanLogic.Values.Logic1
+                            => $"\nПогрешность подбора по объемному расходу воздуха: {fan.VolumeFlowDeviation: +0.0;-0.0;0} %;"
+                                + $"\nПогрешность подбора по полному давлению воздуха: {fan.TotalPressureDeviation: +0.0;-0.0;0} %;",
+                        FanLogic.Values.Logic2
+                            => $"\n\nРасход объемного воздуха на исходной кривой вентилятора: {fan
+                        .VolumeFlowOnPolynomial} м3/ч;\nПолное давление воздуха на исходной кривой вентилятора: {fan
+                        .TotalPressureOnPolynomial} Па;\n Номинальная скорость вращения крыльчатки {fan.Data.ImpellerRotationSpeed} об/мин;\n",
+                        _
+                            => throw new InvalidOperationException(
+                                "Invalid FanLogic value."
+                            )
+                    }*/
+                    + $"\nРасчетное статическое давление воздуха: {fan.StaticPressure:0} Па;"
+                    + $"\nСкорость вращения крыльчатки: {fan.ImpellerRotationSpeed:0} об/мин;"
+                    + $"\nЧастота вращения крыльчатки: {fan.ImpellerRotationFrequency:0} Гц;"
+                    + $"\nРасчетная мощность в рабочей точке: {fan.Power:0.00} кВт;"
+                    + $"\nРасчетный полный КПД вентилятора: {fan.Efficiency:0.0} %;"
+                    + $"\nСкорость воздуха: {fan.AirVelocity:0.0} м/с;"
+                    + $"\nНоминальная мощность: {fan.Data.NominalPower:0.00} кВт;"
+                    + $"\nУровень звуковой мощности на выходе по октавам: {Calculate.GetOctaveNoiseAString(fan.OctaveNoise)} [дБ];"
+                    + $"\nСуммарный уровень звуковой мощности частот: {string.Join("; ", OctaveNoise.Names)} [Гц]  с корректировкой фильтра А на выходе: {fan.SumNoiseA:0.0} [дБ(А)];"
+                    + $"\n\nD = {fan.NewCurve[0].DcSize * 1000:0} [мм], "
+                    + $"p = {fan.NewCurve[0].DcAir.Density.Value:0.000} [кг/м3], "
+                    + $"n = {fan.NewCurve[0].DcImpellerRotationSpeed:0} [об/мин]:\n"
             );
 
-            fan.NewCurve.ToList().ForEach(f => Console.WriteLine(
-                $"{f.DcIndex+1}: "
-                + $"Q = {f.DcVolumeFlow} [м3/ч], "
-                + $"Pv = {f.DcTotalPressure} [Па], "
-                + $"N = {f.DcPower:0.00} [кВт]"
-                ));
+            fan.NewCurve
+                .ToList()
+                .ForEach(
+                    f =>
+                        Console.WriteLine(
+                            $"{f.DcIndex + 1}: "
+                                + $"Q = {f.DcVolumeFlow} [м3/ч], "
+                                + $"Pv = {f.DcTotalPressure} [Па], "
+                                + $"N = {f.DcPower:0.00} [кВт]"
+                        )
+                );
         }
-
     }
 }

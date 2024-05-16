@@ -1,4 +1,4 @@
-﻿namespace Libraries.Description_of_objects.Parameters;
+﻿namespace Libraries.DescriptionOfObjects.Parameters;
 
 public static class FanVersion
 {
@@ -13,7 +13,7 @@ public static class FanVersion
     /// </summary>
     public static readonly string[] Names =
     {
-        "0 = 'ОСУ-ДУ' - Осевой вентилятор дымоудаления",
-        "1 = 'ЕУ' - Вентилятор для ЕУКЦ"
+        "1 = 'ОСУ-ДУ' - Осевой вентилятор дымоудаления",
+        "2 = 'ЕУ' - Вентилятор для ЕУКЦ"
     };
 }

@@ -1,4 +1,4 @@
-﻿namespace Libraries.Description_of_objects.Parameters;
+﻿namespace Libraries.DescriptionOfObjects.Parameters;
 
 public static class Sizes
 {
@@ -21,15 +21,15 @@ public static class Sizes
         //190,
         //200,
         //212,
-        //224,
+        224,
         //236,
-        //250,
+        250,
         //265,
-        //280,
+        280,
         //300,
-        //315,
+        315,
         //335,
-        //355,
+        355,
         //375,
         400,
         //425,
@@ -53,7 +53,7 @@ public static class Sizes
         //1180,
         1250,
         //1320,
-        //1400
+        1400
     };
 
     /// <summary>
@@ -75,15 +75,15 @@ public static class Sizes
         //190,
         //200,
         //212,
-        //224,
+        224,
         //236,
-        //250,
+        250,
         //265,
-        //280,
+        280,
         //300,
-        //315,
+        315,
         //335,
-        //355,
+        355,
         //375,
         400,
         //425,
@@ -107,6 +107,6 @@ public static class Sizes
         //1180,
         1250,
         //1320,
-        //1400
+        1400
     };
 }
