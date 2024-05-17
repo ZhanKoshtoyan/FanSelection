@@ -5,10 +5,10 @@ public static class FanBodyLengths
     /// <summary>
     ///     Длина корпуса: короткое название
     /// </summary>
-    public static readonly int[] Values =
+    public static readonly string[] Values =
     {
-        1,
-        2
+        "1",
+        "2"
     };
 
     /// <summary>

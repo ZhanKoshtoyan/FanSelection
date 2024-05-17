@@ -9,7 +9,8 @@ public record DataCurve
     public required double DcTotalPressure { get; init; }
     public required double DcSize { get; init; }
     public required double DcImpellerRotationSpeed { get; init; }
-    public required IHumidAir DcAir { get; init; }
+    public required double DcAir { get; init; }
     public required double DcPower { get; init; }
 
+    public double Efficiency { get; set; }
 }

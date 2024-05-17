@@ -1,11 +1,10 @@
 ﻿using Libraries;
 using Libraries.DescriptionOfObjects.Parameters;
 using Libraries.DescriptionOfObjects.UserInput;
+using Libraries.Methods;
 
 string? stringImpellerRotationDirection = default;
 string? stringCaseMaterial = default;
-string? inputTotalPressureDeviation = default;
-double doubleTotalPressureDeviation = default;
 string? inputRelativeHumidity = default;
 double doubleRelativeHumidity = default;
 string? inputAltitude = default;
@@ -15,14 +14,13 @@ int intCaseLength = default;
 double doubleFanOperatingMaxTemperature = default;
 double doubleNominalPower = default;
 double doubleImpellerRotationSpeed = default;
-string? inputRequiredSize = default;
+string? stringRequiredSize = default;
 double doubleRequiredSize = default;
 
 Console.WriteLine("Введите объемный расход воздуха, [м3/ч]: ");
 
 var inputVolumeFlow = Console.ReadLine();
 
-// var inputVolumeFlow = "4000";
 var result = double.TryParse(
     inputVolumeFlow?.Replace(".", ","),
     out var doubleVolumeFlow
@@ -37,7 +35,6 @@ Console.WriteLine("Введите полное давление воздуха, 
 
 var inputTotalPressure = Console.ReadLine();
 
-// var inputTotalPressure = "350";
 result = double.TryParse(
     inputTotalPressure?.Replace(".", ","),
     out var doubleTotalPressure
@@ -76,27 +73,36 @@ if (!result)
         "Значение 'Номер логики подбора вентилятора' не является числом."
     );
 }
+//-----------------------------------------------------------------------------------------------------------
+Console.WriteLine(
+    $"Введите количество вентиляторов:\n({string.Join(", \n", NumberOfFans.Names)}): "
+);
+var stringNumberOfFans = Console.ReadLine();
+
+result = double.TryParse(stringNumberOfFans, out var intNumberOfFans);
+if (!result && !string.IsNullOrEmpty(stringNumberOfFans))
+{
+    throw new ArgumentException(
+        "Значение 'Количество вентиляторов' не является числом."
+    );
+}
 
 //-----------------------------------------------------------------------------------------------------------
-if (intFanLogic == 1)
+Console.WriteLine(
+    "Введите допустимую погрешность подбора по полному давлению воздуха (<=30; по умолчанию = 30), [%]: "
+);
+
+var inputTotalPressureDeviation = Console.ReadLine();
+
+result = double.TryParse(
+    inputTotalPressureDeviation?.Replace(".", ","),
+    out var doubleTotalPressureDeviation
+);
+if (!result && !string.IsNullOrEmpty(inputTotalPressureDeviation))
 {
-    Console.WriteLine(
-        "Введите допустимую погрешность подбора по полному давлению воздуха (<=30; по умолчанию = 30), [%]: "
+    throw new ArgumentException(
+        "Значение 'Допустимая погрешность подбора' не является числом."
     );
-
-    inputTotalPressureDeviation = Console.ReadLine();
-
-    // var inputTotalPressureDeviation = "30";
-    result = double.TryParse(
-        inputTotalPressureDeviation?.Replace(".", ","),
-        out doubleTotalPressureDeviation
-    );
-    if (!result && !string.IsNullOrEmpty(inputTotalPressureDeviation))
-    {
-        throw new ArgumentException(
-            "Значение 'Допустимая погрешность подбора' не является числом."
-        );
-    }
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -106,13 +112,13 @@ if (intFanLogic == 2)
         $"Введите условный типоразмер крыльчатки ({string.Join("; ", Sizes.Names)}), которое требуется подобрать, [мм]: "
     );
 
-    inputRequiredSize = Console.ReadLine();
+    stringRequiredSize = Console.ReadLine();
 
     result = double.TryParse(
-        inputRequiredSize?.Replace(".", ","),
+        stringRequiredSize?.Replace(".", ","),
         out doubleRequiredSize
     );
-    if (!result && !string.IsNullOrEmpty(inputRequiredSize))
+    if (!result && !string.IsNullOrEmpty(stringRequiredSize))
     {
         throw new ArgumentException(
             "Значение 'Условный типоразмер крыльчатки' не является числом."
@@ -125,7 +131,6 @@ Console.WriteLine("Введите температуру ежедневной э
 
 var inputFanOperatingMinTemperature = Console.ReadLine();
 
-// var inputTemperature = "20";
 result = double.TryParse(
     inputFanOperatingMinTemperature?.Replace(".", ","),
     out var doubleFanOperatingMinTemperature
@@ -296,39 +301,46 @@ var userInput = new UserInput
     }
 };
 
-userInput.UserInputWorkPoint.TotalPressureDeviation = !string.IsNullOrEmpty(
-    inputTotalPressureDeviation
-)
-    ? doubleTotalPressureDeviation
-    : userInput.UserInputWorkPoint.TotalPressureDeviation;
 
-userInput.UserInputAir.RelativeHumidity = !string.IsNullOrEmpty(
-    inputRelativeHumidity
-)
-    ? doubleRelativeHumidity
-    : userInput.UserInputAir.RelativeHumidity;
+if (!string.IsNullOrEmpty(inputTotalPressureDeviation))
+{
+    userInput.UserInputWorkPoint.TotalPressureDeviation = doubleTotalPressureDeviation;
+}
 
-userInput.UserInputAir.Altitude = !string.IsNullOrEmpty(inputAltitude)
-    ? doubleAltitude
-    : userInput.UserInputAir.Altitude;
+if (!string.IsNullOrEmpty(inputRelativeHumidity))
+{
+    userInput.UserInputAir.RelativeHumidity = doubleRelativeHumidity;
+}
 
-userInput.UserInputAir.FanOperatingMinTemperature = !string.IsNullOrEmpty(
-    inputFanOperatingMinTemperature
-)
-    ? doubleFanOperatingMinTemperature
-    : userInput.UserInputAir.FanOperatingMinTemperature;
+if (!string.IsNullOrEmpty(inputAltitude))
+{
+    userInput.UserInputAir.Altitude = doubleAltitude;
+}
 
-userInput.UserInputFan.ImpellerRotationDirection = !string.IsNullOrEmpty(
-    stringImpellerRotationDirection
-)
-    ? stringImpellerRotationDirection
-    : userInput.UserInputFan.ImpellerRotationDirection;
+if (!string.IsNullOrEmpty(inputAltitude))
+{
+    userInput.UserInputAir.Altitude = doubleAltitude;
+}
 
-userInput.UserInputFan.RequiredSize = !string.IsNullOrEmpty(
-    inputRequiredSize
-)
-    ? doubleRequiredSize
-    : userInput.UserInputFan.RequiredSize;
+if (!string.IsNullOrEmpty(inputFanOperatingMinTemperature))
+{
+    userInput.UserInputAir.FanOperatingMinTemperature = doubleFanOperatingMinTemperature;
+}
+
+if (!string.IsNullOrEmpty(stringImpellerRotationDirection))
+{
+    userInput.UserInputFan.ImpellerRotationDirection = stringImpellerRotationDirection;
+}
+
+if (!string.IsNullOrEmpty(stringRequiredSize))
+{
+    userInput.UserInputFan.RequiredSize = doubleRequiredSize;
+}
+
+if (!string.IsNullOrEmpty(stringNumberOfFans))
+{
+    userInput.UserInputFan.NumberOfFans = intNumberOfFans;
+}
 
 FanSelector.DoIt(userInput);
 

@@ -10,6 +10,8 @@ namespace Libraries.StructureOfObjects;
 /// </summary>
 public record FanData
 {
+
+    public required string ExcelWorkSheetName { get; init; }
     /// <summary>
     ///     Исполнение вентилятора
     /// </summary>
@@ -23,34 +25,46 @@ public record FanData
     /// <summary>
     ///     Нормальное плотность воздуха при 20[°C], 50[%], 20 [метрах] над ур.моря, [кг/м3]
     /// </summary>
-    public static readonly IHumidAir AirInTests = new HumidAir().WithState(
-        InputHumidAir.Altitude(20.Meters()),
-        InputHumidAir.Temperature(20.DegreesCelsius()),
-        InputHumidAir.RelativeHumidity(50.Percent())
-    );
+    public IHumidAir AirInTests =>
+        new HumidAir().WithState(
+            InputHumidAir.Altitude(Altitude.Meters()),
+            InputHumidAir.Temperature(Temperature.DegreesCelsius()),
+            InputHumidAir.RelativeHumidity(RelativeHumidity.Percent())
+        );
 
-    /*/// <summary>
-    /// Длина корпуса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanBodyLengths
-    /// </summary>
-    public string? FanBodyLength { get; init; }*/
+    public required double AirDensity { get; set; }
 
-    /*/// <summary>
-    /// Температура перемещаемой среды, [°C]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanOperatingMaxTemperatures
-    /// </summary>
-    public string? FanOperatingMaxTemperature { get; init; }*/
+    public required double Altitude { get; init; }
 
-    /// <summary>
-    ///     Направление вращения рабочего колеса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.ImpellerRotationDirections
-    /// </summary>
-    public required string ImpellerRotationDirection { get; init; }
+    public required double Temperature { get; init; }
+
+    public required double RelativeHumidity { get; init; }
+
+    public required double Weight { get; init; }
 
     /// <summary>
-    ///     Номинальная мощность двигателя, [кВт]
+    /// Длина корпуса. Допустимые значения: ("1" - полногабаритный; "2" - короткий)
+    /// </summary>
+    public required List<double>? FanBodyLength { get; init; }
+
+    /// <summary>
+    /// Температура перемещаемой среды, [°C]. Допустимые значения: 300 или 400°C.
+    /// </summary>
+    public required List<double>? FanOperatingMaxTemperature { get; init; }
+
+    /// <summary>
+    ///     Направление вращения рабочего колеса. Допустимые значения: "RRO" - поток на мотор, "LRO" - поток на колесо или
+    ///     "REV" - реверс.
+    /// </summary>
+    public required List<string>? ImpellerRotationDirection { get; init; }
+
+    /// <summary>
+    ///     Номинальная мощность, [кВт]
     /// </summary>
     public required double NominalPower { get; init; }
 
     /// <summary>
-    ///     Номинальная скорость вращения крыльчатки без учета скольжения двигателя, [об/мин]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.NominalImpellerRotationSpeeds
+    ///     Номинальная скорость вращения крыльчатки, [об/мин]
     /// </summary>
     public required double NominalImpellerRotationSpeed { get; init; }
 
@@ -64,10 +78,10 @@ public record FanData
     /// </summary>
     public required double MaxImpellerRotationSpeed { get; init; }
 
-    /*/// <summary>
-    /// Материал корпуса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.CaseExecutionMaterials
+    /// <summary>
+    /// Материал корпуса. Допустимые значения: "ZN" - оцинкованная сталь, "NR" - нержавеющая сталь или "KR" - кислотостойкая нержавеющая сталь.
     /// </summary>
-    public string? CaseExecutionMaterial { get; init; }*/
+    public List<string>? CaseExecutionMaterial { get; init; }
 
     /// <summary>
     ///     Минимальный объем воздуха, [м3/ч]
@@ -98,42 +112,82 @@ public record FanData
     /// <summary>
     ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 63Гц от объемног овоздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients63 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients63 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 125Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 125Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients125 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients125 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 250Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 250Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients250 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients250 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 500Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 500Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients500 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients500 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 1000Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 1000Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients1000 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients1000 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 2000Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 2000Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients2000 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients2000 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 4000Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 4000Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients4000 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients4000 { get; init; }
 
     /// <summary>
-    ///     Коэффициенты полинома n-й степени Lw(Q) для уровня звуковой мощности на частоте 8000Гц от объемного воздуха
+    ///     Коэффициенты полинома n-й степени Lw5(Q) для уровня звуковой мощности на частоте 8000Гц от объемного воздуха
     /// </summary>
-    public required PolynomialType OctaveNoiseQvCoefficients8000 { get; init; }
+    public required PolynomialType OctaveNoiseLw5QvCoefficients8000 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 63Гц от объемног овоздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients63 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 125Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients125 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 250Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients250 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 500Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients500 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 1000Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients1000 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 2000Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients2000 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 4000Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients4000 { get; init; }
+
+    /// <summary>
+    ///     Коэффициенты полинома n-й степени Lw6(Q) для уровня звуковой мощности на частоте 8000Гц от объемного воздуха
+    /// </summary>
+    public required PolynomialType OctaveNoiseLw6QvCoefficients8000 { get; init; }
 
     /// <summary>
     ///     Коэффициенты полинома n-й степени Efficiency(Phi) - полного КПД от коэффициента производительности

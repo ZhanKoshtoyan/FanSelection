@@ -40,34 +40,34 @@ public static class DimensionlessData
 
     public static double PressureCoefficient(
         double pressure,
-        IHumidAir airDensity,
+        double airDensity,
         double circumferentialSpeed
     ) =>
         2
         * pressure
-        / (airDensity.Density.KilogramsPerCubicMeter * circumferentialSpeed);
+        / (airDensity * circumferentialSpeed);
 
     public static double PressureCoefficient(
         double pressure,
-        IHumidAir airDensity,
+        double airDensity,
         double circumferentialSpeed,
         double compressibilityFactor
     ) =>
         2
         * pressure
         * compressibilityFactor
-        / (airDensity.Density.KilogramsPerCubicMeter * circumferentialSpeed);
+        / (airDensity * circumferentialSpeed);
 
     public static double PowerCoefficient(
         double power,
-        IHumidAir airDensity,
+        double airDensity,
         double circumferentialSpeed,
         double areaOfWheelDisc
     ) =>
         2
         * power
         / (
-            airDensity.Density.KilogramsPerCubicMeter
+            airDensity
             * Math.Pow(circumferentialSpeed, 3)
             * areaOfWheelDisc
         );

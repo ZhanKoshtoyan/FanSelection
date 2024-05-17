@@ -23,10 +23,10 @@ public class FanWithFrequencyConverter : IFan
         ((IFan) this).TotalPressureOnPolynomial,
         Data.ImpellerRotationSpeed,
         ((IFan) this).Size,
-        FanData.AirInTests,
+        ((IFan)this).Data.AirDensity,
         UserInput.UserInputWorkPoint.TotalPressure,
         ((IFan) this).Size,
-        UserInput.DataAir
+        UserInput.DataAir.Density.KilogramsPerCubicMeter
     );
 
     /*double IFan.ImpellerRotationSpeed

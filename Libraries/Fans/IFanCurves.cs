@@ -14,7 +14,32 @@ public interface IFanCurves
     /// <summary>
     /// Расчет рабочих точек для оригинальной кривой
     /// </summary>
-    public IEnumerable<DataCurve> OriginalCurve =>
+    public IEnumerable<DataCurve> OriginalCurve
+    {
+        get
+        {
+            var minVolumeFlow = ((IFan)this).Data.MinVolumeFlow;
+            var maxVolumeFlow = ((IFan)this).Data.MaxVolumeFlow;
+            var volumeFlowStep =
+                (maxVolumeFlow - minVolumeFlow) / (CountArray - 1);
+
+            for (var i = 0; i < CountArray; i++)
+            {
+                var volumeFlow = minVolumeFlow + volumeFlowStep * i;
+
+                yield return Calculate.DataCurveCalculate(
+                    volumeFlow,
+                    ((IFan)this).Data.TotalPressureQvCoefficients,
+                    ((IFan)this).Size,
+                    ((IFan)this).ImpellerRotationSpeed,
+                    ((IFan)this).Data.AirDensity,
+                    ((IFan)this).Data.PowerQvCoefficients
+                );
+            }
+        }
+    }
+
+    /*public IEnumerable<DataCurve> OriginalCurve =>
         Enumerable
             .Range(0, CountArray)
             .Select(
@@ -23,7 +48,7 @@ public interface IFanCurves
                     {
                         0
                             => Calculate.DataCurveCalculate(
-                                ((IFan)this).Data.MinVolumeFlow,
+                                ((IFan)this).Data.MinVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
                                 ((IFan)this).Data.TotalPressureQvCoefficients,
                                 ((IFan)this).Size,
                                 ((IFan)this).ImpellerRotationSpeed,
@@ -31,7 +56,7 @@ public interface IFanCurves
                             ),
                         CountArray - 1
                             => Calculate.DataCurveCalculate(
-                                ((IFan)this).Data.MaxVolumeFlow,
+                                ((IFan)this).Data.MaxVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
                                 ((IFan)this).Data.TotalPressureQvCoefficients,
                                 ((IFan)this).Size,
                                 ((IFan)this).ImpellerRotationSpeed,
@@ -41,12 +66,12 @@ public interface IFanCurves
                             => Calculate.DataCurveCalculate(
                                 (
                                     (
-                                        ((IFan)this).Data.MaxVolumeFlow
-                                        - ((IFan)this).Data.MinVolumeFlow
+                                        ((IFan)this).Data.MaxVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans
+                                        - ((IFan)this).Data.MinVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans
                                     )
                                         / (CountArray - 1)
                                         * i
-                                    + ((IFan)this).Data.MinVolumeFlow
+                                    + ((IFan)this).Data.MinVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans
                                 ),
                                 ((IFan)this).Data.TotalPressureQvCoefficients,
                                 ((IFan)this).Size,
@@ -55,7 +80,7 @@ public interface IFanCurves
                             )
                     }
             )
-            .ToArray();
+            .ToArray();*/
 
     /// <summary>
     /// Расчет рабочих точек для новой кривой
@@ -81,13 +106,21 @@ public interface IFanCurves
                             workPoint.DcAir,
                             ((IFan)this).ImpellerRotationSpeed,
                             ((IFan)this).Size,
-                            ((IFan)this).UserInput.DataAir
+                            ((IFan)this)
+                                .UserInput
+                                .DataAir
+                                .Density
+                                .KilogramsPerCubicMeter
                         ),
                         DcSize = workPoint.DcSize,
                         DcImpellerRotationSpeed = (
                             (IFan)this
                         ).ImpellerRotationSpeed,
-                        DcAir = ((IFan)this).UserInput.DataAir,
+                        DcAir = ((IFan)this)
+                            .UserInput
+                            .DataAir
+                            .Density
+                            .KilogramsPerCubicMeter,
                         DcPower = SimilarityCalculator.SimilarPower(
                             workPoint.DcPower,
                             workPoint.DcImpellerRotationSpeed,
@@ -95,7 +128,22 @@ public interface IFanCurves
                             workPoint.DcAir,
                             ((IFan)this).ImpellerRotationSpeed,
                             ((IFan)this).Size,
-                            ((IFan)this).UserInput.DataAir
+                            ((IFan)this)
+                                .UserInput
+                                .DataAir
+                                .Density
+                                .KilogramsPerCubicMeter
+                        )
+                    }
+            )
+            .Select(
+                item =>
+                    item with
+                    {
+                        Efficiency = Calculate.Efficiency(
+                            item.DcVolumeFlow,
+                            item.DcTotalPressure,
+                            item.DcPower
                         )
                     }
             )
@@ -112,12 +160,5 @@ public interface IFanCurves
         )
         ?? throw new InvalidOperationException(
             "Массив OriginalCurve не содержит ни одной DataCurve"
-        );
-
-    public double SpeedCoefficientForMaxEfficiency =>
-        DimensionlessData.SpeedCoefficient(
-            DataOriginalCurveWithMaxEfficiency.DcImpellerRotationSpeed,
-            DataOriginalCurveWithMaxEfficiency.DcVolumeFlow,
-            DataOriginalCurveWithMaxEfficiency.DcTotalPressure
         );
 }

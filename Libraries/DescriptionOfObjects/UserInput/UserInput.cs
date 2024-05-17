@@ -36,20 +36,6 @@ public record UserInput
     public required UserInputFan UserInputFan { get; init; }
 
     /// <summary>
-    /// Полное давление воздуха, которое ввел пользователь, приведенное к нормальной плотности воздуха
-    /// </summary>
-    public double InputTotalNormalPressure =>
-        SimilarityCalculator.SimilarPressure(
-            UserInputWorkPoint.TotalPressure,
-            1,
-            1,
-            DataAir,
-            1,
-            1,
-            FanData.AirInTests
-        );
-
-    /// <summary>
     ///     Расчетная плотность воздуха, температура которого введена пользователем, [кг/м3]
     /// </summary>
     public IHumidAir DataAir =>

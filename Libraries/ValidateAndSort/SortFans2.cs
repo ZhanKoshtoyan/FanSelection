@@ -26,8 +26,8 @@ public abstract class SortFans2
         var correctFansList = fansList!
             .Where(
                 f =>
-                    userInput.UserInputWorkPoint.VolumeFlow >= f.MinVolumeFlow
-                    && userInput.UserInputWorkPoint.VolumeFlow
+                    userInput.UserInputWorkPoint.VolumeFlow / userInput.UserInputFan.NumberOfFans >= f.MinVolumeFlow
+                    && userInput.UserInputWorkPoint.VolumeFlow / userInput.UserInputFan.NumberOfFans
                         <= f.MaxVolumeFlow
             )
             .ToList();
@@ -45,31 +45,24 @@ public abstract class SortFans2
             correctFansList = correctFansList
                 .Where(
                     f =>
-                        userInput.UserInputFan.Size
-                            .GetValueOrDefault()
-                            .ToString("D3") == f.Size
+                        userInput.UserInputFan.Size.ToString("D3") == f.Size
                 )
                 .ToList();
         }
 
-        if (
+        /*if (
             !string.IsNullOrEmpty(
                 userInput.UserInputFan.ImpellerRotationDirection
-            )
-            || ReferenceEquals(
-                userInput.UserInputFan.ImpellerRotationDirection,
-                ImpellerRotationDirections.Values.GetValue(2)
             )
         )
         {
             correctFansList = correctFansList
                 .Where(
                     f =>
-                        userInput.UserInputFan.ImpellerRotationDirection
-                        == f.ImpellerRotationDirection
+                        f.ImpellerRotationDirection != null && f.ImpellerRotationDirection.Contains(userInput.UserInputFan.ImpellerRotationDirection)
                 )
                 .ToList();
-        }
+        }*/
 
         if (userInput.UserInputFan.NominalPower != 0)
         {
@@ -77,7 +70,7 @@ public abstract class SortFans2
                 .Where(
                     f =>
                         Math.Abs(
-                            userInput.UserInputFan.NominalPower.GetValueOrDefault()
+                            userInput.UserInputFan.NominalPower
                                 - f.NominalPower
                         ) < 0.05
                 )
@@ -90,12 +83,19 @@ public abstract class SortFans2
                 .Where(
                     f =>
                         Math.Abs(
-                            userInput.UserInputFan.NominalImpellerRotationSpeed.GetValueOrDefault()
+                            userInput.UserInputFan.NominalImpellerRotationSpeed
                                 - f.NominalImpellerRotationSpeed
                         ) < 0.05
                 )
                 .ToList();
         }
+
+        /*if (userInput.UserInputFan.FanBodyLength != 0 && userInput.UserInputFan.FanBodyLength != null)
+        {
+            correctFansList = correctFansList.Where(fan => fan
+            .FanBodyLength?.Contains(userInput.UserInputFan.FanBodyLength.ToString()!) == true
+            ).ToList();
+        }*/
 
         //------------------------------------------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ public abstract class SortFans2
                                 <= (1 + specificSpeedDeviation)
                                     * item.specificSpeed
                     )
-                    .OrderByDescending(item => item.data.Efficiency)
+                    .OrderByDescending(item => item.data.TotalEfficiency)
                     .ThenBy(item => item.specificSpeedDevation)
                     .ToList();
 
@@ -226,7 +226,7 @@ public abstract class SortFans2
                             <= (1 + specificSpeedDeviation)
                             * item.specificSize
                     )
-                    .OrderByDescending(item => item.data.Efficiency)
+                    .OrderByDescending(item => item.data.TotalEfficiency)
                     .ThenBy(item => item.specificSizeDevation)
                     .ToList();
 
@@ -273,106 +273,6 @@ public abstract class SortFans2
             );
         }
 
-        /*switch (userInput.UserInputFan.FanLogic)
-        {
-
-            case 0:
-                fansTypeLogic = fansTypeList
-                    .Where(
-                        fan =>
-                            Math.Abs(
-                                ((IFanLogic1)fan).TotalPressureDeviationLogic1
-                            )
-                            <= userInput
-                                .UserInputWorkPoint
-                                .TotalPressureDeviation
-                    )
-                    .OrderBy(
-                        fan =>
-                            Math.Abs(
-                                ((IFanLogic1)fan).TotalPressureDeviationLogic1
-                            )
-                    )
-                    .ToList();
-
-                if (fansTypeLogic is null)
-                {
-                    throw new ArgumentException(
-                        $"Условие не удовлетворяется: Погрешность подбора по полному давлению воздуха > {userInput.UserInputWorkPoint.TotalPressureDeviation}%. Вентиляторы не могут быть подобраны."
-                    );
-                }
-                break;
-            case 1:
-                IEnumerable<(double specificSpeed, double specificSpeedEfficiencyMax, double specificSpeedDevation, T data)> numberOfHits = fansTypeList.Select(
-                    tFan => (
-                        //Запишем быстроходность искомой рабочей точки
-                        specificSpeed: tFan.SpecificSpeedCoefficientWithImpellerRotationSpeed,
-                        //Запишем быстроходность при максимальном полном КПД
-                        specificSpeedEfficiencyMax: tFan.SpecificSpeedEfficiencyMax,
-                        //Посчитаем отклонение быстроходности при максимальном полном КПД от быстроходности искомой рабочей точки
-                        //TODO нужна ли, если я сортирую по макс. полному КПД!?
-                        specificSpeedDevation: Calculate.Share(
-                            tFan.SpecificSpeedEfficiencyMax,
-                            tFan.SpecificSpeedCoefficientWithImpellerRotationSpeed
-                        ),
-                        //Объект FanData
-                        data: tFan))
-                    //Отбор объектов FanData удовлетворяющих условиям:
-                    //Минимальная быстроходность FanData <= быстроходность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная быстроходность FanData
-                    .Where(
-                        item =>
-                            item.specificSpeed
-                            >= item.data.SpecificSpeedPhiMin
-                            && item.specificSpeed
-                            <= item.data.SpecificSpeedPhiMax
-                    )
-                    .Where(
-                        item =>
-                            item.data.ImpellerRotationFrequency
-                            >= item.data.MinImpellerRotationFrequency
-                            && item.data.ImpellerRotationFrequency
-                            <= item.data.MaxImpellerRotationFrequency
-                    )
-                    .OrderByDescending(item => item.data.Efficiency)
-                    .ThenBy(item => item.specificSpeedDevation)
-                    .ToList();
-
-                fansTypeLogic = numberOfHits.Select(nh => nh.data)
-                    .ToList();
-                break;
-            case 2:
-                IEnumerable<(double specificSize, double specificSizeEfficiencyMax, double specificSizeDevation, T data)> numberOfHits2 = fansTypeList.Select(
-                    tFan => (
-                        //Запишем габаритность искомой рабочей точки
-                        specificSize: tFan.SpecificSizeCoefficientWithRequiredSize,
-                        //Запишем быстроходность при максимальном полном КПД
-                        specificSizeEfficiencyMax: tFan.SpecificSizeEfficiencyMax,
-                        //Посчитаем отклонение быстроходности при максимальном полном КПД от быстроходности искомой рабочей точки
-                        //TODO нужна ли, если я сортирую по макс. полному КПД!?
-                        specificSizeDevation: Calculate.Share(
-                            tFan.SpecificSizeEfficiencyMax,
-                            tFan.SpecificSizeCoefficientWithRequiredSize
-                        ),
-                        //Объект FanData
-                        data: tFan))
-                    //Отбор объектов FanData удовлетворяющих условиям:
-                    //Минимальная быстроходность FanData <= быстроходность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная быстроходность FanData
-                    .Where(
-                        item =>
-                            item.specificSize
-                            <= item.data.SpecificSizePhiMin
-                            && item.specificSize
-                            >= item.data.SpecificSizePhiMax
-                    )
-
-                    .OrderByDescending(item => item.data.Efficiency)
-                    .ThenBy(item => item.specificSizeDevation)
-                    .ToList();
-
-                fansTypeLogic = numberOfHits2.Select(nh => nh.data)
-                    .ToList();
-                break;
-        }*/
         return new List<T>(fansTypeLogic);
     }
 }

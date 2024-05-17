@@ -8,14 +8,6 @@ namespace Libraries.Methods;
 
 public static class Calculate
 {
-    public static double SumNoise(IEnumerable<double> fullBandNoise)
-    {
-        var sum = fullBandNoise.Sum(
-            singleOctave => Math.Pow(10, singleOctave / 10)
-        );
-        return 10 * Math.Log10(sum);
-    }
-
     public static double SumNoise(
         IEnumerable<(int Frequency, double Value)> octaveNoise
     )
@@ -25,6 +17,11 @@ public static class Calculate
         );
         return 10 * Math.Log10(sum);
     }
+
+    public static double MultipleFansNoise(
+        double octaveNoiseAtFrequency,
+        double numberOfFans
+    ) => octaveNoiseAtFrequency + 10 * Math.Log10(numberOfFans);
 
     public static double MethodOfHalfDivisionVolumeFlow(
         double minVolumeFlow,
@@ -68,40 +65,6 @@ public static class Calculate
         return desiredValue;
     }
 
-    public static double MethodOfHalfDivisionEfficiency(
-        double minVolumeFlow,
-        double maxVolumeFlow,
-        PolynomialType efficiencyCoefficients,
-        double inputVolumeFlow,
-        double inputTotalPressure
-    )
-    {
-        var constDependencePq =
-            inputTotalPressure / Math.Pow(inputVolumeFlow, 2);
-        const double error = 0.00001;
-        var desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
-        while (maxVolumeFlow - minVolumeFlow >= 2 * error)
-        {
-            if (
-                (Polynomial(efficiencyCoefficients, minVolumeFlow))
-                    * (Polynomial(efficiencyCoefficients, desiredValue))
-                < 0
-            )
-            {
-                maxVolumeFlow = desiredValue;
-            }
-            else
-            {
-                minVolumeFlow = desiredValue;
-            }
-
-            desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
-        }
-
-        // Console.WriteLine("{0:0.00000000}", desiredValue);
-        return desiredValue;
-    }
-
     /// <summary>
     /// Расчет значения по известным коэффициентам полинома по методу наименьших квадратов
     /// </summary>
@@ -112,13 +75,13 @@ public static class Calculate
         PolynomialType coefficientsEntity,
         double entity
     ) =>
-        coefficientsEntity.SixthCoefficient * Math.Pow(entity, 6)
-        + coefficientsEntity.FifthCoefficient * Math.Pow(entity, 5)
-        + coefficientsEntity.FourthCoefficient * Math.Pow(entity, 4)
-        + coefficientsEntity.ThirdCoefficient * Math.Pow(entity, 3)
-        + coefficientsEntity.SecondCoefficient * Math.Pow(entity, 2)
-        + coefficientsEntity.FirstCoefficient * Math.Pow(entity, 1)
-        + coefficientsEntity.ZeroCoefficient;
+        coefficientsEntity.Coefficients[0] * Math.Pow(entity, 6)
+        + coefficientsEntity.Coefficients[1] * Math.Pow(entity, 5)
+        + coefficientsEntity.Coefficients[2] * Math.Pow(entity, 4)
+        + coefficientsEntity.Coefficients[3] * Math.Pow(entity, 3)
+        + coefficientsEntity.Coefficients[4] * Math.Pow(entity, 2)
+        + coefficientsEntity.Coefficients[5] * Math.Pow(entity, 1)
+        + coefficientsEntity.Coefficients[6];
 
     public static double Efficiency(
         double volumeFlow,
@@ -151,6 +114,7 @@ public static class Calculate
     /// <param name="totalPressureCoefficients"></param>
     /// <param name="size"></param>
     /// <param name="impellerRotationSpeed"></param>
+    /// <param name="oldAirDensity"></param>
     /// <param name="powerCoefficients"></param>
     /// <returns></returns>
     public static DataCurve DataCurveCalculate(
@@ -158,6 +122,7 @@ public static class Calculate
         PolynomialType totalPressureCoefficients,
         double size,
         double impellerRotationSpeed,
+        double oldAirDensity,
         PolynomialType powerCoefficients
     ) =>
         new()
@@ -166,12 +131,12 @@ public static class Calculate
             DcTotalPressure = Polynomial(totalPressureCoefficients, volumeFlow),
             DcSize = size,
             DcImpellerRotationSpeed = impellerRotationSpeed,
-            DcAir = FanData.AirInTests,
+            DcAir = oldAirDensity,
             DcPower = Polynomial(powerCoefficients, volumeFlow)
         };
 
     public static string GetOctaveNoiseAString(
-        List<(int Frequency, double Value)> octaveNoiseA
+        IEnumerable<(int Frequency, double Value)> octaveNoiseA
     )
     {
         var sb = new StringBuilder();
@@ -207,41 +172,6 @@ public static class Calculate
     }
 
     /// <summary>
-    /// Нахождение объемного потока воздуха для конкретного вентилятора через быстроходность в рабочей точке;
-    /// </summary>
-    /// <param name="areaOfWheelDisc"></param>
-    /// <param name="circumferentialSpeed"></param>
-    /// <param name="inputTotalNormalPressure"></param>
-    /// <param name="inputVolumeFlow"></param>
-    /// <param name="air"></param>
-    /// <param name="specificSpeed"></param>
-    /// <returns></returns>
-    public static double VolumeFlowFoundThroughSpecificSpeed(
-        double areaOfWheelDisc,
-        double circumferentialSpeed,
-        double inputTotalNormalPressure,
-        double inputVolumeFlow,
-        IHumidAir air,
-        double specificSpeed
-    ) =>
-        137.58573
-        / Math.Pow(areaOfWheelDisc * circumferentialSpeed, 0.5)
-        * Math.Pow(
-            2
-                * FanSystemCharacteristicCoefficient(
-                    inputTotalNormalPressure,
-                    inputVolumeFlow / 3600
-                )
-                / (
-                    air.Density.KilogramsPerCubicMeter
-                    * Math.Pow(circumferentialSpeed, 2)
-                ),
-            -0.75
-        )
-        * 3600
-        / specificSpeed;
-
-    /// <summary>
     /// Коэффициент характеристики системы вентилятора, который учитывает
     /// отношение объемного потока воздуха и полного давления с учетом сети
     /// воздуховодов перед и после вентилятора;
@@ -253,4 +183,21 @@ public static class Calculate
         double inputTotalPressure,
         double inputVolumeFlow
     ) => inputTotalPressure / Math.Pow(inputVolumeFlow, 2);
+
+    public static string ValueContainsOrFirst(string? userInputValue, List<string>? dataValue)
+    {
+        if (!string.IsNullOrEmpty(userInputValue) &&
+            dataValue != null)
+        {
+            return dataValue.Contains(userInputValue)
+                ? userInputValue : dataValue.First();
+        }
+        else
+        {
+            throw new ArgumentNullException($"({userInputValue} is null or empty) or ({dataValue} is null).");
+        }
+    }
+
+    public static T GetValueOrDefault<T>(this T? nullable) where T : struct =>
+        nullable ?? default(T);
 }

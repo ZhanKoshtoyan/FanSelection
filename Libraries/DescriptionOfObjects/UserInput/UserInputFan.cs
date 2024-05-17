@@ -18,14 +18,19 @@ public record UserInputFan
     public required int FanLogic { get => _temporaryFanLogic; init => _temporaryFanLogic = value - 1; }
 
     /// <summary>
+    /// Количество вентиляторов, обеспечивающих рабочую точку
+    /// </summary>
+    public double NumberOfFans { get; set; } = 1;
+
+    /// <summary>
     ///     Типоразмер вентилятора, которое ввел пользователь
     /// </summary>
-    public double? Size { get; set; }
+    public double Size { get; init; }
 
     /// <summary>
     ///     Длина корпуса, которое ввел пользователь. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanBodyLengths
     /// </summary>
-    public int? FanBodyLength { get; init; }
+    public int FanBodyLength { get; init; }
 
     /// <summary>
     ///     Направление движения крыльчатки, которое ввел пользователь. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.ImpellerRotationDirections
@@ -35,12 +40,12 @@ public record UserInputFan
     /// <summary>
     ///     Номинальная мощность двигателя, которое ввел пользователь; [кВт]
     /// </summary>
-    public double? NominalPower { get; init; }
+    public double NominalPower { get; init; }
 
     /// <summary>
     ///     Номинальная скорость вращения крыльчатки без учета скольжения двигателя,, которое ввел пользователь; [об/мин]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.NominalImpellerRotationSpeeds
     /// </summary>
-    public double? NominalImpellerRotationSpeed { get; init; }
+    public double NominalImpellerRotationSpeed { get; init; }
 
     /// <summary>
     ///     Материал исполнения корпуса, которое ввел пользователь. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.CaseExecutionMaterials
