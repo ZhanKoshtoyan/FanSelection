@@ -50,7 +50,7 @@ public abstract class SortFans2
                 .ToList();
         }
 
-        /*if (
+        if (
             !string.IsNullOrEmpty(
                 userInput.UserInputFan.ImpellerRotationDirection
             )
@@ -62,7 +62,7 @@ public abstract class SortFans2
                         f.ImpellerRotationDirection != null && f.ImpellerRotationDirection.Contains(userInput.UserInputFan.ImpellerRotationDirection)
                 )
                 .ToList();
-        }*/
+        }
 
         if (userInput.UserInputFan.NominalPower != 0)
         {
@@ -90,28 +90,16 @@ public abstract class SortFans2
                 .ToList();
         }
 
-        /*if (userInput.UserInputFan.FanBodyLength != 0 && userInput.UserInputFan.FanBodyLength != null)
+        if (userInput.UserInputFan.FanBodyLength != 0)
         {
             correctFansList = correctFansList.Where(fan => fan
-            .FanBodyLength?.Contains(userInput.UserInputFan.FanBodyLength.ToString()!) == true
+            .FanBodyLength?.Contains(userInput.UserInputFan.FanBodyLength) == true
             ).ToList();
-        }*/
+        }
 
         //------------------------------------------------------------------------------------------------------------
 
-        if (
-            !Enum.IsDefined(
-                typeof(FanVersion.Values),
-                (FanVersion.Values)userInput.UserInputFan.FanVersion
-            )
-        )
-        {
-            throw new ArgumentException(
-                "Недопустимое значение FanVersion.Values"
-            );
-        }
-
-        FanVersion.Values fanTypeVersion = (FanVersion.Values)
+        var fanTypeVersion = (FanVersion.Values)
             userInput.UserInputFan.FanVersion;
 
         List<T> fansTypeList =
@@ -119,11 +107,19 @@ public abstract class SortFans2
                 correctFansList
                     .Select(
                         elementFanData =>
-                            fanTypeVersion == FanVersion.Values.OsuDu
+                            fanTypeVersion switch
+                            {
+                                FanVersion.Values.OsuDu
+                                    => (T) (object)new OsuDu(elementFanData, userInput),
+                                FanVersion.Values.EuFan
+                                    => (T) (object)new EuFan(elementFanData, userInput),
+                                _ => throw new ArgumentOutOfRangeException($"Версии вентилятора с индексом {fanTypeVersion} не существует!")
+                            }
+                            /*fanTypeVersion == 0
                                 ? (T)
                                     (object)new OsuDu(elementFanData, userInput)
                                 : (T)
-                                    (object)new EuFan(elementFanData, userInput)
+                                    (object)new EuFan(elementFanData, userInput)*/
                     )
                     .Where(fan => fan.Data.Version == fanTypeVersion.ToString())
                     .ToList()

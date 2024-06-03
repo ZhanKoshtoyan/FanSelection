@@ -21,7 +21,7 @@ public class UserInputAir
     /// <summary>
     ///     Максимальная температура эксплуатации, которое ввел пользователь, [°C]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanOperatingMaxTemperatures
     /// </summary>
-    public double FanOperatingMaxTemperature { get; set; }
+    public double FanOperatingMaxTemperature { get; init; }
 
 
 

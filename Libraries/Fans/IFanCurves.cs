@@ -39,49 +39,6 @@ public interface IFanCurves
         }
     }
 
-    /*public IEnumerable<DataCurve> OriginalCurve =>
-        Enumerable
-            .Range(0, CountArray)
-            .Select(
-                i =>
-                    i switch
-                    {
-                        0
-                            => Calculate.DataCurveCalculate(
-                                ((IFan)this).Data.MinVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
-                                ((IFan)this).Data.TotalPressureQvCoefficients,
-                                ((IFan)this).Size,
-                                ((IFan)this).ImpellerRotationSpeed,
-                                ((IFan)this).Data.PowerQvCoefficients
-                            ),
-                        CountArray - 1
-                            => Calculate.DataCurveCalculate(
-                                ((IFan)this).Data.MaxVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
-                                ((IFan)this).Data.TotalPressureQvCoefficients,
-                                ((IFan)this).Size,
-                                ((IFan)this).ImpellerRotationSpeed,
-                                ((IFan)this).Data.PowerQvCoefficients
-                            ),
-                        _
-                            => Calculate.DataCurveCalculate(
-                                (
-                                    (
-                                        ((IFan)this).Data.MaxVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans
-                                        - ((IFan)this).Data.MinVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans
-                                    )
-                                        / (CountArray - 1)
-                                        * i
-                                    + ((IFan)this).Data.MinVolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans
-                                ),
-                                ((IFan)this).Data.TotalPressureQvCoefficients,
-                                ((IFan)this).Size,
-                                ((IFan)this).ImpellerRotationSpeed,
-                                ((IFan)this).Data.PowerQvCoefficients
-                            )
-                    }
-            )
-            .ToArray();*/
-
     /// <summary>
     /// Расчет рабочих точек для новой кривой
     /// </summary>

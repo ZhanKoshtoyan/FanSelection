@@ -8,7 +8,7 @@ namespace Libraries.StructureOfObjects;
 /// <summary>
 ///     Информация о вентиляторе
 /// </summary>
-public record FanData
+public abstract record FanData
 {
 
     public required string ExcelWorkSheetName { get; init; }
