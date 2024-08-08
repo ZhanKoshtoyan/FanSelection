@@ -23,12 +23,12 @@ public interface IFanNoise
         string noiseType
     )
     {
-        var octaveNoiseCoefficients = new List<PolynomialType>();
+        var octaveNoiseCoefficients = new List<PolynomialType?>();
 
         switch (noiseType)
         {
             case "Lw5":
-                octaveNoiseCoefficients = new List<PolynomialType>
+                octaveNoiseCoefficients = new List<PolynomialType?>
                 {
                     ((IFan)this).Data.OctaveNoiseLw5QvCoefficients63,
                     ((IFan)this).Data.OctaveNoiseLw5QvCoefficients125,
@@ -41,7 +41,7 @@ public interface IFanNoise
                 };
                 break;
             case "Lw6":
-                octaveNoiseCoefficients = new List<PolynomialType>
+                octaveNoiseCoefficients = new List<PolynomialType?>
                 {
                     ((IFan)this).Data.OctaveNoiseLw6QvCoefficients63,
                     ((IFan)this).Data.OctaveNoiseLw6QvCoefficients125,
@@ -66,10 +66,14 @@ public interface IFanNoise
                                     coefficients,
                                     ((IFan)this).VolumeFlowOnPolynomial
                                 ),
-                                ((IFan)this).Data.ImpellerRotationSpeed,
-                                ((IFan)this).Size,
-                                ((IFan)this).ImpellerRotationSpeed,
-                                ((IFan)this).Size
+                                ((IFan)this)
+                                    .Data
+                                    .ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                                ((IFan)this).ConditionalStandardSize,
+                                (
+                                    (IFan)this
+                                ).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                                ((IFan)this).ConditionalStandardSize
                             ),
                             ((IFan)this).UserInput.UserInputFan.NumberOfFans
                         )

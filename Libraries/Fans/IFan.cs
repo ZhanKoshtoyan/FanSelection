@@ -1,19 +1,23 @@
-﻿using Libraries.DescriptionOfObjects.Parameters;
-using Libraries.DescriptionOfObjects.UserInput;
+﻿using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Methods;
 using Libraries.StructureOfObjects;
+using System.ComponentModel;
 
 namespace Libraries.Fans;
 
-public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
+public interface IFan
+    : IFanNoise,
+        IFanCurves,
+        IFanDimensionlessData,
+        INotifyPropertyChanged
 {
     /// <summary>
-    /// Данные экземпляра вентилятора из исходных данных. К ним происходит обращение через UserInput.PathJsonFileFanData
+    /// Данные экземпляра вентилятора из исходных данных. К ним происходит обращение через UserInput.PathDataOfFansJsonFile
     /// </summary>
     public FanData Data { get; }
 
     /// <summary>
-    /// Данные, которые введ пользователь
+    /// Данные, которые ввел пользователь
     /// </summary>
     public UserInput UserInput { get; }
 
@@ -25,7 +29,7 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     /// <summary>
     ///     Скорость вращения крыльчатки, [об/мин]
     /// </summary>
-    public double ImpellerRotationSpeed { get; }
+    public double ImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; }
 
     /// <summary>
     /// Минимальная частота вращения крыльчатки, [Гц]
@@ -37,28 +41,31 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     /// </summary>
     public double MaxImpellerRotationFrequency =>
         Calculate.ImpellerRotationFrequency(
-            Data.MaxImpellerRotationSpeed,
-            NominalImpellerRotationSpeed
+            Data.MaxImpellerRotationSpeedWithSlidingEngine,
+            NominalImpellerRotationSpeedWithoutSlidingEngine
         );
 
     /// <summary>
     /// Типоразмер, [мм]
     /// </summary>
-    public double Size =>
-        Convert.ToDouble(
-            UserInput.UserInputFan.Size == 0
-                ? Data.Size
-                : UserInput.UserInputFan.Size
+    public double ConditionalStandardSize =>
+        (
+            UserInput.UserInputFan.ConditionalStandardSize == 0
+                ? Data.ConditionalStandardSize
+                : UserInput.UserInputFan.ConditionalStandardSize
         ) / 1000;
 
     /// <summary>
     /// Номинальная скорость вращения крыльчатки без учета скольжения двигателя, [об/мин]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.NominalImpellerRotationSpeeds
     /// </summary>
-    public double NominalImpellerRotationSpeed =>
-        UserInput.UserInputFan.NominalImpellerRotationSpeed == 0
-            ? Data.NominalImpellerRotationSpeed
+    public double NominalImpellerRotationSpeedWithoutSlidingEngine =>
+        UserInput.UserInputFan.NominalImpellerRotationSpeedWithoutSlidingEngine
+        == 0
+            ? Data.NominalImpellerRotationSpeedWithoutSlidingEngine
             : Math.Round(
-                UserInput.UserInputFan.NominalImpellerRotationSpeed,
+                UserInput
+                    .UserInputFan
+                    .NominalImpellerRotationSpeedWithoutSlidingEngine,
                 0
             );
 
@@ -74,7 +81,8 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     /// Температура перемещаемой среды, [°C]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanOperatingMaxTemperatures
     /// </summary>
     public double FanOperatingMaxTemperature =>
-        UserInput.UserInputAir.FanOperatingMaxTemperature == 0 && Data.FanOperatingMaxTemperature != null
+        UserInput.UserInputAir.FanOperatingMaxTemperature == 0
+        && Data.FanOperatingMaxTemperature != null
             ? Data.FanOperatingMaxTemperature.First()
             : UserInput.UserInputAir.FanOperatingMaxTemperature;
 
@@ -83,32 +91,34 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     /// </summary>
     public double FanBodyLength =>
         UserInput.UserInputFan.FanBodyLength == 0 && Data.FanBodyLength != null
-    ? Data.FanBodyLength.First()
-    : UserInput.UserInputFan.FanBodyLength;
+            ? Data.FanBodyLength.First()
+            : UserInput.UserInputFan.FanBodyLength;
 
     /// <summary>
     ///     Направление вращения рабочего колеса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.ImpellerRotationDirections
     /// </summary>
     public string ImpellerRotationDirection =>
-        string.IsNullOrEmpty(UserInput.UserInputFan.ImpellerRotationDirection) && Data.ImpellerRotationDirection != null
-         ? Data.ImpellerRotationDirection.First()
-         : UserInput.UserInputFan.ImpellerRotationDirection!;
+        string.IsNullOrEmpty(UserInput.UserInputFan.ImpellerRotationDirection)
+        && Data.ImpellerRotationDirection != null
+            ? Data.ImpellerRotationDirection.First()
+            : UserInput.UserInputFan.ImpellerRotationDirection!;
 
     /// <summary>
     /// Материал корпуса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.CaseExecutionMaterials
     /// </summary>
-    public string CaseExecutionMaterial =>
-        string.IsNullOrEmpty(UserInput.UserInputFan.CaseExecutionMaterial) && Data.CaseExecutionMaterial != null
-            ? Data.CaseExecutionMaterial.First()
-            : UserInput.UserInputFan.CaseExecutionMaterial!;
+    public string FanBodyExecutionMaterial =>
+        string.IsNullOrEmpty(UserInput.UserInputFan.FanBodyExecutionMaterial)
+        && Data.FanBodyExecutionMaterial != null
+            ? Data.FanBodyExecutionMaterial.First()
+            : UserInput.UserInputFan.FanBodyExecutionMaterial!;
 
     /// <summary>
     /// Частота вращения крыльчатки, [Гц]
     /// </summary>
     public double ImpellerRotationFrequency =>
         Calculate.ImpellerRotationFrequency(
-            ImpellerRotationSpeed,
-            NominalImpellerRotationSpeed
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            NominalImpellerRotationSpeedWithoutSlidingEngine
         );
 
     /// <summary>
@@ -128,13 +138,17 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     /// <summary>
     /// Расход объемного воздуха на исходной кривой вентилятора, [м3/ч]
     /// </summary>
-    public double VolumeFlowOnPolynomial => Calculate.MethodOfHalfDivisionVolumeFlow(
-        Data.MinVolumeFlow,
-        Data.MaxVolumeFlow,
-        Data.TotalPressureQvCoefficients,
-        UserInput.UserInputWorkPoint.VolumeFlow / UserInput.UserInputFan.NumberOfFans,
-        InputTotalNormalPressure
-    );
+    public double VolumeFlowOnPolynomial =>
+        Calculate.MethodOfHalfDivisionVolumeFlow(
+            Data.MinVolumeFlow,
+            Data.MaxVolumeFlow,
+            Data.TotalPressureQvCoefficients,
+            UserInput.UserInputWorkPoint.VolumeFlow
+                / UserInput.UserInputFan.NumberOfFans,
+            InputTotalNormalPressure,
+            Data.SimilarVolumeFlowCoefficient,
+            Data.SimilarTotalPressureCoefficient
+        );
 
     /// <summary>
     /// Полное давление воздуха на исходной кривой вентилятора, [Па]
@@ -142,9 +156,8 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     public double TotalPressureOnPolynomial =>
         Calculate.Polynomial(
             Data.TotalPressureQvCoefficients,
-            VolumeFlowOnPolynomial
-        );
-
+            VolumeFlowOnPolynomial / Data.SimilarVolumeFlowCoefficient
+        ) * Data.SimilarTotalPressureCoefficient;
 
     /// <summary>
     ///     Расход объемного воздуха на кривой вентилятора, эквивалентный зависимости Pv=Q^2 - характеристика сети воздуховода, [м3/ч]
@@ -152,10 +165,10 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     public double VolumeFlow =>
         SimilarityCalculator.SimilarVolumeFlow(
             VolumeFlowOnPolynomial,
-            Data.ImpellerRotationSpeed,
-            Size,
-            ImpellerRotationSpeed,
-            Size
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize,
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize
         );
 
     /// <summary>
@@ -164,11 +177,11 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     public double TotalPressure =>
         SimilarityCalculator.SimilarPressure(
             TotalPressureOnPolynomial,
-            Data.ImpellerRotationSpeed,
-            Size,
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize,
             Data.AirDensity,
-            ImpellerRotationSpeed,
-            Size,
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize,
             UserInput.DataAir.Density.KilogramsPerCubicMeter
         );
 
@@ -177,7 +190,8 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     /// </summary>
     public double VolumeFlowDeviation =>
         Calculate.Deviation(
-            UserInput.UserInputWorkPoint.VolumeFlow / UserInput.UserInputFan.NumberOfFans,
+            UserInput.UserInputWorkPoint.VolumeFlow
+                / UserInput.UserInputFan.NumberOfFans,
             VolumeFlow
         );
 
@@ -197,13 +211,13 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
         SimilarityCalculator.SimilarPower(
             Calculate.Polynomial(
                 Data.PowerQvCoefficients,
-                VolumeFlowOnPolynomial
-            ),
-            Data.ImpellerRotationSpeed,
-            Size,
+                VolumeFlowOnPolynomial / Data.SimilarVolumeFlowCoefficient
+            ) * Data.SimilarPowerCoefficient,
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize,
             Data.AirDensity,
-            ImpellerRotationSpeed,
-            Size,
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize,
             UserInput.DataAir.Density.KilogramsPerCubicMeter
         );
 
@@ -229,5 +243,5 @@ public interface IFan : IFanNoise, IFanCurves, IFanDimensionlessData
     ///     Скорость воздуха, [м/с]
     /// </summary>
     public double AirVelocity =>
-        Calculate.AirVelocity(VolumeFlow, Data.InletCrossSection);
+        Calculate.AirVelocity(VolumeFlow, Data.AreaOfInletPipeOpening);
 }

@@ -1,132 +1,182 @@
 ﻿using Libraries.DescriptionOfObjects.Parameters;
 using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Fans;
+using Libraries.Loader;
 using Libraries.Methods;
 using Libraries.StructureOfObjects;
+using InvalidDataException = System.IO.InvalidDataException;
 
 namespace Libraries.ValidateAndSort;
 
-public abstract class SortFans2
+public abstract class CreatingListOfFans
 {
-    /// <summary>
-    ///     В этом методе происходит проверка находится ли объем воздуха, который ввел пользователь, в диапазоне
-    ///     производительности вентилятора. Если находится, то вентилятор добавляется в список. Следом происходит вторая
-    ///     проверка: если допустимая погрешность подбора по полному давлению воздуха, которую ввел пользователь, удовлетворяет
-    ///     выччисленную погрешность, то такой вентилятор и все его вычисленные свойства добавляется в список.
-    /// </summary>
-    /// <param name="fansList"></param>
-    /// <param name="userInput"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    public static List<T> Sort<T>(
-        IEnumerable<FanData>? fansList,
+    public static List<T> Create<T>(
+        List<FanData>? fansList,
         UserInput userInput
     )
         where T : IFan
     {
-        //------------------------------------------------------------------------------------------------------------
-        // Отбросим все FanData, которые выходят за пределы значений минимального и максимального значений VolumeFlow
-        var correctFansList = fansList!
-            .Where(
-                f =>
-                    userInput.UserInputWorkPoint.VolumeFlow
-                        / userInput.UserInputFan.NumberOfFans
-                        >= f.MinVolumeFlow
-                    && userInput.UserInputWorkPoint.VolumeFlow
-                        / userInput.UserInputFan.NumberOfFans
-                        <= f.MaxVolumeFlow
-            )
+        if (fansList == null)
+        {
+            throw new InvalidDataException($"Список объектов FanData пуст");
+        }
+
+        var fanTypeVersion = (FanVersion.Values)
+            userInput.UserInputFan.FanVersion;
+
+        //1.Выбрать вентилятор, который соответствует типу fanVersion
+        //1.1.Выбрать вентилятор, который соответствует типу fanVersion из Fans.json файла
+        var correctFansList = fansList
+            .Where(fan => fan.Version == fanTypeVersion.ToString())
             .ToList();
 
-        if (correctFansList.Count == 0)
-        {
-            throw new ArgumentException(
-                $"Объем воздуха {userInput.UserInputWorkPoint.VolumeFlow} [м3/ч] выходит за границы производительности вентиляторов. Количество вентиляторов в списке = 0"
+        //1.2 Получаем существующий объект для пересчета
+        var existingFanData = correctFansList[0];
+
+        //1.3 Получаем список с кратким описанием вентиляторов из ShortDescriptionOfTheFans.json файла
+        var shortDescriptionOfTheFanDataList =
+            JsonLoader.Download<ShortDescriptionOfTheFanData>(
+                UserInput.PathShortDescriptionOfTheFansJsonFile
             );
-        }
 
-        //------------------------------------------------------------------------------------------------------------
-        if (userInput.UserInputFan.ConditionalStandardSize != 0)
-        {
-            correctFansList = correctFansList
-                .Where(
-                    f =>
-                        Math.Abs(
-                            userInput.UserInputFan.ConditionalStandardSize
-                                - f.ConditionalStandardSize
-                        ) < 0.05
+        //1.4 Создадим список с типом вентилятора FanData
+        IEnumerable<ShortDescriptionOfTheFanData> sortedShortDescriptionOfTheFanDataList =
+            (
+                shortDescriptionOfTheFanDataList
+                ?? throw new InvalidOperationException(
+                    "shortDescriptionOfTheFanDataList == null"
                 )
-                .ToList();
-        }
+            )
+                .Where(s => s.Version == existingFanData.Version)
+                .ToList()
+            ?? throw new Exception(
+                $"В shortDescriptionOfTheFanDataList не найдено ни 1 объекта типа "
+                    + $"{existingFanData.Version}"
+            );
 
+        //2.Выбрать вентилятор с исполнением impellerRotationDirection
         if (
             !string.IsNullOrEmpty(
                 userInput.UserInputFan.ImpellerRotationDirection
             )
         )
         {
-            correctFansList = correctFansList
-                .Where(
-                    f =>
-                        f.ImpellerRotationDirection != null
-                        && f.ImpellerRotationDirection.Contains(
-                            userInput.UserInputFan.ImpellerRotationDirection
-                        )
-                )
-                .ToList();
+            sortedShortDescriptionOfTheFanDataList =
+                sortedShortDescriptionOfTheFanDataList
+                    .Where(
+                        f =>
+                            f.ImpellerRotationDirection?.Contains(
+                                userInput.UserInputFan.ImpellerRotationDirection
+                            ) == true
+                    )
+                    .ToList();
         }
-
-        if (userInput.UserInputFan.NominalPower != 0)
+        //3.Выбрать вентилятор с длиной корпуса fanBodyLength
+        if (userInput.UserInputFan.FanBodyLength != 0)
         {
-            correctFansList = correctFansList
-                .Where(
-                    f =>
-                        Math.Abs(
-                            userInput.UserInputFan.NominalPower - f.NominalPower
-                        ) < 0.05
-                )
-                .ToList();
+            sortedShortDescriptionOfTheFanDataList =
+                sortedShortDescriptionOfTheFanDataList
+                    .Where(
+                        f =>
+                            f.FanBodyLength?.Contains(
+                                userInput.UserInputFan.FanBodyLength
+                            ) == true
+                    )
+                    .ToList();
         }
 
+        //4.Выбрать вентилятор с типоразмером size
+        if (userInput.UserInputFan.ConditionalStandardSize != 0)
+        {
+            sortedShortDescriptionOfTheFanDataList =
+                sortedShortDescriptionOfTheFanDataList
+                    .Where(
+                        f =>
+                            Math.Abs(
+                                f.ConditionalStandardSize
+                                    - userInput
+                                        .UserInputFan
+                                        .ConditionalStandardSize
+                            ) < 0.05
+                    )
+                    .ToList();
+        }
+
+        //5.Выбрать вентилятор со скоростью вращения крыльчатки nominalImpellerRotationSpeedWithoutSlidingEngine
         if (
             userInput
                 .UserInputFan
                 .NominalImpellerRotationSpeedWithoutSlidingEngine != 0
         )
         {
-            correctFansList = correctFansList
-                .Where(
-                    f =>
-                        Math.Abs(
-                            userInput
-                                .UserInputFan
-                                .NominalImpellerRotationSpeedWithoutSlidingEngine
-                                - f.NominalImpellerRotationSpeedWithoutSlidingEngine
-                        ) < 0.05
-                )
-                .ToList();
+            sortedShortDescriptionOfTheFanDataList =
+                sortedShortDescriptionOfTheFanDataList
+                    .Where(
+                        f =>
+                            Math.Abs(
+                                userInput
+                                    .UserInputFan
+                                    .NominalImpellerRotationSpeedWithoutSlidingEngine
+                                    - f.NominalImpellerRotationSpeedWithoutSlidingEngine
+                            ) < 0.05
+                    )
+                    .ToList();
         }
 
-        if (userInput.UserInputFan.FanBodyLength != 0)
+        //6.Выбрать вентилятор с номинальной мощностью nominalPower
+        if (userInput.UserInputFan.NominalPower != 0)
         {
-            correctFansList = correctFansList
-                .Where(
-                    fan =>
-                        fan.FanBodyLength?.Contains(
-                            userInput.UserInputFan.FanBodyLength
-                        ) == true
-                )
-                .ToList();
+            sortedShortDescriptionOfTheFanDataList =
+                sortedShortDescriptionOfTheFanDataList
+                    .Where(
+                        f =>
+                            Math.Abs(
+                                userInput.UserInputFan.NominalPower
+                                    - f.NominalPower
+                            ) < 0.05
+                    )
+                    .ToList();
         }
 
-        //------------------------------------------------------------------------------------------------------------
+        //7. Создадим список с типом вентилятора FanData
+        IEnumerable<FanData> newFanDataList =
+            sortedShortDescriptionOfTheFanDataList
+                .Where(s => s.Version == existingFanData.Version)
+                .Select(
+                    el =>
+                        Calculate.CreateFanData(
+                            existingFanData,
+                            el.ConditionalStandardSize,
+                            el.Weight,
+                            el.NominalPower,
+                            el.NominalImpellerRotationSpeedWithoutSlidingEngine,
+                            el.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                            el.MaxImpellerRotationSpeedWithSlidingEngine,
+                            el.AreaOfInletPipeOpening
+                        )
+                )
+                .ToList();
 
+        //8.Выбрать вентилятор где искомая точка находится в промежутке между minVolumeFlow и maxVolumeFlow
+        newFanDataList = newFanDataList
+            .Where(
+                f =>
+                    userInput.UserInputWorkPoint.VolumeFlow
+                        / userInput.UserInputFan.NumberOfFans
+                        >= f.MinVolumeFlow * f.SimilarVolumeFlowCoefficient
+                    && userInput.UserInputWorkPoint.VolumeFlow
+                        / userInput.UserInputFan.NumberOfFans
+                        <= f.MaxVolumeFlow * f.SimilarVolumeFlowCoefficient
+            )
+            .ToList();
+
+        //9.Создадим список с типом вентилятора OsuDu или EuFan
         var valueOfFanVersion = (FanVersion.Values)
             userInput.UserInputFan.FanVersion;
 
         List<T> fansTypeList =
             new(
-                correctFansList
+                newFanDataList
                     .Select(
                         elementFanData =>
                             valueOfFanVersion switch
@@ -150,19 +200,11 @@ public abstract class SortFans2
                                         $"Версии вентилятора с индексом {valueOfFanVersion} не существует!"
                                     )
                             }
-                    /*fanTypeVersion == 0
-                        ? (T)
-                            (object)new OsuDu(elementFanData, userInput)
-                        : (T)
-                            (object)new EuFan(elementFanData, userInput)*/
-                    )
-                    .Where(
-                        fan => fan.Data.Version == valueOfFanVersion.ToString()
                     )
                     .ToList()
             );
 
-        //------------------------------------------------------------------------------------------------------------
+        //10.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
         const double specificSpeedDeviation = 0.2;
 
         var fanLogicNumber = userInput.UserInputFan.FanLogic;
@@ -171,7 +213,7 @@ public abstract class SortFans2
         switch (fanLogicNumber)
         {
             case 0:
-                //По быстроходности
+                //10.1 По быстроходности
                 IEnumerable<(
                     double specificSpeed,
                     double specificSpeedEfficiencyMax,
@@ -222,7 +264,7 @@ public abstract class SortFans2
                     .ToList();
                 break;
             case 1:
-                //По габаритности
+                //10.2 По габаритности
                 IEnumerable<(
                     double specificSize,
                     double specificSizeEfficiencyMax,
@@ -273,7 +315,7 @@ public abstract class SortFans2
                 break;
         }
 
-        //По пересечению графиков
+        //10.3 По пересечению графиков
         listOfFansByTypeAndLogic = (
             listOfFansByTypeAndLogic
             ?? throw new InvalidOperationException(

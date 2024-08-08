@@ -1,5 +1,4 @@
 ﻿using Libraries.Methods;
-using Libraries.StructureOfObjects;
 
 namespace Libraries.Fans;
 
@@ -12,24 +11,25 @@ public interface IFanDimensionlessData
     /// </summary>
     public double DataCircumferentialSpeed =>
         DimensionlessData.CircumferentialSpeed(
-            ((IFan)this).Size,
-            ((IFan)this).Data.ImpellerRotationSpeed
+            ((IFan)this).ConditionalStandardSize,
+            ((IFan)this).Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint
         );
 
     /// <summary>
     /// Площадь диска колеса по концам лопаток [м2]
     /// </summary>
     public double DataAreaOfWheelDisc =>
-        DimensionlessData.AreaOfWheelDisc(((IFan)this).Size);
+        DimensionlessData.AreaOfWheelDisc(((IFan)this).ConditionalStandardSize);
 
     /// <summary>
     /// Коэффициент производительности для расхода и давления, введенных пользователем
     /// </summary>
     public double PerformanceCoefficientUserInput =>
-        DimensionlessData.PerformanceCoefficient(
-            ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
-            DataAreaOfWheelDisc,
-            DataCircumferentialSpeed
+        DimensionlessData.PhiCoefficient(
+            ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow
+                / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
+            ((IFan)this).Data.AreaOfWheelDisc,
+            ((IFan)this).Data.CircumferentialSpeed
         );
 
     /// <summary>
@@ -45,10 +45,10 @@ public interface IFanDimensionlessData
     /// Коэффициент статического давления для расхода и давления, введенных пользователем
     /// </summary>
     public double StaticPressureCoefficientUserInput =>
-        DimensionlessData.PressureCoefficient(
+        DimensionlessData.PsiCoefficient(
             ((IFan)this).StaticPressure,
             ((IFan)this).Data.AirDensity,
-            DataCircumferentialSpeed
+            ((IFan)this).Data.CircumferentialSpeed
         );
 
     /// <summary>
@@ -58,8 +58,8 @@ public interface IFanDimensionlessData
         DimensionlessData.PowerCoefficient(
             ((IFan)this).Power,
             ((IFan)this).Data.AirDensity,
-            DataCircumferentialSpeed,
-            DataAreaOfWheelDisc
+            ((IFan)this).Data.CircumferentialSpeed,
+            ((IFan)this).Data.AreaOfWheelDisc
         );
 
     /// <summary>
@@ -94,8 +94,11 @@ public interface IFanDimensionlessData
     /// </summary>
     public double SpecificSpeedCoefficientWithImpellerRotationSpeed =>
         DimensionlessData.SpeedCoefficient(
-            ((IFan)this).Data.ImpellerRotationSpeed,
-            ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
+            ((IFan)this)
+                .Data
+                .ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow
+                / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
             ((IFan)this).InputTotalNormalPressure
         );
 
@@ -131,8 +134,9 @@ public interface IFanDimensionlessData
     /// </summary>
     public double SpecificSizeCoefficientWithRequiredSize =>
         DimensionlessData.SizeCoefficient(
-            ((IFan)this).UserInput.UserInputFan.RequiredSize,
-            ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
+            ((IFan)this).ConditionalStandardSize,
+            ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow
+                / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
             ((IFan)this).InputTotalNormalPressure
         );
 }

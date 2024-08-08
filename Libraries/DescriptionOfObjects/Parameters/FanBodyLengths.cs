@@ -3,20 +3,29 @@
 public static class FanBodyLengths
 {
     /// <summary>
-    ///     Длина корпуса: короткое название
+    ///     Длина корпуса для OsuDu: короткое название
     /// </summary>
-    public static readonly string[] Values =
-    {
-        "1",
-        "2"
-    };
+    public static readonly string[] ValuesForOsuDu = { "1", "2" };
 
     /// <summary>
-    ///     Длина корпуса: полное название
+    ///     Длина корпуса для OsuDu: полное название
     /// </summary>
-    public static readonly string[] Names =
+    public static readonly string[] NamesForOsuDu =
     {
         "1 - полногабаритный корпус",
         "2 - короткий корпус"
+    };
+
+    /// <summary>
+    ///     Длина корпуса для EuFan: короткое название
+    /// </summary>
+    public static readonly string[] ValuesForEuFan = { "1" };
+
+    /// <summary>
+    ///     Длина корпуса для EuFan: полное название
+    /// </summary>
+    public static readonly string[] NamesForEuFan =
+    {
+        "1 - полногабаритный корпус"
     };
 }

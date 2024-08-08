@@ -7,47 +7,63 @@ public static class DimensionlessData
     private const double AccelerationOfFreeFall = 9.80665;
 
     /// <summary>
-    /// Oкружная скорость по концам лопаток [м/с] {size = м; impellerRotationSpeed = об/мин}
+    /// Расчет окружной скорости по концам лопаток, [м/с]
     /// </summary>
-    /// <param name="size"></param>
-    /// <param name="impellerRotationSpeed"></param>
-    /// <returns></returns>
+    /// <param name="conditionalStandardSize">типоразмер, [б/р]</param>
+    /// <param name="impellerRotationSpeedWithSlidingEngineForWorkPoint">скорость вращения крыльчатки со скольжением двигателя, [об/мин]</param>
+    /// <returns>Oкружная скорость по концам лопаток, [м/с]</returns>
     public static double CircumferentialSpeed(
-        double size,
-        double impellerRotationSpeed
-    ) => Math.PI * size * impellerRotationSpeed / 60;
+        double conditionalStandardSize,
+        double impellerRotationSpeedWithSlidingEngineForWorkPoint
+    ) =>
+        Math.PI
+        * conditionalStandardSize
+        * impellerRotationSpeedWithSlidingEngineForWorkPoint
+        / 60;
 
     /// <summary>
-    /// Площадь диска колеса по концам лопаток [м2] {size = м}
+    /// Расчет площади диска колеса по концам лопаток, [м2]
     /// </summary>
-    /// <param name="size"></param>
-    /// <returns></returns>
-    public static double AreaOfWheelDisc(double size) =>
-        Math.PI * Math.Pow(size, 2) / 4;
+    /// <param name="conditionalStandardSize">типоразмер, [б/р]</param>
+    /// <returns>площадь диска колеса по концам лопаток, [м2]</returns>
+    public static double AreaOfWheelDisc(double conditionalStandardSize) =>
+        Math.PI * Math.Pow(conditionalStandardSize, 2) / 4;
 
     /// <summary>
-    /// Коэффициент производительности φ [б/р] {volumeFlow = м3/с; areaOfWheelDisc = м2; circumferentialSpeed = м/с}
+    /// Расчет коэффициента производительности φ (phi), [б/р]
     /// </summary>
-    /// <param name="volumeFlow"></param>
-    /// <param name="areaOfWheelDisc"></param>
-    /// <param name="circumferentialSpeed"></param>
-    /// <returns></returns>
-    public static double PerformanceCoefficient(
+    /// <param name="volumeFlow">Объемный расход воздуха, [м3/ч]</param>
+    /// <param name="areaOfWheelDisc">площадь диска колеса по концам лопаток, [м2]</param>
+    /// <param name="circumferentialSpeed">окружная скорость по концам лопаток, [м/с]</param>
+    /// <returns>Коэффициент производительности φ, [б/р]</returns>
+    public static double PhiCoefficient(
         double volumeFlow,
         double areaOfWheelDisc,
         double circumferentialSpeed
     ) => volumeFlow / (3600 * areaOfWheelDisc * circumferentialSpeed);
 
-    public static double PressureCoefficient(
+    /// <summary>
+    /// Расчет коэффициента (полного, статического или динамического, соответственно) давления ψ, [б/р]
+    /// </summary>
+    /// <param name="pressure"> (полное, статическое или динамическое, соответственно) давление воздуха, [Па]</param>
+    /// <param name="airDensity"> плотность воздуха, [кг/м3]</param>
+    /// <param name="circumferentialSpeed">окружная скорость по концам лопаток, [м/с]</param>
+    /// <returns>Коэффициент (полного, статического или динамического, соответственно) давления ψ (psi), [б/р]</returns>
+    public static double PsiCoefficient(
         double pressure,
         double airDensity,
         double circumferentialSpeed
-    ) =>
-        2
-        * pressure
-        / (airDensity * circumferentialSpeed);
+    ) => 2 * pressure / (airDensity * circumferentialSpeed);
 
-    public static double PressureCoefficient(
+    /// <summary>
+    /// Расчет коэффициента (полного, статического или динамического, соответственно) давления ψ с учетом коэффициента учета сжимаемости, [б/р]
+    /// </summary>
+    /// <param name="pressure"> (полное, статическое или динамическое, соответственно) давление воздуха, [Па]</param>
+    /// <param name="airDensity"> плотность воздуха, [кг/м3]</param>
+    /// <param name="circumferentialSpeed">окружная скорость по концам лопаток, [м/с]</param>
+    /// <param name="compressibilityFactor">коэффициент учета сжимаемости, [б/р]</param>
+    /// <returns>Коэффициент (полного, статического или динамического, соответственно) давления ψ с учетом коэффициента учета сжимаемости, [б/р]</returns>
+    public static double PsiCoefficient(
         double pressure,
         double airDensity,
         double circumferentialSpeed,
@@ -58,6 +74,14 @@ public static class DimensionlessData
         * compressibilityFactor
         / (airDensity * circumferentialSpeed);
 
+    /// <summary>
+    /// Расчет коэффициента потребляемой мощности λ, [б/р]
+    /// </summary>
+    /// <param name="power">потребляемая мощность, [Вт]</param>
+    /// <param name="airDensity"> плотность воздуха, [кг/м3]</param>
+    /// <param name="circumferentialSpeed">окружная скорость по концам лопаток, [м/с]</param>
+    /// <param name="areaOfWheelDisc">площадь диска колеса по концам лопаток, [м2]</param>
+    /// <returns>коэффициент потребляемой мощности λ, [б/р]</returns>
     public static double PowerCoefficient(
         double power,
         double airDensity,
@@ -66,11 +90,7 @@ public static class DimensionlessData
     ) =>
         2
         * power
-        / (
-            airDensity
-            * Math.Pow(circumferentialSpeed, 3)
-            * areaOfWheelDisc
-        );
+        / (airDensity * Math.Pow(circumferentialSpeed, 3) * areaOfWheelDisc);
 
     public static double SpeedCoefficient(
         double performanceCoefficient,
@@ -102,7 +122,8 @@ public static class DimensionlessData
         double volumeFlow,
         double totalNormalPressure
     ) =>
-        size / 1000
+        size
+        / 1000
         * Math.Pow(volumeFlow / 3600, -0.5)
         * Math.Pow(totalNormalPressure / AccelerationOfFreeFall, 0.25);
 

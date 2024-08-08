@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Libraries</AssemblyName>
         <RootNamespace>Libraries</RootNamespace>
+        <TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +29,16 @@
         <None Update="AirElectricMotors.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="FanEfficiencyGrade.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ShortDescriptionOfTheFans.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="ValidateAndSort\SortFans3.cs" />
     </ItemGroup>
 
 </Project>

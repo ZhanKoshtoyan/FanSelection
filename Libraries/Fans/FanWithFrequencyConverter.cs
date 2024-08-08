@@ -2,6 +2,8 @@
 using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Methods;
 using Libraries.StructureOfObjects;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Libraries.Fans;
 
@@ -19,55 +21,42 @@ public class FanWithFrequencyConverter : IFan
 
     double IFan.MinImpellerRotationFrequency => 35;
 
-    double IFan.ImpellerRotationSpeed => SimilarityCalculator.DerivedFromPvImpellerRotationSpeed(
-        ((IFan) this).TotalPressureOnPolynomial,
-        Data.ImpellerRotationSpeed,
-        ((IFan) this).Size,
-        ((IFan)this).Data.AirDensity,
-        UserInput.UserInputWorkPoint.TotalPressure,
-        ((IFan) this).Size,
-        UserInput.DataAir.Density.KilogramsPerCubicMeter
-    );
+    double IFan.ImpellerRotationSpeedWithSlidingEngineForWorkPoint =>
+        SimilarityCalculator.DerivedFromPvImpellerRotationSpeed(
+            ((IFan)this).TotalPressureOnPolynomial,
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ((IFan)this).ConditionalStandardSize,
+            ((IFan)this).Data.AirDensity,
+            UserInput.UserInputWorkPoint.TotalPressure,
+            ((IFan)this).ConditionalStandardSize,
+            UserInput.DataAir.Density.KilogramsPerCubicMeter
+        );
 
-    /*double IFan.ImpellerRotationSpeed
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged(
+        [CallerMemberName] string? propertyName = null
+    )
     {
-        get
+        PropertyChanged?.Invoke(
+            this,
+            new PropertyChangedEventArgs(propertyName)
+        );
+    }
+
+    protected bool SetField<T>(
+        ref T field,
+        T value,
+        [CallerMemberName] string? propertyName = null
+    )
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value))
         {
-            return _correctFanLogic switch
-            {
-                FanLogic.Values.Logic1
-                    => SimilarityCalculator.DerivedFromPvImpellerRotationSpeed(
-                        ((IFan)this).TotalPressureOnPolynomial,
-                        Data.ImpellerRotationSpeed,
-                        ((IFan)this).Size,
-                        FanData.AirInTests,
-                        UserInput.UserInputWorkPoint.TotalPressure,
-                        ((IFan)this).Size,
-                        UserInput.DataAir
-                    ),
-                FanLogic.Values.Logic2
-                    => DimensionlessData.CalculatedSizeOrImpellerRotationSpeed(
-                        ((IFan)this).Size,
-                        UserInput.InputTotalNormalPressure,
-                        (
-                            (IFanDimensionlessData)this
-                        ).TotalPressureCoefficientUserInput,
-                        FanData.AirInTests
-                    ),
-                FanLogic.Values.Logic3
-                    => DimensionlessData.CalculatedSizeOrImpellerRotationSpeed(
-                        ((IFan)this).UserInput.UserInputFan.RequiredSize / 1000,
-                        UserInput.InputTotalNormalPressure,
-                        (
-                            (IFanDimensionlessData)this
-                        ).TotalPressureCoefficientUserInput,
-                        FanData.AirInTests
-                    ),
-                _
-                    => throw new InvalidOperationException(
-                        "Invalid FanLogic value."
-                    )
-            };
+            return false;
         }
-    }*/
+
+        field = value;
+        OnPropertyChanged(propertyName);
+        return true;
+    }
 }

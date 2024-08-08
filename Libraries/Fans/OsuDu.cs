@@ -12,7 +12,7 @@ public class OsuDu : FanWithoutFrequencyConverter
         Data = data;
         UserInput = userInput;
         ProjectId =
-            $"ОСУ-ДУ.{((IFan)this).FanOperatingMaxTemperature}.{((IFan) this).Size * 100:000}.{((IFan)this).FanBodyLength}.{((IFan)this).ImpellerRotationDirection}.{
-                ((IFan) this).NominalPower * 100:0000}.{((IFan) this).NominalImpellerRotationSpeed:0000}.{((IFan)this).CaseExecutionMaterial}.Y2";
+            $"ОСУ-ДУ.{((IFan)this).FanOperatingMaxTemperature:000}.{((IFan) this).ConditionalStandardSize * 100:000}.{((IFan)this).FanBodyLength}.{((IFan)this).ImpellerRotationDirection}.{
+                ((IFan) this).NominalPower * 100:0000}.{((IFan) this).NominalImpellerRotationSpeedWithoutSlidingEngine:0000}.{((IFan)this).FanBodyExecutionMaterial}.Y2";
     }
 }

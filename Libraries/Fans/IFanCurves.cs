@@ -9,35 +9,25 @@ public interface IFanCurves
     /// <summary>
     /// Количество точек на новой кривой
     /// </summary>
-    private const int CountArray = 8;
+    private const int NumberOfDataCurves = 8;
 
     /// <summary>
     /// Расчет рабочих точек для оригинальной кривой
     /// </summary>
-    public IEnumerable<DataCurve> OriginalCurve
-    {
-        get
-        {
-            var minVolumeFlow = ((IFan)this).Data.MinVolumeFlow;
-            var maxVolumeFlow = ((IFan)this).Data.MaxVolumeFlow;
-            var volumeFlowStep =
-                (maxVolumeFlow - minVolumeFlow) / (CountArray - 1);
-
-            for (var i = 0; i < CountArray; i++)
-            {
-                var volumeFlow = minVolumeFlow + volumeFlowStep * i;
-
-                yield return Calculate.DataCurveCalculate(
-                    volumeFlow,
-                    ((IFan)this).Data.TotalPressureQvCoefficients,
-                    ((IFan)this).Size,
-                    ((IFan)this).ImpellerRotationSpeed,
-                    ((IFan)this).Data.AirDensity,
-                    ((IFan)this).Data.PowerQvCoefficients
-                );
-            }
-        }
-    }
+    public IEnumerable<DataCurve> OriginalCurve =>
+        Calculate.CreateDataCurves(
+            ((IFan)this).Data.MinVolumeFlow,
+            ((IFan)this).Data.MaxVolumeFlow,
+            NumberOfDataCurves,
+            ((IFan)this).Data.TotalPressureQvCoefficients,
+            ((IFan)this).ConditionalStandardSize,
+            ((IFan)this).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ((IFan)this).Data.AirDensity,
+            ((IFan)this).Data.PowerQvCoefficients,
+            ((IFan)this).Data.SimilarVolumeFlowCoefficient,
+            ((IFan)this).Data.SimilarTotalPressureCoefficient,
+            ((IFan)this).Data.SimilarPowerCoefficient
+        );
 
     /// <summary>
     /// Расчет рабочих точек для новой кривой
@@ -52,27 +42,32 @@ public interface IFanCurves
                         DcVolumeFlow = SimilarityCalculator.SimilarVolumeFlow(
                             workPoint.DcVolumeFlow,
                             workPoint.DcImpellerRotationSpeed,
-                            workPoint.DcSize,
-                            ((IFan)this).ImpellerRotationSpeed,
-                            ((IFan)this).Size
+                            workPoint.DcConditionalStandardSize,
+                            (
+                                (IFan)this
+                            ).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                            ((IFan)this).ConditionalStandardSize
                         ),
                         DcTotalPressure = SimilarityCalculator.SimilarPressure(
                             workPoint.DcTotalPressure,
                             workPoint.DcImpellerRotationSpeed,
-                            workPoint.DcSize,
+                            workPoint.DcConditionalStandardSize,
                             workPoint.DcAir,
-                            ((IFan)this).ImpellerRotationSpeed,
-                            ((IFan)this).Size,
+                            (
+                                (IFan)this
+                            ).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                            ((IFan)this).ConditionalStandardSize,
                             ((IFan)this)
                                 .UserInput
                                 .DataAir
                                 .Density
                                 .KilogramsPerCubicMeter
                         ),
-                        DcSize = workPoint.DcSize,
+                        DcConditionalStandardSize =
+                            workPoint.DcConditionalStandardSize,
                         DcImpellerRotationSpeed = (
                             (IFan)this
-                        ).ImpellerRotationSpeed,
+                        ).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
                         DcAir = ((IFan)this)
                             .UserInput
                             .DataAir
@@ -81,10 +76,12 @@ public interface IFanCurves
                         DcPower = SimilarityCalculator.SimilarPower(
                             workPoint.DcPower,
                             workPoint.DcImpellerRotationSpeed,
-                            workPoint.DcSize,
+                            workPoint.DcConditionalStandardSize,
                             workPoint.DcAir,
-                            ((IFan)this).ImpellerRotationSpeed,
-                            ((IFan)this).Size,
+                            (
+                                (IFan)this
+                            ).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                            ((IFan)this).ConditionalStandardSize,
                             ((IFan)this)
                                 .UserInput
                                 .DataAir

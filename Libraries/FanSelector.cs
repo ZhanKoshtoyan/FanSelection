@@ -25,18 +25,26 @@ public static class FanSelector
         }*/
 
         var fansList = JsonLoader.Download<FanData>(
-            UserInput.PathJsonFileFanData
+            UserInput.PathDataOfFansJsonFile
         );
 
         object? sortFans;
         switch (userInput.UserInputFan.FanVersion)
         {
             case 0:
-                sortFans = SortFans2.Sort<OsuDu>(fansList, userInput);
+                // sortFans = SortFans2.Sort<OsuDu>(fansList, userInput);
+                sortFans = CreatingListOfFans.Create<OsuDu>(
+                    fansList,
+                    userInput
+                );
                 ToPrint.Print((List<OsuDu>)sortFans, userInput);
                 break;
             case 1:
-                sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
+                //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
+                sortFans = CreatingListOfFans.Create<EuFan>(
+                    fansList,
+                    userInput
+                );
                 ToPrint.Print((List<EuFan>)sortFans, userInput);
                 break;
         }

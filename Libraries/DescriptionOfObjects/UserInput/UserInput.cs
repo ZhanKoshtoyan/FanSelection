@@ -15,10 +15,21 @@ public record UserInput
     /// <summary>
     /// Путь к файлу исходных данных [.json]
     /// </summary>
-    public static readonly string PathJsonFileFanData = Path.Combine(
+    public static readonly string PathDataOfFansJsonFile = Path.Combine(
         Directory.GetCurrentDirectory(),
         "Fans.json"
     );
+
+    public static readonly string PathFanEfficiencyGradeJsonFile = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "FanEfficiencyGrade.json"
+    );
+
+    public static readonly string PathShortDescriptionOfTheFansJsonFile =
+        Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "ShortDescriptionOfTheFans.json"
+        );
 
     /// <summary>
     /// Характеристики рабочей точки вентилятора
@@ -44,14 +55,12 @@ public record UserInput
                 UserInputAir.Altitude.GetValueOrDefault().Meters()
             ),
             InputHumidAir.Temperature(
-                UserInputAir.FanOperatingMinTemperature
+                UserInputAir.FanOperatingCurrentTemperature
                     .GetValueOrDefault()
                     .DegreesCelsius()
             ),
             InputHumidAir.RelativeHumidity(
-                UserInputAir.RelativeHumidity
-                    .GetValueOrDefault()
-                    .Percent()
+                UserInputAir.RelativeHumidity.GetValueOrDefault().Percent()
             )
         );
 }
