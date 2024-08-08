@@ -599,6 +599,36 @@ public static class Calculate
         return sb.ToString().TrimEnd(' ', ';');
     }
 
+    public static IEnumerable<(
+        int Frequency,
+        double Value
+    )> ConvertStringToOctaveNoiseA(string octaveNoiseString)
+    {
+        var octaveNoiseList = new List<(int Frequency, double Value)>();
+
+        if (string.IsNullOrEmpty(octaveNoiseString))
+        {
+            return octaveNoiseList;
+        }
+
+        var octaveValues = octaveNoiseString.Split(';');
+
+        foreach (var octaveValue in octaveValues)
+        {
+            var parts = octaveValue.Trim().Split(':');
+            if (
+                parts.Length == 2
+                && int.TryParse(parts[0], out var frequency)
+                && double.TryParse(parts[1], out var value)
+            )
+            {
+                octaveNoiseList.Add((frequency, value));
+            }
+        }
+
+        return octaveNoiseList;
+    }
+
     public static double Share(double value1, double value2) =>
         Math.Abs(value1 - value2) / value2;
 

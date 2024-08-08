@@ -95,10 +95,29 @@ public class OutputValueConverter : IValueConverter
         return value;
     }
 
-    /*public object ConvertBack(
+    public object ConvertBack(
         object value,
         Type targetType,
-        object parameter,
+        object? parameter,
         CultureInfo culture
-    ) => throw new NotImplementedException();*/
+    )
+    {
+        if (parameter == null)
+        {
+            return value;
+        }
+
+        if (parameter.ToString() == "Size")
+        {
+            return System.Convert.ToDouble(value) / 100;
+        }
+
+        return value switch
+        {
+            double doubleValue => doubleValue,
+            string data when parameter.ToString()!.Contains("ListNoise")
+                => Calculate.ConvertStringToOctaveNoiseA(data),
+            _ => value
+        };
+    }
 }
