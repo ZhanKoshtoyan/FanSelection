@@ -143,8 +143,7 @@ public interface IFan
             Data.MinVolumeFlow,
             Data.MaxVolumeFlow,
             Data.TotalPressureQvCoefficients,
-            UserInput.UserInputWorkPoint.VolumeFlow
-                / UserInput.UserInputFan.NumberOfFans,
+            UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             InputTotalNormalPressure,
             Data.SimilarVolumeFlowCoefficient,
             Data.SimilarTotalPressureCoefficient
@@ -190,8 +189,7 @@ public interface IFan
     /// </summary>
     public double VolumeFlowDeviation =>
         Calculate.Deviation(
-            UserInput.UserInputWorkPoint.VolumeFlow
-                / UserInput.UserInputFan.NumberOfFans,
+            UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             VolumeFlow
         );
 
@@ -233,6 +231,11 @@ public interface IFan
     public double DynamicPressure =>
         Calculate.DynamicPressure(UserInput.DataAir, AirVelocity);
 
+    //TODO Динамическое давление слишком велико.
+    //Скорее всего оно не верно считается. Хорошо, что оно больше не используется в дальнейших расчетах.
+    //Из ГОСТ 10616-2015: Динамическое давление потока при выходе из вентилятора, рассчитанное по величине объемной производительности, средней плотности газа на выходе и площади нагнетательного отверстия вентилятора.
+    // Из ГОСТ 10921-2017: Условное давление на выходе из вентилятора, рассчитанное по среднерасходной скорости v.
+
     /// <summary>
     ///     Расчетный полный КПД вентилятора, [%]
     /// </summary>
@@ -244,4 +247,6 @@ public interface IFan
     /// </summary>
     public double AirVelocity =>
         Calculate.AirVelocity(VolumeFlow, Data.AreaOfInletPipeOpening);
+
+    public int NumberOfFans { get; set; }
 }

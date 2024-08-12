@@ -47,8 +47,8 @@ public static class ToPrint
                     + $"\nОбъем воздуха, введенный пользователем: {userInput.UserInputWorkPoint.VolumeFlow} м3/ч;"
                     + $"\nПолное давление воздуха, введенное пользователем: {userInput.UserInputWorkPoint.TotalPressure} Па;"
                     + (
-                        userInput.UserInputFan.NumberOfFans > 1
-                            ? $"\nКоличество вентиляторов: {userInput.UserInputFan.NumberOfFans.ToString(CultureInfo.InvariantCulture)}"
+                        fan.NumberOfFans > 1
+                            ? $"\nКоличество вентиляторов: {fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)}"
                             : ""
                     )
                     + $"\nРасчетный объем воздуха: {fan.VolumeFlow:0} м3/ч;"
@@ -96,9 +96,9 @@ public static class ToPrint
                     f =>
                         Console.WriteLine(
                             $"{f.DcIndex + 1}: "
-                                + $"Q = {(userInput.UserInputFan.NumberOfFans > 1 ? $"{userInput.UserInputFan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcVolumeFlow} [м3/ч],"
+                                + $"Q = {(fan.NumberOfFans > 1 ? $"{fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcVolumeFlow} [м3/ч],"
                                 + $"Pv = {f.DcTotalPressure} [Па],"
-                                + $"N = {(userInput.UserInputFan.NumberOfFans > 1 ? $"{userInput.UserInputFan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcPower:0.00} [кВт],"
+                                + $"N = {(fan.NumberOfFans > 1 ? $"{fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcPower:0.00} [кВт],"
                                 + $"Total Efficiency = {fan.TotalEfficiency:0.0} [%]"
                         )
                 );

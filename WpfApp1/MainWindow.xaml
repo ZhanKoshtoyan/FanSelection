@@ -260,6 +260,8 @@
                             ConverterParameter=Size}">Size</GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding Path=ProjectId}">ProjectId</GridViewColumn>
                             <!--<GridViewColumn Header="Типоразмер" HeaderContainerStyle="{StaticResource MyHeaderStyle}" DisplayMemberBinding="{Binding Path=(fans:IFan.VolumeFlow), Converter={StaticResource PriceConverter}}">[м3/ч]</GridViewColumn>-->
+                            <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:IFan.NumberOfFans),
+                            Converter={StaticResource OutputValueConverter}}">NumberOfFans [ед.]</GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:IFan.VolumeFlow),
                             Converter={StaticResource OutputValueConverter}}">VolumeFlow [м3/ч]</GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:IFan.TotalPressure),

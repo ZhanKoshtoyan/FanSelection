@@ -141,8 +141,8 @@ public static class Calculate
 
         var volumeFlowList = new List<double>
         {
-            midVolumeFlowLeft,
-            midVolumeFlowRight
+            midVolumeFlowLeft * similarVolumeFlowCoefficient,
+            midVolumeFlowRight * similarVolumeFlowCoefficient
         };
 
         var resultValues = volumeFlowList
@@ -450,31 +450,36 @@ public static class Calculate
             newFanData.AirDensity
         );
 
-        var calcMaxEfficiency = MethodOfHalfDivisionFindMaxEfficiency(
-            oldFanData.MinVolumeFlow,
-            oldFanData.MaxVolumeFlow,
-            oldFanData.TotalPressureQvCoefficients,
-            oldFanData.PowerQvCoefficients,
-            newFanData.SimilarVolumeFlowCoefficient,
-            newFanData.SimilarTotalPressureCoefficient,
-            newFanData.SimilarPowerCoefficient
-        );
+        /*var calcMaxEfficiencyWithoutPowerScaleEffect =
+            MethodOfHalfDivisionFindMaxEfficiency(
+                oldFanData.MinVolumeFlow,
+                oldFanData.MaxVolumeFlow,
+                oldFanData.TotalPressureQvCoefficients,
+                oldFanData.PowerQvCoefficients,
+                newFanData.SimilarVolumeFlowCoefficient,
+                newFanData.SimilarTotalPressureCoefficient,
+                newFanData.SimilarPowerCoefficient
+            );
 
-        newFanData.EfficiencyMax = calcMaxEfficiency.calcMaxEfficiencyValue;
+        newFanData.EfficiencyMax =
+            calcMaxEfficiencyWithoutPowerScaleEffect.calcMaxEfficiencyValue;*/
 
         var fanEfficiencyGradeCoefficient = PowerScaleEffect(
-            oldFanData,
-            newFanData
+            oldFanData.EfficiencyMax,
+            oldFanData.ConditionalStandardSize,
+            newFanData.ConditionalStandardSize
         );
 
+        newFanData.EfficiencyMax =
+            oldFanData.EfficiencyMax * fanEfficiencyGradeCoefficient;
         newFanData.SimilarPowerCoefficient /= fanEfficiencyGradeCoefficient;
 
-        var newMinVolumeFlow =
+        /*var newMinVolumeFlow =
             oldFanData.MinVolumeFlow * newFanData.SimilarVolumeFlowCoefficient;
         var newMaxVolumeFlow =
-            oldFanData.MaxVolumeFlow * newFanData.SimilarVolumeFlowCoefficient;
+            oldFanData.MaxVolumeFlow * newFanData.SimilarVolumeFlowCoefficient;*/
 
-        newFanData.EfficiencyMinLeft = Efficiency(
+        /*newFanData.EfficiencyMinLeft = Efficiency(
             newMinVolumeFlow,
             Polynomial(
                 oldFanData.TotalPressureQvCoefficients,
@@ -492,15 +497,18 @@ public static class Calculate
             ) * newFanData.SimilarTotalPressureCoefficient,
             Polynomial(oldFanData.PowerQvCoefficients, oldFanData.MaxVolumeFlow)
                 * newFanData.SimilarPowerCoefficient
-        );
+        );*/
+        newFanData.EfficiencyMinLeft = oldFanData.EfficiencyMinLeft;
+        newFanData.EfficiencyMinRight = oldFanData.EfficiencyMinRight;
 
-        newFanData.PhiEfficiencyMax = DimensionlessData.PhiCoefficient(
-            calcMaxEfficiency.calcVolumeFlowMaxEfficiency,
+        /*newFanData.PhiEfficiencyMax = DimensionlessData.PhiCoefficient(
+            calcMaxEfficiencyWithoutPowerScaleEffect.calcVolumeFlowMaxEfficiency,
             newFanData.AreaOfWheelDisc,
             newFanData.CircumferentialSpeed
-        );
+        );*/
+        newFanData.PhiEfficiencyMax = oldFanData.PhiEfficiencyMax;
 
-        newFanData.PhiMin = DimensionlessData.PhiCoefficient(
+        /*newFanData.PhiMin = DimensionlessData.PhiCoefficient(
             newMinVolumeFlow,
             newFanData.AreaOfWheelDisc,
             newFanData.CircumferentialSpeed
@@ -510,14 +518,17 @@ public static class Calculate
             newMaxVolumeFlow,
             newFanData.AreaOfWheelDisc,
             newFanData.CircumferentialSpeed
-        );
+        );*/
+        newFanData.PhiMin = oldFanData.PhiMin;
+        newFanData.PhiMax = oldFanData.PhiMax;
 
         return newFanData;
     }
 
     private static double PowerScaleEffect(
-        FanData existingFanData,
-        FanData newFanData
+        double existingFanDataEfficiencyMax,
+        double existingFanDataConditionalStandardSize,
+        double newFanDataConditionalStandardSize
     )
     {
         var fanEfficiencyGradeList = new FanEfficiencyGradeCollection
@@ -527,25 +538,6 @@ public static class Calculate
             )
         };
 
-        var existingFanEfficiencyGradeCoefficient =
-            FindFanEfficiencyGradeCoefficient(
-                fanEfficiencyGradeList,
-                existingFanData
-            );
-        var newFanEfficiencyGradeCoefficient =
-            FindFanEfficiencyGradeCoefficient(
-                fanEfficiencyGradeList,
-                newFanData
-            );
-        return newFanEfficiencyGradeCoefficient
-            / existingFanEfficiencyGradeCoefficient;
-    }
-
-    private static double FindFanEfficiencyGradeCoefficient(
-        FanEfficiencyGradeCollection fanEfficiencyGradeList,
-        FanData fanData
-    )
-    {
         if (fanEfficiencyGradeList.FanEfficiencyGrades == null)
         {
             throw new Exception(
@@ -557,7 +549,10 @@ public static class Calculate
         var fanEfficiencyGradeValueForExistingFanData =
             fanEfficiencyGradeList.FanEfficiencyGrades
                 .Select(i => Convert.ToDouble(i.Name[3..]))
-                .Where(efficiencyMax => efficiencyMax >= fanData.EfficiencyMax)
+                .Where(
+                    efficiencyMax =>
+                        efficiencyMax >= existingFanDataEfficiencyMax
+                )
                 .MinBy(d => d);
         var fanEfficiencyGradeNameForExistingFanData = string.Concat(
             "FEG",
@@ -573,8 +568,30 @@ public static class Calculate
                 "fanEfficiencyGradeObject не найден для объекта fanData"
             );
 
+        var existingFanEfficiencyGradeCoefficient =
+            FindFanEfficiencyGradeCoefficient(
+                fanEfficiencyGradeList,
+                fanEfficiencyGradeObjectForExistingFanData,
+                existingFanDataConditionalStandardSize
+            );
+        var newFanEfficiencyGradeCoefficient =
+            FindFanEfficiencyGradeCoefficient(
+                fanEfficiencyGradeList,
+                fanEfficiencyGradeObjectForExistingFanData,
+                newFanDataConditionalStandardSize
+            );
+        return newFanEfficiencyGradeCoefficient
+            / existingFanEfficiencyGradeCoefficient;
+    }
+
+    private static double FindFanEfficiencyGradeCoefficient(
+        FanEfficiencyGradeCollection fanEfficiencyGradeList,
+        FanEfficiencyGrade fanEfficiencyGradeObjectForExistingFanData,
+        double fanDataConditionalStandardSize
+    )
+    {
         //Находим порядковый номер коэффициента FEG для fanSize в последовательности fanEfficiencyGradeList.FanSizeList для fanData
-        var checkedConditionalStandardSize = fanData.ConditionalStandardSize;
+        var checkedConditionalStandardSize = fanDataConditionalStandardSize;
         if (checkedConditionalStandardSize > 1000)
         {
             checkedConditionalStandardSize = 1000;

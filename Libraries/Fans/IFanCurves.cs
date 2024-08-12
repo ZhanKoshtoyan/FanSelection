@@ -1,6 +1,5 @@
 ﻿using Libraries.DescriptionOfObjects.Parameters;
 using Libraries.Methods;
-using SharpProp;
 
 namespace Libraries.Fans;
 

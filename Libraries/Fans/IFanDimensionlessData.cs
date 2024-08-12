@@ -27,7 +27,7 @@ public interface IFanDimensionlessData
     public double PerformanceCoefficientUserInput =>
         DimensionlessData.PhiCoefficient(
             ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow
-                / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
+                / ((IFan)this).NumberOfFans,
             ((IFan)this).Data.AreaOfWheelDisc,
             ((IFan)this).Data.CircumferentialSpeed
         );
@@ -98,7 +98,7 @@ public interface IFanDimensionlessData
                 .Data
                 .ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow
-                / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
+                / ((IFan)this).NumberOfFans,
             ((IFan)this).InputTotalNormalPressure
         );
 
@@ -136,7 +136,7 @@ public interface IFanDimensionlessData
         DimensionlessData.SizeCoefficient(
             ((IFan)this).ConditionalStandardSize,
             ((IFan)this).UserInput.UserInputWorkPoint.VolumeFlow
-                / ((IFan)this).UserInput.UserInputFan.NumberOfFans,
+                / ((IFan)this).NumberOfFans,
             ((IFan)this).InputTotalNormalPressure
         );
 }

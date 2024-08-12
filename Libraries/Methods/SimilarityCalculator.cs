@@ -1,6 +1,4 @@
-﻿using SharpProp;
-
-namespace Libraries.Methods;
+﻿namespace Libraries.Methods;
 
 public static class SimilarityCalculator
 {

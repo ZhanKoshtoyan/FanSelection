@@ -14,7 +14,7 @@ public abstract class CreatingListOfFans
         List<FanData>? fansList,
         UserInput userInput
     )
-        where T : IFan
+        where T : class, IFan
     {
         if (fansList == null)
         {
@@ -157,8 +157,9 @@ public abstract class CreatingListOfFans
                 )
                 .ToList();
 
-        //8.Выбрать вентилятор где искомая точка находится в промежутке между minVolumeFlow и maxVolumeFlow
-        newFanDataList = newFanDataList
+        //
+
+        /*newFanDataList = newFanDataList
             .Where(
                 f =>
                     userInput.UserInputWorkPoint.VolumeFlow
@@ -168,9 +169,9 @@ public abstract class CreatingListOfFans
                         / userInput.UserInputFan.NumberOfFans
                         <= f.MaxVolumeFlow * f.SimilarVolumeFlowCoefficient
             )
-            .ToList();
+            .ToList();*/
 
-        //9.Создадим список с типом вентилятора OsuDu или EuFan
+        //9->8.Создадим список с типом вентилятора OsuDu или EuFan
         var valueOfFanVersion = (FanVersion.Values)
             userInput.UserInputFan.FanVersion;
 
@@ -204,8 +205,88 @@ public abstract class CreatingListOfFans
                     .ToList()
             );
 
+        //8->9.Выбрать вентилятор где искомая точка находится в промежутке между minVolumeFlow и maxVolumeFlow
+
+        /*var minMaxVolumeFlowFansTypeList1 = fansTypeList.SelectMany(
+            f => NumberOfFans.Values.Select(v => new { TFan = f, Value = v })
+        );
+
+        var minMaxVolumeFlowFansTypeList2 = minMaxVolumeFlowFansTypeList1.Where(
+            pair =>
+                userInput.UserInputWorkPoint.VolumeFlow / pair.Value
+                    >= pair.TFan.Data.MinVolumeFlow
+                        * pair.TFan.Data.SimilarVolumeFlowCoefficient
+                && userInput.UserInputWorkPoint.VolumeFlow / pair.Value
+                    <= pair.TFan.Data.MaxVolumeFlow
+                        * pair.TFan.Data.SimilarVolumeFlowCoefficient
+        );
+
+        fansTypeList = minMaxVolumeFlowFansTypeList2
+            .Select(pair =>
+            {
+                pair.TFan.NumberOfFans = pair.Value;
+                return pair.TFan;
+            })
+            .ToList();*/
+
+        var minMaxVolumeFlowFansTypeList3 =
+            new List<(
+                double size,
+                double valumeFlow,
+                int numberOfFanInSoution,
+                T tFanData
+            )>();
+
+        foreach (var numberOfFans in NumberOfFans.Values)
+        {
+            var minMaxVolumeFlowFansTypeList1 = fansTypeList
+                .Select(
+                    tFan =>
+                        (
+                            size: tFan.ConditionalStandardSize,
+                            volumeflow: tFan.VolumeFlow,
+                            numberOfFanInSoution: tFan.NumberOfFans,
+                            tFanData: tFan
+                        )
+                )
+                .Where(
+                    tuple =>
+                        userInput.UserInputWorkPoint.VolumeFlow / numberOfFans
+                            >= tuple.tFanData.Data.MinVolumeFlow
+                                * tuple
+                                    .tFanData
+                                    .Data
+                                    .SimilarVolumeFlowCoefficient
+                        && userInput.UserInputWorkPoint.VolumeFlow
+                            / numberOfFans
+                            <= tuple.tFanData.Data.MaxVolumeFlow
+                                * tuple
+                                    .tFanData
+                                    .Data
+                                    .SimilarVolumeFlowCoefficient
+                )
+                .ToList();
+
+            var minMaxVolumeFlowFansTypeList2 = minMaxVolumeFlowFansTypeList1
+                .Select(el =>
+                {
+                    el.tFanData.NumberOfFans = numberOfFans;
+                    el.numberOfFanInSoution = el.tFanData.NumberOfFans;
+                    return el;
+                })
+                .ToList();
+
+            minMaxVolumeFlowFansTypeList3.AddRange(
+                minMaxVolumeFlowFansTypeList2
+            );
+        }
+
+        fansTypeList = minMaxVolumeFlowFansTypeList3
+            .Select(t => t.tFanData)
+            .ToList();
+
         //10.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
-        const double specificSpeedDeviation = 0.2;
+        const double specificDeviation = 0.2;
 
         var fanLogicNumber = userInput.UserInputFan.FanLogic;
         var valueOfFanLogic = (FanLogic.Values)userInput.UserInputFan.FanLogic;
@@ -214,12 +295,7 @@ public abstract class CreatingListOfFans
         {
             case 0:
                 //10.1 По быстроходности
-                IEnumerable<(
-                    double specificSpeed,
-                    double specificSpeedEfficiencyMax,
-                    double specificSpeedDevation,
-                    T data
-                )> numberOfHits = fansTypeList
+                var specificSpeedList1 = fansTypeList
                     .Select(
                         tFan =>
                             (
@@ -243,17 +319,17 @@ public abstract class CreatingListOfFans
                             item.specificSpeed >= item.data.SpecificSpeedPhiMin
                             && item.specificSpeed
                                 <= item.data.SpecificSpeedPhiMax
-                    )
-                    //Отбор объектов FanData удовлетворяющих условиям:
-                    //Быстроходность FanData * 0,8 <= Быстроходность FanData <= Быстроходность FanData * 1,2;
+                    );
+                //Отбор объектов FanData удовлетворяющих условиям:
+                //Быстроходность FanData * 0,8 <= Быстроходность FanData <= Быстроходность FanData * 1,2;
+                IEnumerable<(
+                    double specificSpeed,
+                    double specificSpeedEfficiencyMax,
+                    double specificSpeedDevation,
+                    T data
+                )> numberOfHits = specificSpeedList1
                     .Where(
-                        item =>
-                            item.specificSpeed
-                                >= (1 - specificSpeedDeviation)
-                                    * item.specificSpeed
-                            && item.specificSpeed
-                                <= (1 + specificSpeedDeviation)
-                                    * item.specificSpeed
+                        item => item.specificSpeedDevation <= specificDeviation
                     )
                     .OrderByDescending(item => item.data.TotalEfficiency)
                     .ThenBy(item => item.specificSpeedDevation)
@@ -265,12 +341,7 @@ public abstract class CreatingListOfFans
                 break;
             case 1:
                 //10.2 По габаритности
-                IEnumerable<(
-                    double specificSize,
-                    double specificSizeEfficiencyMax,
-                    double specificSizeDevation,
-                    T data
-                )> numberOfHits2 = fansTypeList
+                var specificSizeList1 = fansTypeList
                     .Select(
                         tFan =>
                             (
@@ -287,23 +358,30 @@ public abstract class CreatingListOfFans
                                 data: tFan
                             )
                     )
-                    //Отбор объектов FanData удовлетворяющих условиям:
-                    //Минимальная габаритность FanData <= габаритность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная габаритность FanData
                     .Where(
                         item =>
                             item.specificSize <= item.data.SpecificSizePhiMin
                             && item.specificSize >= item.data.SpecificSizePhiMax
-                    )
-                    //Отбор объектов FanData удовлетворяющих условиям:
-                    //Габаритность FanData * 0,8 <= Габаритность FanData <= Габаритность FanData * 1,2;
+                    );
+                ;
+                //Отбор объектов FanData удовлетворяющих условиям:
+                //Минимальная габаритность FanData <= габаритность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная габаритность FanData
+
+                /*var sizeList2 = sizeList1.Where(
+                    item =>
+                        item.specificSize <= item.data.SpecificSizePhiMin
+                        && item.specificSize >= item.data.SpecificSizePhiMax
+                );*/
+                //Отбор объектов FanData удовлетворяющих условиям:
+                //Габаритность FanData * 0,8 <= Габаритность FanData <= Габаритность FanData * 1,2;
+                IEnumerable<(
+                    double specificSize,
+                    double specificSizeEfficiencyMax,
+                    double specificSizeDevation,
+                    T data
+                )> numberOfHits2 = specificSizeList1
                     .Where(
-                        item =>
-                            item.specificSize
-                                >= (1 - specificSpeedDeviation)
-                                    * item.specificSize
-                            && item.specificSize
-                                <= (1 + specificSpeedDeviation)
-                                    * item.specificSize
+                        item => item.specificSizeDevation <= specificDeviation
                     )
                     .OrderByDescending(item => item.data.TotalEfficiency)
                     .ThenBy(item => item.specificSizeDevation)

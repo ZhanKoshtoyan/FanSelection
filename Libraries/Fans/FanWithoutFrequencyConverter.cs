@@ -1,5 +1,4 @@
-﻿using Libraries.DescriptionOfObjects.Parameters;
-using Libraries.DescriptionOfObjects.UserInput;
+﻿using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Methods;
 using Libraries.StructureOfObjects;
 using System.ComponentModel;
@@ -13,11 +12,19 @@ public class FanWithoutFrequencyConverter : IFan
     {
         Data = data;
         UserInput = userInput;
+        _numberOfFans = UserInput.UserInputFan.NumberOfFans;
     }
 
     public FanData Data { get; protected init; }
     public UserInput UserInput { get; protected init; }
     public string? ProjectId { get; protected init; }
+
+    private int _numberOfFans;
+    int IFan.NumberOfFans
+    {
+        get => _numberOfFans;
+        set => _numberOfFans = value;
+    }
 
     double IFan.MinImpellerRotationFrequency =>
         Calculate.ImpellerRotationFrequency(

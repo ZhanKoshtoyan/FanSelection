@@ -123,7 +123,6 @@ public static class DimensionlessData
         double totalNormalPressure
     ) =>
         size
-        / 1000
         * Math.Pow(volumeFlow / 3600, -0.5)
         * Math.Pow(totalNormalPressure / AccelerationOfFreeFall, 0.25);
 

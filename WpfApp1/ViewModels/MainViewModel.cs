@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfApp1.Models;
@@ -148,13 +149,14 @@ public class MainViewModel : BaseViewModel
     #endregion fanLogicList
 
     #region NumberOfFansList
-    private readonly string[] _numberOfFansList = null!;
-    public string[] NumberOfFansList
+    private readonly List<string> _numberOfFansList = new();
+    public List<string> NumberOfFansList
     {
         get => _numberOfFansList;
         private init
         {
-            _numberOfFansList = value;
+            _numberOfFansList.Add("");
+            _numberOfFansList.AddRange(value);
             OnPropertyChanged();
         }
     }
@@ -519,96 +521,119 @@ public class MainViewModel : BaseViewModel
     private bool CanSelectFanExecute(object parameter)
     {
         // Добавьте здесь логику проверки возможности выполнения команды
+
+
         return true;
     }
 
     private void SelectFanExecute(object parameter)
     {
-        _userInput = Calculate.ProcessUserInput(
-            VolumeFlowText,
-            TotalPressureText,
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion
-                    .FanParameterValuesForProjectId
-                    .FanOperatingMaxTemperatureList,
-                _selectedFanVersion
-                    .FanParameterNamesForComboBoxes
-                    .FanOperatingMaxTemperatureList,
-                SelectedFanOperatingMaxTemperature
-            ),
-            ReturnCorrectOrDefaultIndex(
-                    FanVersion.NamesForComboBox,
-                    SelectedFanVersion.FanParameterNamesForComboBoxes.FanName
-                )
-                .ToString(),
-            ReturnCorrectOrDefaultIndex(
-                    FanLogic.NamesForComboBox,
-                    SelectedFanLogic
-                )
-                .ToString(),
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion.FanParameterValuesForProjectId.FanSizeList,
-                _selectedFanVersion.FanParameterNamesForComboBoxes.FanSizeList,
-                SelectedFanSize
-            ),
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion
-                    .FanParameterValuesForProjectId
-                    .FanBodyLengthList,
-                _selectedFanVersion
-                    .FanParameterNamesForComboBoxes
-                    .FanBodyLengthList,
-                SelectedFanBodyLength
-            ),
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion
-                    .FanParameterValuesForProjectId
-                    .ImpellerRotationDirectionList,
-                _selectedFanVersion
-                    .FanParameterNamesForComboBoxes
-                    .ImpellerRotationDirectionList,
-                SelectedImpellerRotationDirection
-            ),
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion
-                    .FanParameterValuesForProjectId
-                    .NominalPowerList,
-                _selectedFanVersion
-                    .FanParameterNamesForComboBoxes
-                    .NominalPowerList,
-                SelectedNominalPower
-            ),
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion
-                    .FanParameterValuesForProjectId
-                    .NominalImpellerRotationSpeedList,
-                _selectedFanVersion
-                    .FanParameterNamesForComboBoxes
-                    .NominalImpellerRotationSpeedList,
-                SelectedNominalImpellerRotationSpeed
-            ),
-            CheckArgumentOutOfRangeException(
-                _selectedFanVersion
-                    .FanParameterValuesForProjectId
-                    .FanBodyExecutionMaterialList,
-                _selectedFanVersion
-                    .FanParameterNamesForComboBoxes
-                    .FanBodyExecutionMaterialList,
-                SelectedFanBodyExecutionMaterial
-            ),
-            TotalPressureDeviationText,
-            RelativeHumidityText,
-            AltitudeText,
-            FanOperatingCurrentTemperatureText,
-            NumberOfFans.Values.ToList()[
+        if (
+            SelectedFanLogic == FanLogicList[1]
+            && (
+                string.IsNullOrEmpty(SelectedFanSize)
+                || SelectedFanSize == IdProjectDefaultValue
+            )
+        )
+        {
+            MessageBox.Show(
+                "Пожалуйста, выберите 'условный типоразмер крыльчатки'!"
+            ); // Сообщение пользователю
+        }
+        else
+        {
+            _userInput = Calculate.ProcessUserInput(
+                VolumeFlowText,
+                TotalPressureText,
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .FanOperatingMaxTemperatureList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .FanOperatingMaxTemperatureList,
+                    SelectedFanOperatingMaxTemperature
+                ),
                 ReturnCorrectOrDefaultIndex(
-                    NumberOfFans.Names,
-                    _selectedNumberOfFans
-                )
-            ].ToString()
-        );
+                        FanVersion.NamesForComboBox,
+                        SelectedFanVersion
+                            .FanParameterNamesForComboBoxes
+                            .FanName
+                    )
+                    .ToString(),
+                ReturnCorrectOrDefaultIndex(
+                        FanLogic.NamesForComboBox,
+                        SelectedFanLogic
+                    )
+                    .ToString(),
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .FanSizeList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .FanSizeList,
+                    SelectedFanSize
+                ),
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .FanBodyLengthList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .FanBodyLengthList,
+                    SelectedFanBodyLength
+                ),
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .ImpellerRotationDirectionList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .ImpellerRotationDirectionList,
+                    SelectedImpellerRotationDirection
+                ),
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .NominalPowerList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .NominalPowerList,
+                    SelectedNominalPower
+                ),
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .NominalImpellerRotationSpeedList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .NominalImpellerRotationSpeedList,
+                    SelectedNominalImpellerRotationSpeed
+                ),
+                CheckArgumentOutOfRangeException(
+                    _selectedFanVersion
+                        .FanParameterValuesForProjectId
+                        .FanBodyExecutionMaterialList,
+                    _selectedFanVersion
+                        .FanParameterNamesForComboBoxes
+                        .FanBodyExecutionMaterialList,
+                    SelectedFanBodyExecutionMaterial
+                ),
+                TotalPressureDeviationText,
+                RelativeHumidityText,
+                AltitudeText,
+                FanOperatingCurrentTemperatureText,
+                NumberOfFans.Values.ToList()[
+                    ReturnCorrectOrDefaultIndex(
+                        NumberOfFans.Names,
+                        _selectedNumberOfFans
+                    )
+                ].ToString()
+            );
 
-        DoIt2(_userInput);
+            DoIt2(_userInput);
+        }
     }
 
     private void UpdateText()
@@ -858,7 +883,7 @@ public class MainViewModel : BaseViewModel
         };
         FanLogicList = FanLogic.NamesForComboBox;
         SelectedFanLogic = FanLogic.NamesForComboBox[0];
-        NumberOfFansList = NumberOfFans.Names;
+        NumberOfFansList = NumberOfFans.Names.ToList();
         SelectedNumberOfFans = NumberOfFans.Values[0].ToString();
         TotalPressureDeviationText = "30";
         FanOperatingCurrentTemperatureText = "20";

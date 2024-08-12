@@ -19,6 +19,10 @@ public class FanWithFrequencyConverter : IFan
     public UserInput UserInput { get; protected init; }
     public string? ProjectId { get; protected init; }
 
+    public int NumberOfFans { get; set; } = 1;
+
+    //TODO Проверить присвоение при инициализации и при переназначении!!!
+
     double IFan.MinImpellerRotationFrequency => 35;
 
     double IFan.ImpellerRotationSpeedWithSlidingEngineForWorkPoint =>

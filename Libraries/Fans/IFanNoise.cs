@@ -75,7 +75,7 @@ public interface IFanNoise
                                 ).ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
                                 ((IFan)this).ConditionalStandardSize
                             ),
-                            ((IFan)this).UserInput.UserInputFan.NumberOfFans
+                            ((IFan)this).NumberOfFans
                         )
                     )
             )
