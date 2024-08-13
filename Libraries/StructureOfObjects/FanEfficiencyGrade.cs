@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Libraries.StructureOfObjects;
+﻿namespace Libraries.StructureOfObjects;
 
 public record FanEfficiencyGrade
 {

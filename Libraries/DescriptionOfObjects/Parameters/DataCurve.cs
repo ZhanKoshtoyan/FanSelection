@@ -1,6 +1,4 @@
-﻿using SharpProp;
-
-namespace Libraries.DescriptionOfObjects.Parameters;
+﻿namespace Libraries.DescriptionOfObjects.Parameters;
 
 public record DataCurve
 {
@@ -11,6 +9,5 @@ public record DataCurve
     public required double DcImpellerRotationSpeed { get; init; }
     public required double DcAir { get; init; }
     public required double DcPower { get; init; }
-
-    public double Efficiency { get; set; }
+    public double DcEfficiency { get; init; }
 }

@@ -28,7 +28,7 @@ public record FanData : ShortDescriptionOfTheFanData
     /// <summary>
     /// Плотность воздуха, [кг/м3]
     /// </summary>
-    public required double AirDensity { get; set; }
+    public required double AirDensity { get; init; }
 
     /// <summary>
     /// Высота над уровнем моря, [м]
@@ -53,12 +53,12 @@ public record FanData : ShortDescriptionOfTheFanData
     /// <summary>
     ///     Минимальный объем воздуха, [м3/ч]
     /// </summary>
-    public required double MinVolumeFlow { get; set; }
+    public required double MinVolumeFlow { get; init; }
 
     /// <summary>
     ///     Максимальный объем воздуха, [м3/ч]
     /// </summary>
-    public required double MaxVolumeFlow { get; set; }
+    public required double MaxVolumeFlow { get; init; }
 
     /// <summary>
     ///     Коэффициенты полинома n-й степени Pv(Q) - полного давления от объемного воздуха

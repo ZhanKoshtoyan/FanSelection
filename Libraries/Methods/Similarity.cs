@@ -1,6 +1,6 @@
 ﻿namespace Libraries.Methods;
 
-public static class SimilarityCalculator
+public static class Similarity
 {
     public static double SimilarVolumeFlow(
         double oldVolumeFlow,

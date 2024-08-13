@@ -2,7 +2,7 @@
 
 public class FanVersionItem
 {
-    public required FanParameterNamesForComboBoxes FanParameterNamesForComboBoxes { get; set; }
-    public required FanParameterValuesForProjectId FanParameterValuesForProjectId { get; set; }
-    public required FanParameterByDefault FanParameterByDefault { get; set; }
+    public required FanParameterNamesForComboBoxes FanParameterNamesForComboBoxes { get; init; }
+    public required FanParameterValuesForProjectId FanParameterValuesForProjectId { get; init; }
+    public required FanParameterByDefault FanParameterByDefault { get; init; }
 }

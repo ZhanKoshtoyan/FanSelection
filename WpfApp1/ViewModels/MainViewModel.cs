@@ -9,13 +9,11 @@ using Libraries.ValidateAndSort;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using WpfApp1.Models;
-using IFan = Libraries.Fans.IFan;
+using AbstractFan = Libraries.Fans.AbstractFan;
 
 namespace WpfApp1.ViewModels;
 
@@ -267,8 +265,8 @@ public class MainViewModel : BaseViewModel
     #endregion RelativeHumidityText
 
     #region ListOfFansViewModel
-    private ObservableCollection<IFan> _listOfFansViewModel = null!;
-    public ObservableCollection<IFan> ListOfFansViewModel
+    private ObservableCollection<AbstractFan> _listOfFansViewModel = null!;
+    public ObservableCollection<AbstractFan> ListOfFansViewModel
     {
         get => _listOfFansViewModel;
         set
@@ -759,7 +757,7 @@ public class MainViewModel : BaseViewModel
                     fansList,
                     userInput
                 );
-                var newDataOsuDu = new ObservableCollection<IFan>(
+                var newDataOsuDu = new ObservableCollection<AbstractFan>(
                     (List<OsuDu>)sortFans
                 );
                 ListOfFansViewModel = newDataOsuDu;
@@ -785,7 +783,7 @@ public class MainViewModel : BaseViewModel
                     fansList,
                     userInput
                 );
-                var newDataEuFan = new ObservableCollection<IFan>(
+                var newDataEuFan = new ObservableCollection<AbstractFan>(
                     (List<EuFan>)sortFans
                 );
                 ListOfFansViewModel = newDataEuFan;

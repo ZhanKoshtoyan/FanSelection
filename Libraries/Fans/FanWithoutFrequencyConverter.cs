@@ -1,64 +1,20 @@
 ﻿using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Methods;
 using Libraries.StructureOfObjects;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace Libraries.Fans;
 
-public class FanWithoutFrequencyConverter : IFan
+public abstract class FanWithoutFrequencyConverter : AbstractFan
 {
     protected FanWithoutFrequencyConverter(FanData data, UserInput userInput)
+        : base(data, userInput)
     {
-        Data = data;
-        UserInput = userInput;
-        _numberOfFans = UserInput.UserInputFan.NumberOfFans;
-    }
-
-    public FanData Data { get; protected init; }
-    public UserInput UserInput { get; protected init; }
-    public string? ProjectId { get; protected init; }
-
-    private int _numberOfFans;
-    int IFan.NumberOfFans
-    {
-        get => _numberOfFans;
-        set => _numberOfFans = value;
-    }
-
-    double IFan.MinImpellerRotationFrequency =>
-        Calculate.ImpellerRotationFrequency(
+        MinImpellerRotationFrequency = Calculate.ImpellerRotationFrequency(
             Data.MaxImpellerRotationSpeedWithSlidingEngine,
             Data.NominalImpellerRotationSpeedWithoutSlidingEngine
         );
 
-    double IFan.ImpellerRotationSpeedWithSlidingEngineForWorkPoint =>
-        Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint;
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged(
-        [CallerMemberName] string? propertyName = null
-    )
-    {
-        PropertyChanged?.Invoke(
-            this,
-            new PropertyChangedEventArgs(propertyName)
-        );
-    }
-
-    protected bool SetField<T>(
-        ref T field,
-        T value,
-        [CallerMemberName] string? propertyName = null
-    )
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value))
-        {
-            return false;
-        }
-
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint;
     }
 }

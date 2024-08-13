@@ -14,7 +14,7 @@ public abstract class CreatingListOfFans
         List<FanData>? fansList,
         UserInput userInput
     )
-        where T : class, IFan
+        where T : AbstractFan
     {
         if (fansList == null)
         {
@@ -229,61 +229,38 @@ public abstract class CreatingListOfFans
             })
             .ToList();*/
 
-        var minMaxVolumeFlowFansTypeList3 =
-            new List<(
-                double size,
-                double valumeFlow,
-                int numberOfFanInSoution,
-                T tFanData
-            )>();
+        var minMaxVolumeFlowFansTypeList3 = new List<T>();
 
         foreach (var numberOfFans in NumberOfFans.Values)
         {
             var minMaxVolumeFlowFansTypeList1 = fansTypeList
-                .Select(
-                    tFan =>
-                        (
-                            size: tFan.ConditionalStandardSize,
-                            volumeflow: tFan.VolumeFlow,
-                            numberOfFanInSoution: tFan.NumberOfFans,
-                            tFanData: tFan
-                        )
-                )
-                .Where(
-                    tuple =>
-                        userInput.UserInputWorkPoint.VolumeFlow / numberOfFans
-                            >= tuple.tFanData.Data.MinVolumeFlow
-                                * tuple
-                                    .tFanData
-                                    .Data
-                                    .SimilarVolumeFlowCoefficient
-                        && userInput.UserInputWorkPoint.VolumeFlow
-                            / numberOfFans
-                            <= tuple.tFanData.Data.MaxVolumeFlow
-                                * tuple
-                                    .tFanData
-                                    .Data
-                                    .SimilarVolumeFlowCoefficient
-                )
-                .ToList();
-
-            var minMaxVolumeFlowFansTypeList2 = minMaxVolumeFlowFansTypeList1
-                .Select(el =>
+                .Select(tFan =>
                 {
-                    el.tFanData.NumberOfFans = numberOfFans;
-                    el.numberOfFanInSoution = el.tFanData.NumberOfFans;
-                    return el;
+                    tFan.NumberOfFans = numberOfFans;
+                    return tFan;
                 })
                 .ToList();
 
+            /*var minMaxVolumeFlowFansTypeList2 = minMaxVolumeFlowFansTypeList1
+                .Where(
+                    tFan =>
+                        userInput.UserInputWorkPoint.VolumeFlow
+                            / tFan.NumberOfFans
+                            >= tFan.Data.MinVolumeFlow
+                                * tFan.Data.SimilarVolumeFlowCoefficient
+                        && userInput.UserInputWorkPoint.VolumeFlow
+                            / tFan.NumberOfFans
+                            <= tFan.Data.MaxVolumeFlow
+                                * tFan.Data.SimilarVolumeFlowCoefficient
+                )
+                .ToList();*/
+
             minMaxVolumeFlowFansTypeList3.AddRange(
-                minMaxVolumeFlowFansTypeList2
+                minMaxVolumeFlowFansTypeList1
             );
         }
 
-        fansTypeList = minMaxVolumeFlowFansTypeList3
-            .Select(t => t.tFanData)
-            .ToList();
+        fansTypeList = minMaxVolumeFlowFansTypeList3;
 
         //10.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
         const double specificDeviation = 0.2;
@@ -363,7 +340,6 @@ public abstract class CreatingListOfFans
                             item.specificSize <= item.data.SpecificSizePhiMin
                             && item.specificSize >= item.data.SpecificSizePhiMax
                     );
-                ;
                 //Отбор объектов FanData удовлетворяющих условиям:
                 //Минимальная габаритность FanData <= габаритность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная габаритность FanData
 

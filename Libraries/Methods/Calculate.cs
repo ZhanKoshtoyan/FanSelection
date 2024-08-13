@@ -420,27 +420,25 @@ public static class Calculate
             SpecificSizePhiCoefficients = oldFanData.SpecificSizePhiCoefficients // По-моему, они должны быть неизменны для одной АСВ
         };
 
-        newFanData.SimilarVolumeFlowCoefficient =
-            SimilarityCalculator.SimilarVolumeFlow(
-                1.0,
-                oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                oldFanData.ConditionalStandardSize,
-                newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                newFanData.ConditionalStandardSize
-            );
+        newFanData.SimilarVolumeFlowCoefficient = Similarity.SimilarVolumeFlow(
+            1.0,
+            oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            oldFanData.ConditionalStandardSize,
+            newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            newFanData.ConditionalStandardSize
+        );
 
-        newFanData.SimilarTotalPressureCoefficient =
-            SimilarityCalculator.SimilarPressure(
-                1.0,
-                oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                oldFanData.ConditionalStandardSize,
-                oldFanData.AirDensity,
-                newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                newFanData.ConditionalStandardSize,
-                newFanData.AirDensity
-            );
+        newFanData.SimilarTotalPressureCoefficient = Similarity.SimilarPressure(
+            1.0,
+            oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            oldFanData.ConditionalStandardSize,
+            oldFanData.AirDensity,
+            newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            newFanData.ConditionalStandardSize,
+            newFanData.AirDensity
+        );
 
-        newFanData.SimilarPowerCoefficient = SimilarityCalculator.SimilarPower(
+        newFanData.SimilarPowerCoefficient = Similarity.SimilarPower(
             1.0,
             oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             oldFanData.ConditionalStandardSize,

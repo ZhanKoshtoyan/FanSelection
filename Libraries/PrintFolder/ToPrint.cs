@@ -9,7 +9,7 @@ namespace Libraries.PrintFolder;
 public static class ToPrint
 {
     public static void Print<T>(List<T> sortFans, UserInput userInput)
-        where T : IFan
+        where T : AbstractFan
     {
         string? endingOfTheWord1;
         string? endingOfTheWord2;
@@ -99,7 +99,7 @@ public static class ToPrint
                                 + $"Q = {(fan.NumberOfFans > 1 ? $"{fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcVolumeFlow} [м3/ч],"
                                 + $"Pv = {f.DcTotalPressure} [Па],"
                                 + $"N = {(fan.NumberOfFans > 1 ? $"{fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcPower:0.00} [кВт],"
-                                + $"Total Efficiency = {fan.TotalEfficiency:0.0} [%]"
+                                + $"Total Efficiency = {f.DcEfficiency:0.0} [%]"
                         )
                 );
         }

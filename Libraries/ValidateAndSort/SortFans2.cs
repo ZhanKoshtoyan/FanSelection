@@ -22,7 +22,7 @@ public abstract class SortFans2
         IEnumerable<FanData>? fansList,
         UserInput userInput
     )
-        where T : IFan
+        where T : AbstractFan
     {
         //------------------------------------------------------------------------------------------------------------
         // Отбросим все FanData, которые выходят за пределы значений минимального и максимального значений VolumeFlow
