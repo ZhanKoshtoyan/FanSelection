@@ -5,8 +5,8 @@ namespace Libraries.Fans;
 
 public class EuFan : FanWithFrequencyConverter
 {
-    public EuFan(FanData data, UserInput userInput)
-        : base(data, userInput) =>
+    public EuFan(FanData data, UserInput userInput, int numberOfFans = 1)
+        : base(data, userInput, numberOfFans) =>
         ProjectId =
             $"ЕУ.{FanOperatingMaxTemperature:000}.{Math.Round(ConditionalStandardSize * 100, 0,
                 MidpointRounding.ToNegativeInfinity):000}.{FanBodyLength}.{ImpellerRotationDirection

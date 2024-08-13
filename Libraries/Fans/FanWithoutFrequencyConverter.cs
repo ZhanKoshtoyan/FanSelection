@@ -6,8 +6,12 @@ namespace Libraries.Fans;
 
 public abstract class FanWithoutFrequencyConverter : AbstractFan
 {
-    protected FanWithoutFrequencyConverter(FanData data, UserInput userInput)
-        : base(data, userInput)
+    protected FanWithoutFrequencyConverter(
+        FanData data,
+        UserInput userInput,
+        int numberOfFans
+    )
+        : base(data, userInput, numberOfFans)
     {
         MinImpellerRotationFrequency = Calculate.ImpellerRotationFrequency(
             Data.MaxImpellerRotationSpeedWithSlidingEngine,

@@ -10,11 +10,12 @@ namespace Libraries.Fans;
 public abstract class AbstractFan : INotifyPropertyChanged
 {
     // Конструктор для инициализации свойств
-    protected AbstractFan(FanData data, UserInput userInput)
+    protected AbstractFan(FanData data, UserInput userInput, int numberOfFans)
     {
         Data = data ?? throw new ArgumentNullException(nameof(data)); // Проверка на null
         UserInput =
             userInput ?? throw new ArgumentNullException(nameof(userInput)); // Проверка на null
+        NumberOfFans = numberOfFans;
     }
 
     /// <summary>
@@ -258,7 +259,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     public double AirVelocity =>
         Calculate.AirVelocity(VolumeFlow, Data.AreaOfInletPipeOpening);
 
-    public int NumberOfFans { get; set; } = 1;
+    public int NumberOfFans { get; set; }
 
     //____________________________________________________________________________________________________________________________
     //Уровень шума

@@ -18,7 +18,7 @@ public record UserInputFan
     /// <summary>
     /// Количество вентиляторов, обеспечивающих рабочую точку
     /// </summary>
-    public int NumberOfFans { get; set; } = 1;
+    public int NumberOfFans { get; set; }
 
     /// <summary>
     ///     Типоразмер вентилятора, которое ввел пользователь

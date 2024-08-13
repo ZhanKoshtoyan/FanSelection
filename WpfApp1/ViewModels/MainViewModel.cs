@@ -622,12 +622,12 @@ public class MainViewModel : BaseViewModel
                 RelativeHumidityText,
                 AltitudeText,
                 FanOperatingCurrentTemperatureText,
-                NumberOfFans.Values.ToList()[
+                NumberOfFansList[
                     ReturnCorrectOrDefaultIndex(
                         NumberOfFans.Names,
                         _selectedNumberOfFans
                     )
-                ].ToString()
+                ]
             );
 
             DoIt2(_userInput);
@@ -882,7 +882,7 @@ public class MainViewModel : BaseViewModel
         FanLogicList = FanLogic.NamesForComboBox;
         SelectedFanLogic = FanLogic.NamesForComboBox[0];
         NumberOfFansList = NumberOfFans.Names.ToList();
-        SelectedNumberOfFans = NumberOfFans.Values[0].ToString();
+        SelectedNumberOfFans = NumberOfFansList[0];
         TotalPressureDeviationText = "30";
         FanOperatingCurrentTemperatureText = "20";
         RelativeHumidityText = "0";

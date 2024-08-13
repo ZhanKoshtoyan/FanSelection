@@ -138,7 +138,15 @@ public abstract class CreatingListOfFans
                     .ToList();
         }
 
-        //7. Создадим список с типом вентилятора FanData
+        //7.Выбрать максимальное значение NumberOfFans, для которого будут созданы сочетания одновременно работающих вентиляторов
+
+        var numberOfFansForCreate = userInput.UserInputFan.NumberOfFans switch
+        {
+            0 => NumberOfFans.Values.Length,
+            _ => userInput.UserInputFan.NumberOfFans
+        };
+
+        //8. Создадим список с типом вентилятора FanData
         IEnumerable<FanData> newFanDataList =
             sortedShortDescriptionOfTheFanDataList
                 .Where(s => s.Version == existingFanData.Version)
@@ -157,110 +165,48 @@ public abstract class CreatingListOfFans
                 )
                 .ToList();
 
-        //
-
-        /*newFanDataList = newFanDataList
-            .Where(
-                f =>
-                    userInput.UserInputWorkPoint.VolumeFlow
-                        / userInput.UserInputFan.NumberOfFans
-                        >= f.MinVolumeFlow * f.SimilarVolumeFlowCoefficient
-                    && userInput.UserInputWorkPoint.VolumeFlow
-                        / userInput.UserInputFan.NumberOfFans
-                        <= f.MaxVolumeFlow * f.SimilarVolumeFlowCoefficient
-            )
-            .ToList();*/
-
-        //9->8.Создадим список с типом вентилятора OsuDu или EuFan
+        //9.Создадим список с типом вентилятора OsuDu или EuFan
         var valueOfFanVersion = (FanVersion.Values)
             userInput.UserInputFan.FanVersion;
 
-        List<T> fansTypeList =
-            new(
-                newFanDataList
-                    .Select(
-                        elementFanData =>
-                            valueOfFanVersion switch
-                            {
-                                FanVersion.Values.OsuDu
-                                    => (T)
-                                        (object)
-                                            new OsuDu(
-                                                elementFanData,
-                                                userInput
-                                            ),
-                                FanVersion.Values.EuFan
-                                    => (T)
-                                        (object)
-                                            new EuFan(
-                                                elementFanData,
-                                                userInput
-                                            ),
-                                _
-                                    => throw new ArgumentOutOfRangeException(
-                                        $"Версии вентилятора с индексом {valueOfFanVersion} не существует!"
-                                    )
-                            }
-                    )
-                    .ToList()
-            );
+        var multipleTypedFansList = new List<T>();
 
-        //8->9.Выбрать вентилятор где искомая точка находится в промежутке между minVolumeFlow и maxVolumeFlow
-
-        /*var minMaxVolumeFlowFansTypeList1 = fansTypeList.SelectMany(
-            f => NumberOfFans.Values.Select(v => new { TFan = f, Value = v })
-        );
-
-        var minMaxVolumeFlowFansTypeList2 = minMaxVolumeFlowFansTypeList1.Where(
-            pair =>
-                userInput.UserInputWorkPoint.VolumeFlow / pair.Value
-                    >= pair.TFan.Data.MinVolumeFlow
-                        * pair.TFan.Data.SimilarVolumeFlowCoefficient
-                && userInput.UserInputWorkPoint.VolumeFlow / pair.Value
-                    <= pair.TFan.Data.MaxVolumeFlow
-                        * pair.TFan.Data.SimilarVolumeFlowCoefficient
-        );
-
-        fansTypeList = minMaxVolumeFlowFansTypeList2
-            .Select(pair =>
-            {
-                pair.TFan.NumberOfFans = pair.Value;
-                return pair.TFan;
-            })
-            .ToList();*/
-
-        var minMaxVolumeFlowFansTypeList3 = new List<T>();
-
-        foreach (var numberOfFans in NumberOfFans.Values)
+        for (
+            var numberOfFans = 1;
+            numberOfFans <= numberOfFansForCreate;
+            numberOfFans++
+        )
         {
-            var minMaxVolumeFlowFansTypeList1 = fansTypeList
-                .Select(tFan =>
-                {
-                    tFan.NumberOfFans = numberOfFans;
-                    return tFan;
-                })
-                .ToList();
-
-            /*var minMaxVolumeFlowFansTypeList2 = minMaxVolumeFlowFansTypeList1
-                .Where(
-                    tFan =>
-                        userInput.UserInputWorkPoint.VolumeFlow
-                            / tFan.NumberOfFans
-                            >= tFan.Data.MinVolumeFlow
-                                * tFan.Data.SimilarVolumeFlowCoefficient
-                        && userInput.UserInputWorkPoint.VolumeFlow
-                            / tFan.NumberOfFans
-                            <= tFan.Data.MaxVolumeFlow
-                                * tFan.Data.SimilarVolumeFlowCoefficient
+            var multipleTypedFansListTemporary = newFanDataList
+                .Select(
+                    elementFanData =>
+                        valueOfFanVersion switch
+                        {
+                            FanVersion.Values.OsuDu
+                                => (T)
+                                    (object)
+                                        new OsuDu(
+                                            elementFanData,
+                                            userInput,
+                                            numberOfFans
+                                        ),
+                            FanVersion.Values.EuFan
+                                => (T)
+                                    (object)
+                                        new EuFan(
+                                            elementFanData,
+                                            userInput,
+                                            numberOfFans
+                                        ),
+                            _
+                                => throw new ArgumentOutOfRangeException(
+                                    $"Версии вентилятора с индексом {valueOfFanVersion} не существует!"
+                                )
+                        }
                 )
-                .ToList();*/
-
-            minMaxVolumeFlowFansTypeList3.AddRange(
-                minMaxVolumeFlowFansTypeList1
-            );
+                .ToList();
+            multipleTypedFansList.AddRange(multipleTypedFansListTemporary);
         }
-
-        fansTypeList = minMaxVolumeFlowFansTypeList3;
 
         //10.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
         const double specificDeviation = 0.2;
@@ -272,10 +218,12 @@ public abstract class CreatingListOfFans
         {
             case 0:
                 //10.1 По быстроходности
-                var specificSpeedList1 = fansTypeList
+                var specificSpeedList1 = multipleTypedFansList
                     .Select(
                         tFan =>
                             (
+                                fanSize: tFan.ConditionalStandardSize,
+                                numberOfFansIteration: tFan.NumberOfFans,
                                 //Запишем быстроходность искомой рабочей точки
                                 specificSpeed: tFan.SpecificSpeedCoefficientWithImpellerRotationSpeed,
                                 //Запишем быстроходность при максимальном полном КПД
@@ -289,22 +237,18 @@ public abstract class CreatingListOfFans
                                 data: tFan
                             )
                     )
-                    //Отбор объектов FanData удовлетворяющих условиям:
-                    //Минимальная быстроходность FanData <= быстроходность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная быстроходность FanData
-                    .Where(
-                        item =>
-                            item.specificSpeed >= item.data.SpecificSpeedPhiMin
-                            && item.specificSpeed
-                                <= item.data.SpecificSpeedPhiMax
-                    );
+                    .ToList();
+                var specificSpeedList2 = specificSpeedList1
+                //Отбор объектов FanData удовлетворяющих условиям:
+                //Минимальная быстроходность FanData <= быстроходность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная быстроходность FanData
+                .Where(
+                    item =>
+                        item.specificSpeed >= item.data.SpecificSpeedPhiMin
+                        && item.specificSpeed <= item.data.SpecificSpeedPhiMax
+                );
                 //Отбор объектов FanData удовлетворяющих условиям:
                 //Быстроходность FanData * 0,8 <= Быстроходность FanData <= Быстроходность FanData * 1,2;
-                IEnumerable<(
-                    double specificSpeed,
-                    double specificSpeedEfficiencyMax,
-                    double specificSpeedDevation,
-                    T data
-                )> numberOfHits = specificSpeedList1
+                var numberOfHits = specificSpeedList2
                     .Where(
                         item => item.specificSpeedDevation <= specificDeviation
                     )
@@ -318,7 +262,7 @@ public abstract class CreatingListOfFans
                 break;
             case 1:
                 //10.2 По габаритности
-                var specificSizeList1 = fansTypeList
+                var specificSizeList1 = multipleTypedFansList
                     .Select(
                         tFan =>
                             (

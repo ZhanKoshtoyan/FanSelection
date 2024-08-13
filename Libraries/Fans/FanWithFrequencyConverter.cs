@@ -6,8 +6,12 @@ namespace Libraries.Fans;
 
 public abstract class FanWithFrequencyConverter : AbstractFan
 {
-    protected FanWithFrequencyConverter(FanData data, UserInput userInput)
-        : base(data, userInput)
+    protected FanWithFrequencyConverter(
+        FanData data,
+        UserInput userInput,
+        int numberOfFans
+    )
+        : base(data, userInput, numberOfFans)
     {
         ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
             Similarity.DerivedFromPvImpellerRotationSpeed(

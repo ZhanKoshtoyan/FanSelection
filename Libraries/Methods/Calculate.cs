@@ -1,5 +1,6 @@
 ﻿using Libraries.DescriptionOfObjects.Parameters;
 using Libraries.DescriptionOfObjects.UserInput;
+using Libraries.Fans;
 using Libraries.Loader;
 using Libraries.StructureOfObjects;
 using SharpProp;
@@ -798,5 +799,23 @@ public static class Calculate
             : throw new Exception(
                 $"SelectedSize = {strValue}, не удалось преобразовать к типу double"
             );
+    }
+
+    public static List<T> UpdateFansCountWithClone<T>(List<T> fansTypeList)
+        where T : AbstractFan, ICloneable
+    {
+        var resultList = new List<T>();
+
+        foreach (var numberOfFans in NumberOfFans.Values)
+        {
+            foreach (var tFan in fansTypeList)
+            {
+                var newFan = (T)tFan.Clone(); // Клонируем объект
+                newFan.NumberOfFans = numberOfFans; // Обновляем количество вентиляторов
+                resultList.Add(newFan); // Добавляем в результирующий список
+            }
+        }
+
+        return resultList;
     }
 }
