@@ -384,10 +384,12 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// </summary>
     public double SpecificSpeedCoefficientWithImpellerRotationSpeed =>
         DimensionlessData.SpeedCoefficient(
-            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            Data.MaxImpellerRotationSpeedWithSlidingEngine,
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             InputTotalNormalPressure
         );
+
+    //Изменил Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint на Data.MaxImpellerRotationSpeedWithSlidingEngine
 
     /// <summary>
     /// Коэффициент габаритности при максимальном значении полного КПД

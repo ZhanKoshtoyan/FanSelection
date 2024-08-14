@@ -209,6 +209,8 @@ public static class Calculate
         double power
     ) => volumeFlow * pressure / (3600 * 1000 * power) * 100;
 
+    //TODO КПД для вентиляторов с частотником 33660-2015: вместо FEG д/б FMEG
+
     public static double AirVelocity(
         double volumeFlow,
         double inletCrossSection
