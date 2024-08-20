@@ -100,14 +100,21 @@ public static class DimensionlessData
         * Math.Pow(performanceCoefficient, 0.5)
         * Math.Pow(totalPressureCoefficient, -0.75);
 
+    /// <summary>
+    /// Расчет быстроходности вентилятора по размерным характеристикам
+    /// </summary>
+    /// <param name="dataImpellerRotationSpeedWithSlidingEngineForWorkPoint">Скорость врашения крыльчатки, при которой был посчитан SpeedCoefficient по безразмерным характеристикам</param>
+    /// <param name="inputVolumeFlow">Объемный расход воздуха, который ввел пользователь;  [м3/ч]</param>
+    /// <param name="inputTotalNormalPressure">Полное давление воздуха, которое ввел пользователь; [Па]</param>
+    /// <returns>Быстроходность вентилятора; [б/р]</returns>
     public static double SpeedCoefficient(
-        double impellerRotationSpeed,
-        double volumeFlow,
-        double totalNormalPressure
+        double dataImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+        double inputVolumeFlow,
+        double inputTotalNormalPressure
     ) =>
-        impellerRotationSpeed
-        * Math.Pow(volumeFlow / 3600, 0.5)
-        * Math.Pow(totalNormalPressure / AccelerationOfFreeFall, -0.75);
+        dataImpellerRotationSpeedWithSlidingEngineForWorkPoint
+        * Math.Pow(inputVolumeFlow / 3600, 0.5)
+        * Math.Pow(inputTotalNormalPressure / AccelerationOfFreeFall, -0.75);
 
     public static double SizeCoefficient(
         double performanceCoefficient,

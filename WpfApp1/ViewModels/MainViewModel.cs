@@ -9,6 +9,7 @@ using Libraries.ValidateAndSort;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -226,8 +227,8 @@ public class MainViewModel : BaseViewModel
     #endregion TotalPressureText
 
     #region TotalPressureDeviationText
-    private string _totalPressureDeviationText = null!;
-    public string TotalPressureDeviationText
+    private double _totalPressureDeviationText;
+    public double TotalPressureDeviationText
     {
         get => _totalPressureDeviationText;
         set
@@ -238,9 +239,75 @@ public class MainViewModel : BaseViewModel
     }
     #endregion TotalPressureDeviationText
 
+    #region TotalPressureDeviationTextWithUnit
+    private readonly string _totalPressureDeviationTextWithUnit = null!;
+
+    public string TotalPressureDeviationTextWithUnit
+    {
+        get => _totalPressureDeviationTextWithUnit;
+        private init
+        {
+            _totalPressureDeviationTextWithUnit = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion TotalPressureDeviationTextWithUnit
+
+    #region SpecificDeviationLeftText
+    private double _specificDeviationLeftText;
+    public double SpecificDeviationLeftText
+    {
+        get => _specificDeviationLeftText;
+        set
+        {
+            _specificDeviationLeftText = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion SpecificDeviationLeftText
+
+    #region SpecificDeviationLeftTextWithUnit
+    private readonly string _specificDeviationLeftTextWithUnit = null!;
+    public string SpecificDeviationLeftTextWithUnit
+    {
+        get => _specificDeviationLeftTextWithUnit;
+        private init
+        {
+            _specificDeviationLeftTextWithUnit = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion SpecificDeviationLeftTextWithUnit
+
+    #region SpecificDeviationRightText
+    private double _specificDeviationRightText;
+    public double SpecificDeviationRightText
+    {
+        get => _specificDeviationRightText;
+        set
+        {
+            _specificDeviationRightText = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion SpecificDeviationRightText
+
+    #region SpecificDeviationRightTextWithUnit
+    private readonly string _specificDeviationRightTextWithUnit = null!;
+    public string SpecificDeviationRightTextWithUnit
+    {
+        get => _specificDeviationRightTextWithUnit;
+        private init
+        {
+            _specificDeviationRightTextWithUnit = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion SpecificDeviationRightTextWithUnit
+
     #region FanOperatingCurrentTemperatureText
-    private string _fanOperatingCurrentTemperatureText = null!;
-    public string FanOperatingCurrentTemperatureText
+    private double _fanOperatingCurrentTemperatureText;
+    public double FanOperatingCurrentTemperatureText
     {
         get => _fanOperatingCurrentTemperatureText;
         set
@@ -251,9 +318,22 @@ public class MainViewModel : BaseViewModel
     }
     #endregion FanOperatingCurrentTemperatureText
 
+    #region FanOperatingCurrentTemperatureTextWithUnit
+    private readonly string _fanOperatingCurrentTemperatureTextWithUnit = null!;
+    public string FanOperatingCurrentTemperatureTextWithUnit
+    {
+        get => _fanOperatingCurrentTemperatureTextWithUnit;
+        private init
+        {
+            _fanOperatingCurrentTemperatureTextWithUnit = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion FanOperatingCurrentTemperatureTextWithUnit
+
     #region RelativeHumidityText
-    private string _relativeHumidityText = null!;
-    public string RelativeHumidityText
+    private double _relativeHumidityText;
+    public double RelativeHumidityText
     {
         get => _relativeHumidityText;
         set
@@ -263,6 +343,19 @@ public class MainViewModel : BaseViewModel
         }
     }
     #endregion RelativeHumidityText
+
+    #region RelativeHumidityTextWithUnit
+    private readonly string _relativeHumidityTextWithUnit = null!;
+    public string RelativeHumidityTextWithUnit
+    {
+        get => _relativeHumidityTextWithUnit;
+        private init
+        {
+            _relativeHumidityTextWithUnit = value;
+            OnPropertyChanged();
+        }
+    }
+    #endregion RelativeHumidityTextWithUnit
 
     #region ListOfFansViewModel
     private ObservableCollection<AbstractFan> _listOfFansViewModel = null!;
@@ -618,10 +711,20 @@ public class MainViewModel : BaseViewModel
                         .FanBodyExecutionMaterialList,
                     SelectedFanBodyExecutionMaterial
                 ),
-                TotalPressureDeviationText,
-                RelativeHumidityText,
+                TotalPressureDeviationText.ToString(
+                    CultureInfo.InvariantCulture
+                ),
+                SpecificDeviationLeftText.ToString(
+                    CultureInfo.InvariantCulture
+                ),
+                SpecificDeviationRightText.ToString(
+                    CultureInfo.InvariantCulture
+                ),
+                RelativeHumidityText.ToString(CultureInfo.InvariantCulture),
                 AltitudeText,
-                FanOperatingCurrentTemperatureText,
+                FanOperatingCurrentTemperatureText.ToString(
+                    CultureInfo.InvariantCulture
+                ),
                 NumberOfFansList[
                     ReturnCorrectOrDefaultIndex(
                         NumberOfFans.Names,
@@ -883,9 +986,29 @@ public class MainViewModel : BaseViewModel
         SelectedFanLogic = FanLogic.NamesForComboBox[0];
         NumberOfFansList = NumberOfFans.Names.ToList();
         SelectedNumberOfFans = NumberOfFansList[0];
-        TotalPressureDeviationText = "30";
-        FanOperatingCurrentTemperatureText = "20";
-        RelativeHumidityText = "0";
+
+        TotalPressureDeviationText =
+            UserInputWorkPoint.TotalPressureDeviationByDefault;
+        TotalPressureDeviationTextWithUnit =
+            UserInputWorkPoint.TotalPressureDeviationByDefault + " [%]";
+
+        SpecificDeviationLeftText =
+            UserInputWorkPoint.SpecificDeviationLeftByDefault;
+        SpecificDeviationLeftTextWithUnit =
+            UserInputWorkPoint.SpecificDeviationLeftByDefault + " [%]";
+
+        SpecificDeviationRightText =
+            UserInputWorkPoint.SpecificDeviationRightByDefault;
+        SpecificDeviationRightTextWithUnit =
+            UserInputWorkPoint.SpecificDeviationRightByDefault + " [%]";
+
+        FanOperatingCurrentTemperatureText =
+            UserInputAir.FanOperatingCurrentTemperatureByDefault;
+        FanOperatingCurrentTemperatureTextWithUnit =
+            UserInputAir.FanOperatingCurrentTemperatureByDefault + " [°C]";
+        RelativeHumidityText = UserInputAir.RelativeHumidityByDefault;
+        RelativeHumidityTextWithUnit =
+            UserInputAir.RelativeHumidityByDefault + " [°C]";
         SelectFanCommand = new RelayCommand(
             SelectFanExecute,
             CanSelectFanExecute

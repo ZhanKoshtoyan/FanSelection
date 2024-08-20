@@ -74,6 +74,7 @@ public static class ToPrint
                             )
                     }*/
                     + $"\nРасчетное статическое давление воздуха: {fan.StaticPressure:0} Па;"
+                    + $"\nРасчетное динамическое давление воздуха: {fan.DynamicPressure:0} Па;"
                     + $"\nСкорость вращения крыльчатки: {fan.ImpellerRotationSpeedWithSlidingEngineForWorkPoint:0} об/мин;"
                     + $"\nЧастота вращения крыльчатки: {fan.ImpellerRotationFrequency:0} Гц;"
                     + $"\nРасчетная мощность в рабочей точке: {fan.Power:0.00} кВт;"

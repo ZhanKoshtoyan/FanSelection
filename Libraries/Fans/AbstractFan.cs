@@ -26,7 +26,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Данные, которые ввел пользователь
     /// </summary>
-    protected UserInput UserInput { get; }
+    private UserInput UserInput { get; }
 
     /// <summary>
     ///     Проектное наименование вентилятора
@@ -69,7 +69,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Номинальная скорость вращения крыльчатки без учета скольжения двигателя, [об/мин]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.NominalImpellerRotationSpeeds
     /// </summary>
-    public double NominalImpellerRotationSpeedWithoutSlidingEngine =>
+    protected double NominalImpellerRotationSpeedWithoutSlidingEngine =>
         UserInput.UserInputFan.NominalImpellerRotationSpeedWithoutSlidingEngine
         == 0
             ? Data.NominalImpellerRotationSpeedWithoutSlidingEngine
@@ -83,6 +83,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Номинальная мощность двигателя, [кВт]
     /// </summary>
+    // ReSharper disable once MemberCanBeProtected.Global
     public double NominalPower =>
         UserInput.UserInputFan.NominalPower == 0
             ? Data.NominalPower
@@ -91,7 +92,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Температура перемещаемой среды, [°C]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanOperatingMaxTemperatures
     /// </summary>
-    public double FanOperatingMaxTemperature =>
+    protected double FanOperatingMaxTemperature =>
         UserInput.UserInputAir.FanOperatingMaxTemperature == 0
         && Data.FanOperatingMaxTemperature != null
             ? Data.FanOperatingMaxTemperature.First()
@@ -100,7 +101,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Длина корпуса, которое ввел пользователь. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanBodyLengths
     /// </summary>
-    public double FanBodyLength =>
+    protected double FanBodyLength =>
         UserInput.UserInputFan.FanBodyLength == 0 && Data.FanBodyLength != null
             ? Data.FanBodyLength.First()
             : UserInput.UserInputFan.FanBodyLength;
@@ -108,7 +109,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     ///     Направление вращения рабочего колеса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.ImpellerRotationDirections
     /// </summary>
-    public string ImpellerRotationDirection =>
+    protected string ImpellerRotationDirection =>
         string.IsNullOrEmpty(UserInput.UserInputFan.ImpellerRotationDirection)
         && Data.ImpellerRotationDirection != null
             ? Data.ImpellerRotationDirection.First()
@@ -117,7 +118,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Материал корпуса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.CaseExecutionMaterials
     /// </summary>
-    public string FanBodyExecutionMaterial =>
+    protected string FanBodyExecutionMaterial =>
         string.IsNullOrEmpty(UserInput.UserInputFan.FanBodyExecutionMaterial)
         && Data.FanBodyExecutionMaterial != null
             ? Data.FanBodyExecutionMaterial.First()
@@ -135,7 +136,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Полное давление воздуха, которое ввел пользователь, приведенное к нормальной плотности воздуха
     /// </summary>
-    public double InputTotalNormalPressure =>
+    protected double InputTotalNormalPressure =>
         Similarity.SimilarPressure(
             UserInput.UserInputWorkPoint.TotalPressure,
             1,
@@ -321,7 +322,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     /// Коэффициент производительности для расхода и давления, введенных пользователем
     /// </summary>
-    public double PerformanceCoefficientUserInput =>
+    private double PerformanceCoefficientUserInput =>
         DimensionlessData.PhiCoefficient(
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             Data.AreaOfWheelDisc,
@@ -384,12 +385,10 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// </summary>
     public double SpecificSpeedCoefficientWithImpellerRotationSpeed =>
         DimensionlessData.SpeedCoefficient(
-            Data.MaxImpellerRotationSpeedWithSlidingEngine,
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             InputTotalNormalPressure
         );
-
-    //Изменил Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint на Data.MaxImpellerRotationSpeedWithSlidingEngine
 
     /// <summary>
     /// Коэффициент габаритности при максимальном значении полного КПД
@@ -417,7 +416,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// </summary>
     public double SpecificSizeCoefficientWithRequiredSize =>
         DimensionlessData.SizeCoefficient(
-            ConditionalStandardSize,
+            UserInput.UserInputFan.ConditionalStandardSize / 1000,
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             InputTotalNormalPressure
         );

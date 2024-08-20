@@ -47,6 +47,20 @@ Console.WriteLine(
 var inputTotalPressureDeviation = Console.ReadLine();
 
 //-----------------------------------------------------------------------------------------------------------
+Console.WriteLine(
+    "Введите погрешность быстроходности/ габаритности слева, [%]: "
+);
+
+var inputSpecificDeviationLeft = Console.ReadLine();
+
+//-----------------------------------------------------------------------------------------------------------
+Console.WriteLine(
+    "Введите погрешность быстроходности/ габаритности справа, [%]: "
+);
+
+var inputSpecificDeviationRight = Console.ReadLine();
+
+//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine("Введите температуру ежедневной эксплуатации, [°C]: ");
 
 var inputFanOperatingCurrentTemperature = Console.ReadLine();
@@ -136,6 +150,8 @@ var userInput = Calculate.ProcessUserInput(
     inputNominalImpellerRotationSpeed,
     inputFanBodyExecutionMaterial,
     inputTotalPressureDeviation,
+    inputSpecificDeviationLeft,
+    inputSpecificDeviationRight,
     inputRelativeHumidity,
     inputAltitude,
     inputFanOperatingCurrentTemperature,

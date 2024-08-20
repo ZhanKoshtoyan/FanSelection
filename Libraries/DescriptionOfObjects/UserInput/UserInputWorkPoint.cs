@@ -13,7 +13,35 @@ public record UserInputWorkPoint
     public required double TotalPressure { get; init; }
 
     /// <summary>
+    /// Значение по умолчанию для погрешности подбора по полному давлению воздуха; [%]
+    /// </summary>
+    public const double TotalPressureDeviationByDefault = 30;
+
+    /// <summary>
     ///     Допустимая погрешность подбора по полному давлению воздуха, которое ввел пользователь; [%]
     /// </summary>
-    public double? TotalPressureDeviation { get; set; } = 30;
+    public double? TotalPressureDeviation { get; set; } =
+        TotalPressureDeviationByDefault;
+
+    /// <summary>
+    /// Значение по умолчанию для погрешности быстроходности/ габаритности слева; [%]
+    /// </summary>
+    public const double SpecificDeviationLeftByDefault = 20;
+
+    /// <summary>
+    ///     Погрешность быстроходности/ габаритности слева, которое ввел пользователь; [%]
+    /// </summary>
+    public double? SpecificDeviationLeft { get; set; } =
+        SpecificDeviationLeftByDefault;
+
+    /// <summary>
+    /// Значение по умолчанию для погрешности быстроходности/ габаритности справа; [%]
+    /// </summary>
+    public const double SpecificDeviationRightByDefault = 25;
+
+    /// <summary>
+    ///     Погрешность быстроходности/ габаритности справа, которое ввел пользователь; [%]
+    /// </summary>
+    public double? SpecificDeviationRight { get; set; } =
+        SpecificDeviationRightByDefault;
 }

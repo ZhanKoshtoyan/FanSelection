@@ -308,7 +308,7 @@ public static class Calculate
         double weight,
         double nominalPower,
         double nominalImpellerRotationSpeedWithoutSlidingEngine,
-        double impellerRotationSpeedWithSlidingEngineForWorkPoint,
+        //double impellerRotationSpeedWithSlidingEngineForWorkPoint,
         double maxImpellerRotationSpeedWithSlidingEngine,
         double areaOfInletPipeOpening,
         double airDensity = 0,
@@ -356,13 +356,14 @@ public static class Calculate
         var newFanData = new FanData
         {
             Version = oldFanData.Version,
+            AerodynamicDesign = oldFanData.AerodynamicDesign,
             ConditionalStandardSize = conditionalStandardSize, //указываю
             Weight = weight, //указываю
             NominalPower = nominalPower, //указываю
             NominalImpellerRotationSpeedWithoutSlidingEngine =
                 nominalImpellerRotationSpeedWithoutSlidingEngine, //указываю
             ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
-                impellerRotationSpeedWithSlidingEngineForWorkPoint, // указать скорость, на которую будут пересчитаны данные
+                oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint, // указать скорость, на которую будут пересчитаны данные. Скорость базового колеса
             MaxImpellerRotationSpeedWithSlidingEngine =
                 maxImpellerRotationSpeedWithSlidingEngine, //указываю
             AreaOfInletPipeOpening = areaOfInletPipeOpening, //указываю
@@ -451,20 +452,6 @@ public static class Calculate
             newFanData.AirDensity
         );
 
-        /*var calcMaxEfficiencyWithoutPowerScaleEffect =
-            MethodOfHalfDivisionFindMaxEfficiency(
-                oldFanData.MinVolumeFlow,
-                oldFanData.MaxVolumeFlow,
-                oldFanData.TotalPressureQvCoefficients,
-                oldFanData.PowerQvCoefficients,
-                newFanData.SimilarVolumeFlowCoefficient,
-                newFanData.SimilarTotalPressureCoefficient,
-                newFanData.SimilarPowerCoefficient
-            );
-
-        newFanData.EfficiencyMax =
-            calcMaxEfficiencyWithoutPowerScaleEffect.calcMaxEfficiencyValue;*/
-
         var fanEfficiencyGradeCoefficient = PowerScaleEffect(
             oldFanData.EfficiencyMax,
             oldFanData.ConditionalStandardSize,
@@ -475,51 +462,11 @@ public static class Calculate
             oldFanData.EfficiencyMax * fanEfficiencyGradeCoefficient;
         newFanData.SimilarPowerCoefficient /= fanEfficiencyGradeCoefficient;
 
-        /*var newMinVolumeFlow =
-            oldFanData.MinVolumeFlow * newFanData.SimilarVolumeFlowCoefficient;
-        var newMaxVolumeFlow =
-            oldFanData.MaxVolumeFlow * newFanData.SimilarVolumeFlowCoefficient;*/
-
-        /*newFanData.EfficiencyMinLeft = Efficiency(
-            newMinVolumeFlow,
-            Polynomial(
-                oldFanData.TotalPressureQvCoefficients,
-                oldFanData.MinVolumeFlow
-            ) * newFanData.SimilarTotalPressureCoefficient,
-            Polynomial(oldFanData.PowerQvCoefficients, oldFanData.MinVolumeFlow)
-                * newFanData.SimilarPowerCoefficient
-        );
-
-        newFanData.EfficiencyMinRight = Efficiency(
-            newMaxVolumeFlow,
-            Polynomial(
-                oldFanData.TotalPressureQvCoefficients,
-                oldFanData.MaxVolumeFlow
-            ) * newFanData.SimilarTotalPressureCoefficient,
-            Polynomial(oldFanData.PowerQvCoefficients, oldFanData.MaxVolumeFlow)
-                * newFanData.SimilarPowerCoefficient
-        );*/
         newFanData.EfficiencyMinLeft = oldFanData.EfficiencyMinLeft;
         newFanData.EfficiencyMinRight = oldFanData.EfficiencyMinRight;
 
-        /*newFanData.PhiEfficiencyMax = DimensionlessData.PhiCoefficient(
-            calcMaxEfficiencyWithoutPowerScaleEffect.calcVolumeFlowMaxEfficiency,
-            newFanData.AreaOfWheelDisc,
-            newFanData.CircumferentialSpeed
-        );*/
         newFanData.PhiEfficiencyMax = oldFanData.PhiEfficiencyMax;
 
-        /*newFanData.PhiMin = DimensionlessData.PhiCoefficient(
-            newMinVolumeFlow,
-            newFanData.AreaOfWheelDisc,
-            newFanData.CircumferentialSpeed
-        );
-
-        newFanData.PhiMax = DimensionlessData.PhiCoefficient(
-            newMaxVolumeFlow,
-            newFanData.AreaOfWheelDisc,
-            newFanData.CircumferentialSpeed
-        );*/
         newFanData.PhiMin = oldFanData.PhiMin;
         newFanData.PhiMax = oldFanData.PhiMax;
 
@@ -648,7 +595,7 @@ public static class Calculate
     }
 
     public static double Share(double value1, double value2) =>
-        Math.Abs(value1 - value2) / value2;
+        (value1 - value2) / value2;
 
     public static double ImpellerRotationFrequency(
         double impellerRotationSpeed,
@@ -697,6 +644,8 @@ public static class Calculate
         string? selectedNominalImpellerRotationSpeed,
         string? selectedFanBodyExecutionMaterial,
         string? totalPressureDeviationTextBox,
+        string? specificDeviationLeftTextBox,
+        string? specificDeviationRightTextBox,
         string? relativeHumidityTextBox,
         string? altitudeTextBox,
         string? fanOperatingCurrentTemperatureTextBox,
@@ -734,6 +683,18 @@ public static class Calculate
         {
             userInput.UserInputWorkPoint.TotalPressureDeviation =
                 Convert.ToDouble(totalPressureDeviationTextBox);
+        }
+
+        if (!string.IsNullOrEmpty(specificDeviationLeftTextBox))
+        {
+            userInput.UserInputWorkPoint.SpecificDeviationLeft =
+                Convert.ToDouble(specificDeviationLeftTextBox);
+        }
+
+        if (!string.IsNullOrEmpty(specificDeviationRightTextBox))
+        {
+            userInput.UserInputWorkPoint.SpecificDeviationRight =
+                Convert.ToDouble(specificDeviationRightTextBox);
         }
 
         if (!string.IsNullOrEmpty(relativeHumidityTextBox))

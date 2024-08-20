@@ -8,6 +8,11 @@ public record ShortDescriptionOfTheFanData
     public required string Version { get; init; }
 
     /// <summary>
+    /// Аэродинамическая схема вентилятора. Нумерация в пределах одной Version
+    /// </summary>
+    public required int AerodynamicDesign { get; init; }
+
+    /// <summary>
     ///     Типоразмер
     /// </summary>
     public required double ConditionalStandardSize { get; init; }

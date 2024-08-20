@@ -24,7 +24,7 @@ public class OutputValueConverter : IValueConverter
                     var formattedValue = Math.Round(
                         doubleValue * 100,
                         0,
-                        MidpointRounding.ToNegativeInfinity
+                        MidpointRounding.ToEven
                     );
                     return formattedValue.ToString("000");
                 }
@@ -34,17 +34,15 @@ public class OutputValueConverter : IValueConverter
                     var formattedValue = Math.Round(
                         doubleValue,
                         2,
-                        MidpointRounding.ToNegativeInfinity
+                        MidpointRounding.ToEven
                     );
                     return formattedValue;
                 }
 
                 if (parameter.ToString()!.Contains("Deviation"))
                 {
-                    var formattedValue = Math.Round(
-                        doubleValue,
-                        2,
-                        MidpointRounding.ToNegativeInfinity
+                    var formattedValue = Math.Abs(
+                        Math.Round(doubleValue, 2, MidpointRounding.ToEven)
                     );
                     return formattedValue;
                 }
@@ -58,7 +56,7 @@ public class OutputValueConverter : IValueConverter
                     var formattedValue = Math.Round(
                         doubleValue,
                         1,
-                        MidpointRounding.ToNegativeInfinity
+                        MidpointRounding.ToEven
                     );
                     return formattedValue;
                 }
@@ -68,7 +66,7 @@ public class OutputValueConverter : IValueConverter
                     var formattedSumNoise = Math.Round(
                         doubleValue,
                         1,
-                        MidpointRounding.ToNegativeInfinity
+                        MidpointRounding.ToEven
                     );
 
                     return formattedSumNoise;
@@ -78,7 +76,7 @@ public class OutputValueConverter : IValueConverter
             var formattedValueDefault = Math.Round(
                 doubleValue,
                 0,
-                MidpointRounding.ToNegativeInfinity
+                MidpointRounding.ToEven
             );
             return formattedValueDefault;
         }

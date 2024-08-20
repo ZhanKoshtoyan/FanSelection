@@ -19,12 +19,11 @@ public abstract class FanWithFrequencyConverter : AbstractFan
                 Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
                 ConditionalStandardSize,
                 Data.AirDensity,
-                UserInput.UserInputWorkPoint.TotalPressure,
+                InputTotalNormalPressure,
                 ConditionalStandardSize,
-                UserInput.DataAir.Density.KilogramsPerCubicMeter
+                Data.AirDensity
             );
 
         MinImpellerRotationFrequency = 35;
     }
-    //TODO Проверить присвоение при инициализации и при переназначении!!!
 }

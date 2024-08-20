@@ -21,25 +21,21 @@ public abstract class CreatingListOfFans
             throw new InvalidDataException($"Список объектов FanData пуст");
         }
 
-        var fanTypeVersion = (FanVersion.Values)
-            userInput.UserInputFan.FanVersion;
+        var fanTypeVersion = (
+            (FanVersion.Values)userInput.UserInputFan.FanVersion
+        ).ToString();
 
         //1.Выбрать вентилятор, который соответствует типу fanVersion
-        //1.1.Выбрать вентилятор, который соответствует типу fanVersion из Fans.json файла
-        var correctFansList = fansList
-            .Where(fan => fan.Version == fanTypeVersion.ToString())
-            .ToList();
 
-        //1.2 Получаем существующий объект для пересчета
-        var existingFanData = correctFansList[0];
-
-        //1.3 Получаем список с кратким описанием вентиляторов из ShortDescriptionOfTheFans.json файла
+        //1.1 Получаем список с кратким описанием вентиляторов из ShortDescriptionOfTheFans.json файла
         var shortDescriptionOfTheFanDataList =
             JsonLoader.Download<ShortDescriptionOfTheFanData>(
                 UserInput.PathShortDescriptionOfTheFansJsonFile
             );
 
-        //1.4 Создадим список с типом вентилятора FanData
+        // var stopwatch = Stopwatch.StartNew();
+        // stopwatch.Start();
+        //1.2 Создадим список объектов FanData с исполнением Version
         IEnumerable<ShortDescriptionOfTheFanData> sortedShortDescriptionOfTheFanDataList =
             (
                 shortDescriptionOfTheFanDataList
@@ -47,12 +43,16 @@ public abstract class CreatingListOfFans
                     "shortDescriptionOfTheFanDataList == null"
                 )
             )
-                .Where(s => s.Version == existingFanData.Version)
+                .Where(s => s.Version == fanTypeVersion)
                 .ToList()
             ?? throw new Exception(
                 $"В shortDescriptionOfTheFanDataList не найдено ни 1 объекта типа "
-                    + $"{existingFanData.Version}"
+                    + $"{fanTypeVersion}"
             );
+        // stopwatch.Stop();
+        // Console.WriteLine(
+        //     $"Время выполнения SomeMethod: {stopwatch.ElapsedMilliseconds} мс"
+        // );
 
         //2.Выбрать вентилятор с исполнением impellerRotationDirection
         if (
@@ -85,7 +85,7 @@ public abstract class CreatingListOfFans
                     .ToList();
         }
 
-        //4.Выбрать вентилятор с типоразмером size
+        //4.Выбрать вентилятор с типоразмером ConditionalStandardSize
         if (userInput.UserInputFan.ConditionalStandardSize != 0)
         {
             sortedShortDescriptionOfTheFanDataList =
@@ -138,7 +138,7 @@ public abstract class CreatingListOfFans
                     .ToList();
         }
 
-        //7.Выбрать максимальное значение NumberOfFans, для которого будут созданы сочетания одновременно работающих вентиляторов
+        //7. Выбрать максимальное значение NumberOfFans, для которого будут созданы сочетания одновременно работающих вентиляторов
 
         var numberOfFansForCreate = userInput.UserInputFan.NumberOfFans switch
         {
@@ -146,28 +146,53 @@ public abstract class CreatingListOfFans
             _ => userInput.UserInputFan.NumberOfFans
         };
 
-        //8. Создадим список с типом вентилятора FanData
-        IEnumerable<FanData> newFanDataList =
-            sortedShortDescriptionOfTheFanDataList
-                .Where(s => s.Version == existingFanData.Version)
-                .Select(
-                    el =>
-                        Calculate.CreateFanData(
-                            existingFanData,
-                            el.ConditionalStandardSize,
-                            el.Weight,
-                            el.NominalPower,
-                            el.NominalImpellerRotationSpeedWithoutSlidingEngine,
-                            el.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                            el.MaxImpellerRotationSpeedWithSlidingEngine,
-                            el.AreaOfInletPipeOpening
-                        )
-                )
-                .ToList();
+        //8. Запишем в список перечень АСВ всех вентиляторов
+        var aerodynamicDesignList = sortedShortDescriptionOfTheFanDataList
+            .Select(fan => fan.AerodynamicDesign)
+            .Distinct()
+            .ToList();
 
-        //9.Создадим список с типом вентилятора OsuDu или EuFan
-        var valueOfFanVersion = (FanVersion.Values)
-            userInput.UserInputFan.FanVersion;
+        //9. Создадим список с исполнением вентилятора FanData и аэродинамической схемой вентилятора AerodynamicDesign
+        var newFanDataList = new List<FanData>();
+
+        for (
+            var aerodynamicDesignNumber = aerodynamicDesignList[0];
+            aerodynamicDesignNumber <= aerodynamicDesignList.Count;
+            aerodynamicDesignNumber++
+        )
+        {
+            //9.1. Выбираем первый вентилятор с Version и AerodynamicDesign из Fans.json файла
+            var fanDataWithVersionAndAerodynamicDesign = fansList
+                .Where(fan => fan.Version == fanTypeVersion)
+                .Where(fan => fan.AerodynamicDesign == aerodynamicDesignNumber)
+                .Distinct()
+                .First();
+
+            //9.2. Создаем экземпляры вентиляторов из списка List<ShortDescriptionOfTheFanData> на основе fanDataWithVersionAndAerodynamicDesign
+            IEnumerable<FanData> newFanDataListTemporary =
+                sortedShortDescriptionOfTheFanDataList
+                    .Where(s => s.Version == fanTypeVersion)
+                    .Where(s => s.AerodynamicDesign == aerodynamicDesignNumber)
+                    .Select(
+                        el =>
+                            Calculate.CreateFanData(
+                                fanDataWithVersionAndAerodynamicDesign,
+                                el.ConditionalStandardSize,
+                                el.Weight,
+                                el.NominalPower,
+                                el.NominalImpellerRotationSpeedWithoutSlidingEngine,
+                                el.MaxImpellerRotationSpeedWithSlidingEngine,
+                                el.AreaOfInletPipeOpening
+                            )
+                    )
+                    .ToList();
+            newFanDataList.AddRange(newFanDataListTemporary);
+        }
+
+        //10.Создадим список с типом вентилятора OsuDu или EuFan
+        var valueOfFanVersion = Convert.ToInt32(
+            (FanVersion.Values)userInput.UserInputFan.FanVersion
+        );
 
         var multipleTypedFansList = new List<T>();
 
@@ -182,7 +207,7 @@ public abstract class CreatingListOfFans
                     elementFanData =>
                         valueOfFanVersion switch
                         {
-                            FanVersion.Values.OsuDu
+                            0
                                 => (T)
                                     (object)
                                         new OsuDu(
@@ -190,7 +215,7 @@ public abstract class CreatingListOfFans
                                             userInput,
                                             numberOfFans
                                         ),
-                            FanVersion.Values.EuFan
+                            1
                                 => (T)
                                     (object)
                                         new EuFan(
@@ -208,8 +233,7 @@ public abstract class CreatingListOfFans
             multipleTypedFansList.AddRange(multipleTypedFansListTemporary);
         }
 
-        //10.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
-        const double specificDeviation = 0.2;
+        //11.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
 
         var fanLogicNumber = userInput.UserInputFan.FanLogic;
         var valueOfFanLogic = (FanLogic.Values)userInput.UserInputFan.FanLogic;
@@ -217,19 +241,19 @@ public abstract class CreatingListOfFans
         switch (fanLogicNumber)
         {
             case 0:
-                //10.1 По быстроходности
+                //11.1. По быстроходности
                 var specificSpeedList1 = multipleTypedFansList
                     .Select(
                         tFan =>
                             (
                                 fanSize: tFan.ConditionalStandardSize,
                                 numberOfFansIteration: tFan.NumberOfFans,
-                                //Запишем быстроходность искомой рабочей точки
+                                //Запишем быстроходность искомой рабочей точки по размерным характеристикам. Скорость вращения крыльчатки такая, при которой был посчитан SpeedCoefficient по безразмерным характеристикам
                                 specificSpeed: tFan.SpecificSpeedCoefficientWithImpellerRotationSpeed,
-                                //Запишем быстроходность при максимальном полном КПД
+                                //Запишем быстроходность при максимально полном КПД
                                 specificSpeedEfficiencyMax: tFan.SpecificSpeedEfficiencyMax,
-                                //Посчитаем отклонение быстроходности при максимальном полном КПД от быстроходности искомой рабочей точки
-                                specificSpeedDevation: Calculate.Share(
+                                //11.1.1. Посчитаем отклонение быстроходности при максимальном полном КПД от быстроходности искомой рабочей точки
+                                specificSpeedDeviation: Calculate.Share(
                                     tFan.SpecificSpeedEfficiencyMax,
                                     tFan.SpecificSpeedCoefficientWithImpellerRotationSpeed
                                 ),
@@ -238,83 +262,88 @@ public abstract class CreatingListOfFans
                             )
                     )
                     .ToList();
+                //11.1.2. Отбор объектов FanData удовлетворяющих условиям: Быстроходность FanData * specificDeviationLeft <= Быстроходность FanData <= Быстроходность FanData * specificDeviationRight;
                 var specificSpeedList2 = specificSpeedList1
-                //Отбор объектов FanData удовлетворяющих условиям:
-                //Минимальная быстроходность FanData <= быстроходность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная быстроходность FanData
-                .Where(
-                    item =>
-                        item.specificSpeed >= item.data.SpecificSpeedPhiMin
-                        && item.specificSpeed <= item.data.SpecificSpeedPhiMax
-                );
-                //Отбор объектов FanData удовлетворяющих условиям:
-                //Быстроходность FanData * 0,8 <= Быстроходность FanData <= Быстроходность FanData * 1,2;
-                var numberOfHits = specificSpeedList2
                     .Where(
-                        item => item.specificSpeedDevation <= specificDeviation
+                        item =>
+                            item.specificSpeedDeviation switch
+                            {
+                                < 0
+                                    => Math.Abs(item.specificSpeedDeviation)
+                                        <= userInput
+                                            .UserInputWorkPoint
+                                            .SpecificDeviationLeft / 100,
+                                >= 0
+                                    => item.specificSpeedDeviation
+                                        <= userInput
+                                            .UserInputWorkPoint
+                                            .SpecificDeviationRight / 100,
+                                _
+                                    => throw new Exception(
+                                        $"SpecificSpeedDeviation неправильно обработано"
+                                    )
+                            }
                     )
                     .OrderByDescending(item => item.data.TotalEfficiency)
-                    .ThenBy(item => item.specificSpeedDevation)
+                    .ThenBy(item => item.specificSpeedDeviation)
                     .ToList();
 
-                listOfFansByTypeAndLogic = numberOfHits
+                listOfFansByTypeAndLogic = specificSpeedList2
                     .Select(nh => nh.data)
                     .ToList();
                 break;
             case 1:
-                //10.2 По габаритности
-                var specificSizeList1 = multipleTypedFansList
-                    .Select(
-                        tFan =>
-                            (
-                                //Запишем габаритность искомой рабочей точки
-                                specificSize: tFan.SpecificSizeCoefficientWithRequiredSize,
-                                //Запишем габаритность при максимальном полном КПД
-                                specificSizeEfficiencyMax: tFan.SpecificSizeEfficiencyMax,
-                                //Посчитаем отклонение габаритность при максимальном полном КПД от габаритность искомой рабочей точки
-                                specificSizeDevation: Calculate.Share(
-                                    tFan.SpecificSizeEfficiencyMax,
-                                    tFan.SpecificSizeCoefficientWithRequiredSize
-                                ),
-                                //Объект FanData
-                                data: tFan
-                            )
-                    )
+                //11.2. По габаритности
+                var specificSizeList1 = multipleTypedFansList.Select(
+                    tFan =>
+                        (
+                            //Запишем габаритность искомой рабочей точки
+                            specificSize: tFan.SpecificSizeCoefficientWithRequiredSize,
+                            //Запишем габаритность при максимальном полном КПД
+                            specificSizeEfficiencyMax: tFan.SpecificSizeEfficiencyMax,
+                            //11.2.1. Посчитаем отклонение габаритность при максимальном полном КПД от габаритность искомой рабочей точки
+                            specificSizeDeviation: Calculate.Share(
+                                tFan.SpecificSizeEfficiencyMax,
+                                tFan.SpecificSizeCoefficientWithRequiredSize
+                            ),
+                            //Объект FanData
+                            data: tFan
+                        )
+                );
+                //11.2.2. Отбор объектов FanData удовлетворяющих условиям: Габаритность FanData * specificDeviationLeft <= Габаритность FanData <= Габаритность FanData * specificDeviationRight;
+                var specificSizeList2 = specificSizeList1
                     .Where(
                         item =>
-                            item.specificSize <= item.data.SpecificSizePhiMin
-                            && item.specificSize >= item.data.SpecificSizePhiMax
-                    );
-                //Отбор объектов FanData удовлетворяющих условиям:
-                //Минимальная габаритность FanData <= габаритность рабочей точки (она различна для разной ImpellerRotationSpeed) <= Максимальная габаритность FanData
-
-                /*var sizeList2 = sizeList1.Where(
-                    item =>
-                        item.specificSize <= item.data.SpecificSizePhiMin
-                        && item.specificSize >= item.data.SpecificSizePhiMax
-                );*/
-                //Отбор объектов FanData удовлетворяющих условиям:
-                //Габаритность FanData * 0,8 <= Габаритность FanData <= Габаритность FanData * 1,2;
-                IEnumerable<(
-                    double specificSize,
-                    double specificSizeEfficiencyMax,
-                    double specificSizeDevation,
-                    T data
-                )> numberOfHits2 = specificSizeList1
-                    .Where(
-                        item => item.specificSizeDevation <= specificDeviation
+                            item.specificSizeDeviation switch
+                            {
+                                < 0
+                                    => Math.Abs(item.specificSizeDeviation)
+                                        <= userInput
+                                            .UserInputWorkPoint
+                                            .SpecificDeviationLeft / 100,
+                                >= 0
+                                    => item.specificSizeDeviation
+                                        <= userInput
+                                            .UserInputWorkPoint
+                                            .SpecificDeviationRight / 100,
+                                _
+                                    => throw new Exception(
+                                        $"SpecificSpeedDeviation неправильно обработано"
+                                    )
+                            }
                     )
                     .OrderByDescending(item => item.data.TotalEfficiency)
-                    .ThenBy(item => item.specificSizeDevation)
+                    .ThenBy(item => item.specificSizeDeviation)
                     .ToList();
 
-                listOfFansByTypeAndLogic = numberOfHits2
+                listOfFansByTypeAndLogic = specificSizeList2
                     .Select(nh => nh.data)
                     .ToList();
                 break;
         }
 
-        //10.3 По пересечению графиков
-        listOfFansByTypeAndLogic = (
+        //12. По пересечению графиков
+        var listOfFansByTypeAndLogic1 = (
             listOfFansByTypeAndLogic
             ?? throw new InvalidOperationException(
                 $"В результате исключения по {valueOfFanLogic switch
@@ -338,13 +367,15 @@ public abstract class CreatingListOfFans
             )
             .ToList();
 
-        listOfFansByTypeAndLogic = listOfFansByTypeAndLogic
+        //TODO Для вентилятора с ПЧ это бессмысленный параметр. Для вентилятора без ПЧ нужно проверить.
+        listOfFansByTypeAndLogic = listOfFansByTypeAndLogic1
             .Where(
                 fan =>
                     Math.Abs(fan.TotalPressureDeviation)
                     <= userInput.UserInputWorkPoint.TotalPressureDeviation
             )
-            .OrderBy(fan => Math.Abs(fan.TotalPressureDeviation))
+            .OrderByDescending(fan => fan.TotalEfficiency)
+            .ThenBy(fan => Math.Abs(fan.TotalPressureDeviation))
             .ThenBy(fan => Math.Abs(fan.VolumeFlowDeviation))
             .ToList();
 
