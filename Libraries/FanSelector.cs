@@ -10,7 +10,7 @@ namespace Libraries;
 
 public static class FanSelector
 {
-    public static void DoIt(UserInput userInput)
+    public static void ProcessTheRequest(UserInput userInput)
     {
         var validator = new UserInputValidator();
 
@@ -46,6 +46,14 @@ public static class FanSelector
                     userInput
                 );
                 ToPrint.Print((List<EuFan>)sortFans, userInput);
+                break;
+            case 2:
+                //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
+                sortFans = CreatingListOfFans.Create<HighPressureFan>(
+                    fansList,
+                    userInput
+                );
+                ToPrint.Print((List<HighPressureFan>)sortFans, userInput);
                 break;
         }
     }

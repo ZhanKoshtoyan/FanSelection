@@ -26,7 +26,7 @@ public static class DimensionlessData
     /// </summary>
     /// <param name="conditionalStandardSize">типоразмер, [б/р]</param>
     /// <returns>площадь диска колеса по концам лопаток, [м2]</returns>
-    public static double AreaOfWheelDisc(double conditionalStandardSize) =>
+    public static double SquareOfWheelDisc(double conditionalStandardSize) =>
         Math.PI * Math.Pow(conditionalStandardSize, 2) / 4;
 
     /// <summary>

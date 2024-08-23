@@ -28,4 +28,17 @@ public static class FanBodyLengths
     {
         "1 - полногабаритный корпус"
     };
+
+    /// <summary>
+    ///     Длина корпуса для HighPressureFan: короткое название
+    /// </summary>
+    public static readonly string[] ValuesForHighPressureFan = { "1" };
+
+    /// <summary>
+    ///     Длина корпуса для HighPressureFan: полное название
+    /// </summary>
+    public static readonly string[] NamesForHighPressureFan =
+    {
+        "1 - полногабаритный корпус"
+    };
 }

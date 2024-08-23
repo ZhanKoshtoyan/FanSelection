@@ -18,9 +18,9 @@ public record UserInputWorkPoint
     public const double TotalPressureDeviationByDefault = 30;
 
     /// <summary>
-    ///     Допустимая погрешность подбора по полному давлению воздуха, которое ввел пользователь; [%]
+    ///     Допустимая погрешность подбора, которое ввел пользователь; [%]
     /// </summary>
-    public double? TotalPressureDeviation { get; set; } =
+    public double? VolumeFlowAndTotalPressureDeviation { get; set; } =
         TotalPressureDeviationByDefault;
 
     /// <summary>

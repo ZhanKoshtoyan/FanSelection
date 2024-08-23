@@ -291,7 +291,7 @@
                                 ConverterParameter=VolumeFlowDeviation}">VolumeFlowDeviation [%]</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalPressureDeviation),
                                 Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=TotalPressureDeviation}">TotalPressureDeviation [%]</GridViewColumn>
+                                ConverterParameter=TotalPressureDeviation}">VolumeFlowAndTotalPressureDeviation [%]</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.StaticPressure),
                                 Converter={StaticResource OutputValueConverter}
                                 }">StaticPressure [Па]</GridViewColumn>
@@ -310,9 +310,9 @@
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalEfficiency),
                                 Converter={StaticResource OutputValueConverter}, ConverterParameter=TotalEfficiency
                                 }">TotalEfficiency [%]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.AirVelocity),
-                                Converter={StaticResource OutputValueConverter}, ConverterParameter=AirVelocity
-                                }">AirVelocity [м/с]</GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.AirVelocityOfOutletPipeOpening),
+                                Converter={StaticResource OutputValueConverter}, ConverterParameter=AirVelocityOfOutletPipeOpening
+                                }">AirVelocityOfOutletPipeOpening [м/с]</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.NominalPower)
                                 , Converter={StaticResource OutputValueConverter},
                                 ConverterParameter=NominalPower}">NominalPower [кВт]</GridViewColumn>

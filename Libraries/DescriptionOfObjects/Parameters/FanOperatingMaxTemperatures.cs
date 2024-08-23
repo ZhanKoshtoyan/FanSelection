@@ -21,4 +21,14 @@ public static class FanOperatingMaxTemperatures
     ///     Максимальная температура эксплуатации для EuFan: полное название
     /// </summary>
     public static readonly string[] NamesForEuFan = { "40" };
+
+    /// <summary>
+    ///     Максимальная температура эксплуатации для HighPressureFan: короткое название
+    /// </summary>
+    public static readonly double[] ValuesForHighPressureFan = { 40 };
+
+    /// <summary>
+    ///     Максимальная температура эксплуатации для HighPressureFan: полное название
+    /// </summary>
+    public static readonly string[] NamesForHighPressureFan = { "40" };
 }

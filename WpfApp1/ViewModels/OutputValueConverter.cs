@@ -49,7 +49,7 @@ public class OutputValueConverter : IValueConverter
 
                 if (
                     parameter.ToString() == "TotalEfficiency"
-                    || parameter.ToString() == "AirVelocity"
+                    || parameter.ToString() == "AirVelocityOfOutletPipeOpening"
                     || parameter.ToString() == "Weight"
                 )
                 {

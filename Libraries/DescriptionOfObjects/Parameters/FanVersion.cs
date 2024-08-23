@@ -8,7 +8,8 @@ public static class FanVersion
     public enum Values
     {
         OsuDu,
-        EuFan
+        EuFan,
+        HighPressureFan
     }
 
     /// <summary>
@@ -17,16 +18,23 @@ public static class FanVersion
     public static readonly string[] Names =
     {
         "0 = 'ОСУ-ДУ' - Осевой вентилятор дымоудаления",
-        "1 = 'ЕУ' - Вентилятор для ЕУКЦ"
+        "1 = 'ЕУ' - Вентилятор для ЕУКЦ",
+        "2 = 'ВВД' - Вентилятор высокого давления"
     };
 
-    public static readonly string[] ValuesForComboBox = { "ОСУ-ДУ", "ЕУ" };
+    public static readonly string[] ValuesForComboBox =
+    {
+        "ОСУ-ДУ",
+        "ЕУ",
+        "ВВД"
+    };
 
     public static readonly string[] NamesForComboBox =
     {
         "'ОСУ-ДУ' - Осевой вентилятор дымоудаления",
-        "'ЕУ' - Вентилятор для ЕУКЦ"
+        "'ЕУ' - Вентилятор для ЕУКЦ",
+        "'ВВД' - Вентилятор высокого давления"
     };
 
-    public static readonly string[] Altitude = { "20", "213" };
+    public static readonly string[] Altitude = { "20", "213", "0" };
 }

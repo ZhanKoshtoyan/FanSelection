@@ -9,8 +9,7 @@ public static class Noise
         string noiseType,
         FanData data,
         double volumeFlowOnPolynomial,
-        double conditionalStandardSize,
-        double impellerRotationSpeedWithSlidingEngineForWorkPoint,
+        double similarNoiseCoefficient,
         int numberOfFans
     )
     {
@@ -52,16 +51,10 @@ public static class Noise
                     (
                         Frequency: OctaveNoise.Values[frequency],
                         Value: Calculate.MultipleFansNoise(
-                            Similarity.SimilarNoise(
-                                Calculate.Polynomial(
-                                    coefficients,
-                                    volumeFlowOnPolynomial
-                                ),
-                                data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                                conditionalStandardSize,
-                                impellerRotationSpeedWithSlidingEngineForWorkPoint,
-                                conditionalStandardSize
-                            ),
+                            Calculate.Polynomial(
+                                coefficients,
+                                volumeFlowOnPolynomial
+                            ) + similarNoiseCoefficient,
                             numberOfFans
                         )
                     )

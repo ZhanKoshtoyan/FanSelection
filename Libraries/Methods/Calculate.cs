@@ -27,40 +27,54 @@ public static class Calculate
     ) => octaveNoiseAtFrequency + 10 * Math.Log10(numberOfFans);
 
     public static double MethodOfHalfDivisionVolumeFlow(
-        double minVolumeFlow,
-        double maxVolumeFlow,
-        PolynomialType? totalPressureQvCoefficients,
+        FanData data,
         double inputVolumeFlow,
         double inputTotalPressure,
-        double similarVolumeFlowCoefficient = 1,
-        double similarTotalPressureCoefficient = 1
+        double newFanDataConditionalStandardSize
     )
     {
+        var inputVolumeFlowForNewConditionalStandardSize =
+            Similarity.SimilarVolumeFlow(
+                inputVolumeFlow,
+                1.0,
+                newFanDataConditionalStandardSize,
+                1.0,
+                data.OriginalFanDataConditionalStandardSize
+            );
+
+        var inputTotalPressureForNewConditionalStandardSize =
+            Similarity.SimilarPressure(
+                inputTotalPressure,
+                1.0,
+                newFanDataConditionalStandardSize,
+                1.0,
+                1.0,
+                data.OriginalFanDataConditionalStandardSize,
+                1.0
+            );
+
         var constDependencePq = FanSystemCharacteristicCoefficient(
-            inputVolumeFlow,
-            inputTotalPressure
+            inputVolumeFlowForNewConditionalStandardSize,
+            inputTotalPressureForNewConditionalStandardSize
         );
         const double error = 0.001;
 
-        minVolumeFlow *= similarVolumeFlowCoefficient;
-        maxVolumeFlow *= similarVolumeFlowCoefficient;
+        var minVolumeFlow = data.MinVolumeFlow;
+        var maxVolumeFlow = data.MaxVolumeFlow;
 
         var desiredValue = (minVolumeFlow + maxVolumeFlow) / 2;
         while (maxVolumeFlow - minVolumeFlow >= 2 * error)
         {
             if (
                 (
-                    Polynomial(
-                        totalPressureQvCoefficients,
-                        minVolumeFlow / similarVolumeFlowCoefficient
-                    ) * similarTotalPressureCoefficient
+                    Polynomial(data.TotalPressureQvCoefficients, minVolumeFlow)
                     - constDependencePq * Math.Pow(minVolumeFlow, 2)
                 )
                     * (
                         Polynomial(
-                            totalPressureQvCoefficients,
-                            desiredValue / similarVolumeFlowCoefficient
-                        ) * similarTotalPressureCoefficient
+                            data.TotalPressureQvCoefficients,
+                            desiredValue
+                        )
                         - constDependencePq * Math.Pow(desiredValue, 2)
                     )
                 < 0
@@ -194,13 +208,16 @@ public static class Calculate
             return 0;
         }
 
-        return coefficientsEntity.Coefficients[0] * Math.Pow(entity, 6)
+        var result =
+            coefficientsEntity.Coefficients[0] * Math.Pow(entity, 6)
             + coefficientsEntity.Coefficients[1] * Math.Pow(entity, 5)
             + coefficientsEntity.Coefficients[2] * Math.Pow(entity, 4)
             + coefficientsEntity.Coefficients[3] * Math.Pow(entity, 3)
             + coefficientsEntity.Coefficients[4] * Math.Pow(entity, 2)
             + coefficientsEntity.Coefficients[5] * Math.Pow(entity, 1)
             + coefficientsEntity.Coefficients[6];
+
+        return result;
     }
 
     public static double Efficiency(
@@ -211,10 +228,18 @@ public static class Calculate
 
     //TODO КПД для вентиляторов с частотником 33660-2015: вместо FEG д/б FMEG
 
-    public static double AirVelocity(
+    public static double AirVelocityOfOutletPipeOpening(
         double volumeFlow,
         double inletCrossSection
-    ) => volumeFlow / (3600 * inletCrossSection);
+    )
+    {
+        if (inletCrossSection == 0)
+        {
+            return 0;
+        }
+
+        return volumeFlow / (3600 * inletCrossSection);
+    }
 
     public static double DynamicPressure(IHumidAir air, double airVelocity) =>
         0.5 * air.Density.KilogramsPerCubicMeter * Math.Pow(airVelocity, 2);
@@ -238,9 +263,6 @@ public static class Calculate
     /// <param name="impellerRotationSpeed"></param>
     /// <param name="oldAirDensity"></param>
     /// <param name="powerQvCoefficients"></param>
-    /// <param name="similarVolumeFlowCoefficient"></param>
-    /// <param name="similarTotalPressureCoefficient"></param>
-    /// <param name="similarPowerCoefficient"></param>
     /// <returns></returns>
     private static DataCurve DataCurveCalculate(
         double volumeFlow,
@@ -248,23 +270,16 @@ public static class Calculate
         double conditionalStandardSize,
         double impellerRotationSpeed,
         double oldAirDensity,
-        PolynomialType? powerQvCoefficients,
-        double similarVolumeFlowCoefficient,
-        double similarTotalPressureCoefficient,
-        double similarPowerCoefficient
+        PolynomialType? powerQvCoefficients
     ) =>
         new()
         {
-            DcVolumeFlow = volumeFlow * similarVolumeFlowCoefficient,
-            DcTotalPressure =
-                Polynomial(totalPressureCoefficients, volumeFlow)
-                * similarTotalPressureCoefficient,
+            DcVolumeFlow = volumeFlow,
+            DcTotalPressure = Polynomial(totalPressureCoefficients, volumeFlow),
             DcConditionalStandardSize = conditionalStandardSize,
             DcImpellerRotationSpeed = impellerRotationSpeed,
             DcAir = oldAirDensity,
-            DcPower =
-                Polynomial(powerQvCoefficients, volumeFlow)
-                * similarPowerCoefficient
+            DcPower = Polynomial(powerQvCoefficients, volumeFlow)
         };
 
     public static IEnumerable<DataCurve> CreateDataCurves(
@@ -275,10 +290,7 @@ public static class Calculate
         double conditionalStandardSize,
         double impellerRotationSpeedWithSlidingEngineForWorkPoint,
         double oldAirDensity,
-        PolynomialType? powerQvCoefficients,
-        double similarVolumeFlowCoefficient,
-        double similarTotalPressureCoefficient,
-        double similarPowerCoefficient
+        PolynomialType? powerQvCoefficients
     )
     {
         var volumeFlowStep =
@@ -294,10 +306,7 @@ public static class Calculate
                 conditionalStandardSize,
                 impellerRotationSpeedWithSlidingEngineForWorkPoint,
                 oldAirDensity,
-                powerQvCoefficients,
-                similarVolumeFlowCoefficient,
-                similarTotalPressureCoefficient,
-                similarPowerCoefficient
+                powerQvCoefficients
             );
         }
     }
@@ -308,9 +317,9 @@ public static class Calculate
         double weight,
         double nominalPower,
         double nominalImpellerRotationSpeedWithoutSlidingEngine,
-        //double impellerRotationSpeedWithSlidingEngineForWorkPoint,
+        double impellerRotationSpeedWithSlidingEngineForWorkPoint,
         double maxImpellerRotationSpeedWithSlidingEngine,
-        double areaOfInletPipeOpening,
+        double squareOfOutletPipeOpening,
         double airDensity = 0,
         double altitude = 0,
         double currentTemperature = 0,
@@ -363,10 +372,10 @@ public static class Calculate
             NominalImpellerRotationSpeedWithoutSlidingEngine =
                 nominalImpellerRotationSpeedWithoutSlidingEngine, //указываю
             ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
-                oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint, // указать скорость, на которую будут пересчитаны данные. Скорость базового колеса
+                impellerRotationSpeedWithSlidingEngineForWorkPoint, // указать скорость, на которую будут пересчитаны данные. Скорость базового колеса
             MaxImpellerRotationSpeedWithSlidingEngine =
                 maxImpellerRotationSpeedWithSlidingEngine, //указываю
-            AreaOfInletPipeOpening = areaOfInletPipeOpening, //указываю
+            SquareOfOutletPipeOpening = squareOfOutletPipeOpening, //указываю
             AirDensity = airDensity == 0 ? oldFanData.AirDensity : airDensity,
             Altitude = altitude == 0 ? oldFanData.Altitude : altitude,
             FanOperatingCurrentTemperature =
@@ -394,81 +403,68 @@ public static class Calculate
             TotalPressureQvCoefficients =
                 oldFanData.TotalPressureQvCoefficients, // старые значения
             PowerQvCoefficients = oldFanData.PowerQvCoefficients, // старые значения
-            OctaveNoiseLw5QvCoefficients63 = null,
-            OctaveNoiseLw5QvCoefficients125 = null,
-            OctaveNoiseLw5QvCoefficients250 = null,
-            OctaveNoiseLw5QvCoefficients500 = null,
-            OctaveNoiseLw5QvCoefficients1000 = null,
-            OctaveNoiseLw5QvCoefficients2000 = null,
-            OctaveNoiseLw5QvCoefficients4000 = null,
-            OctaveNoiseLw5QvCoefficients8000 = null,
-            OctaveNoiseLw6QvCoefficients63 = null,
-            OctaveNoiseLw6QvCoefficients125 = null,
-            OctaveNoiseLw6QvCoefficients250 = null,
-            OctaveNoiseLw6QvCoefficients500 = null,
-            OctaveNoiseLw6QvCoefficients1000 = null,
-            OctaveNoiseLw6QvCoefficients2000 = null,
-            OctaveNoiseLw6QvCoefficients4000 = null,
-            OctaveNoiseLw6QvCoefficients8000 = null,
+            OctaveNoiseLw5QvCoefficients63 =
+                oldFanData.OctaveNoiseLw5QvCoefficients63, // старые значения
+            OctaveNoiseLw5QvCoefficients125 =
+                oldFanData.OctaveNoiseLw5QvCoefficients125, // старые значения
+            OctaveNoiseLw5QvCoefficients250 =
+                oldFanData.OctaveNoiseLw5QvCoefficients250, // старые значения
+            OctaveNoiseLw5QvCoefficients500 =
+                oldFanData.OctaveNoiseLw5QvCoefficients500, // старые значения
+            OctaveNoiseLw5QvCoefficients1000 =
+                oldFanData.OctaveNoiseLw5QvCoefficients1000, // старые значения
+            OctaveNoiseLw5QvCoefficients2000 =
+                oldFanData.OctaveNoiseLw5QvCoefficients2000, // старые значения
+            OctaveNoiseLw5QvCoefficients4000 =
+                oldFanData.OctaveNoiseLw5QvCoefficients4000, // старые значения
+            OctaveNoiseLw5QvCoefficients8000 =
+                oldFanData.OctaveNoiseLw5QvCoefficients8000, // старые значения
+            OctaveNoiseLw6QvCoefficients63 =
+                oldFanData.OctaveNoiseLw6QvCoefficients63, // старые значения
+            OctaveNoiseLw6QvCoefficients125 =
+                oldFanData.OctaveNoiseLw6QvCoefficients125, // старые значения
+            OctaveNoiseLw6QvCoefficients250 =
+                oldFanData.OctaveNoiseLw6QvCoefficients250, // старые значения
+            OctaveNoiseLw6QvCoefficients500 =
+                oldFanData.OctaveNoiseLw6QvCoefficients500, // старые значения
+            OctaveNoiseLw6QvCoefficients1000 =
+                oldFanData.OctaveNoiseLw6QvCoefficients1000, // старые значения
+            OctaveNoiseLw6QvCoefficients2000 =
+                oldFanData.OctaveNoiseLw6QvCoefficients2000, // старые значения
+            OctaveNoiseLw6QvCoefficients4000 =
+                oldFanData.OctaveNoiseLw6QvCoefficients4000, // старые значения
+            OctaveNoiseLw6QvCoefficients8000 =
+                oldFanData.OctaveNoiseLw6QvCoefficients8000, // старые значения
             EfficiencyPhiCoefficients = null, // ??? не используется
             EfficiencyMax = 0, // расчет ниже
-            EfficiencyMinLeft = 0, // расчет ниже
-            EfficiencyMinRight = 0, // расчет ниже
-            PhiEfficiencyMax = 0, // расчет ниже
-            PhiMin = 0, // расчет ниже
-            PhiMax = 0, // расчет ниже
-            PsiPhiCoefficients = oldFanData.PsiPhiCoefficients, // По-моему, они должны быть неизменны для одной АСВ
-            LambdaPhiCoefficients = oldFanData.LambdaPhiCoefficients, // По-моему, они должны быть неизменны для одной АСВ
+            EfficiencyMinLeft = oldFanData.EfficiencyMinLeft, // Неизменны для одной АСВ
+            EfficiencyMinRight = oldFanData.EfficiencyMinRight, // Неизменны для одной АСВ
+            PhiEfficiencyMax = oldFanData.PhiEfficiencyMax, // Неизменны для одной АСВ
+            PhiMin = oldFanData.PhiMin, // Неизменны для одной АСВ
+            PhiMax = oldFanData.PhiMax, // Неизменны для одной АСВ
+            PsiPhiCoefficients = oldFanData.PsiPhiCoefficients, // Неизменны для одной АСВ
+            LambdaPhiCoefficients = oldFanData.LambdaPhiCoefficients, // Неизменны для одной АСВ
             SpecificSpeedPhiCoefficients =
-                oldFanData.SpecificSpeedPhiCoefficients, // По-моему, они должны быть неизменны для одной АСВ
-            SpecificSizePhiCoefficients = oldFanData.SpecificSizePhiCoefficients // По-моему, они должны быть неизменны для одной АСВ
+                oldFanData.SpecificSpeedPhiCoefficients, // Неизменны для одной АСВ
+            SpecificSizePhiCoefficients =
+                oldFanData.SpecificSizePhiCoefficients, // Неизменны для одной АСВ
+            OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint =
+                oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            OriginalFanDataConditionalStandardSize =
+                oldFanData.ConditionalStandardSize / 1000,
+            OriginalFanDataAirDensity = oldFanData.AirDensity
         };
 
-        newFanData.SimilarVolumeFlowCoefficient = Similarity.SimilarVolumeFlow(
-            1.0,
-            oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            oldFanData.ConditionalStandardSize,
-            newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            newFanData.ConditionalStandardSize
-        );
-
-        newFanData.SimilarTotalPressureCoefficient = Similarity.SimilarPressure(
-            1.0,
-            oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            oldFanData.ConditionalStandardSize,
-            oldFanData.AirDensity,
-            newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            newFanData.ConditionalStandardSize,
-            newFanData.AirDensity
-        );
-
-        newFanData.SimilarPowerCoefficient = Similarity.SimilarPower(
-            1.0,
-            oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            oldFanData.ConditionalStandardSize,
-            oldFanData.AirDensity,
-            newFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            newFanData.ConditionalStandardSize,
-            newFanData.AirDensity
-        );
-
-        var fanEfficiencyGradeCoefficient = PowerScaleEffect(
+        newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffect(
             oldFanData.EfficiencyMax,
             oldFanData.ConditionalStandardSize,
             newFanData.ConditionalStandardSize
         );
 
         newFanData.EfficiencyMax =
-            oldFanData.EfficiencyMax * fanEfficiencyGradeCoefficient;
-        newFanData.SimilarPowerCoefficient /= fanEfficiencyGradeCoefficient;
-
-        newFanData.EfficiencyMinLeft = oldFanData.EfficiencyMinLeft;
-        newFanData.EfficiencyMinRight = oldFanData.EfficiencyMinRight;
-
-        newFanData.PhiEfficiencyMax = oldFanData.PhiEfficiencyMax;
-
-        newFanData.PhiMin = oldFanData.PhiMin;
-        newFanData.PhiMax = oldFanData.PhiMax;
+            oldFanData.EfficiencyMax * newFanData.FanEfficiencyGradeCoefficient;
+        /*newFanData.SimilarPowerCoefficient /=
+            newFanData.FanEfficiencyGradeCoefficient;*/
 
         return newFanData;
     }
@@ -499,7 +495,7 @@ public static class Calculate
                 .Select(i => Convert.ToDouble(i.Name[3..]))
                 .Where(
                     efficiencyMax =>
-                        efficiencyMax >= existingFanDataEfficiencyMax
+                        efficiencyMax / 100 >= existingFanDataEfficiencyMax
                 )
                 .MinBy(d => d);
         var fanEfficiencyGradeNameForExistingFanData = string.Concat(
@@ -595,7 +591,7 @@ public static class Calculate
     }
 
     public static double Share(double value1, double value2) =>
-        (value1 - value2) / value2;
+        (value1 - value2) / value1;
 
     public static double ImpellerRotationFrequency(
         double impellerRotationSpeed,
@@ -681,7 +677,7 @@ public static class Calculate
 
         if (!string.IsNullOrEmpty(totalPressureDeviationTextBox))
         {
-            userInput.UserInputWorkPoint.TotalPressureDeviation =
+            userInput.UserInputWorkPoint.VolumeFlowAndTotalPressureDeviation =
                 Convert.ToDouble(totalPressureDeviationTextBox);
         }
 
@@ -762,23 +758,5 @@ public static class Calculate
             : throw new Exception(
                 $"SelectedSize = {strValue}, не удалось преобразовать к типу double"
             );
-    }
-
-    public static List<T> UpdateFansCountWithClone<T>(List<T> fansTypeList)
-        where T : AbstractFan, ICloneable
-    {
-        var resultList = new List<T>();
-
-        foreach (var numberOfFans in NumberOfFans.Values)
-        {
-            foreach (var tFan in fansTypeList)
-            {
-                var newFan = (T)tFan.Clone(); // Клонируем объект
-                newFan.NumberOfFans = numberOfFans; // Обновляем количество вентиляторов
-                resultList.Add(newFan); // Добавляем в результирующий список
-            }
-        }
-
-        return resultList;
     }
 }

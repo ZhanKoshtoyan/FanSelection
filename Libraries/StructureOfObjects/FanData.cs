@@ -164,27 +164,27 @@ public record FanData : ShortDescriptionOfTheFanData
     /// <summary>
     /// Минимальное левое значение КПД аэродинамической схемы вентилятора, [%]
     /// </summary>
-    public required double EfficiencyMinLeft { get; set; }
+    public required double EfficiencyMinLeft { get; init; }
 
     /// <summary>
     /// Максимальное левое значение КПД аэродинамической схемы вентилятора, [%]
     /// </summary>
-    public required double EfficiencyMinRight { get; set; }
+    public required double EfficiencyMinRight { get; init; }
 
     /// <summary>
     /// Значение коэффициента производительности при максимальном значении КПД аэродинамической схемы вентилятора, [б/р]
     /// </summary>
-    public required double PhiEfficiencyMax { get; set; }
+    public required double PhiEfficiencyMax { get; init; }
 
     /// <summary>
     /// Значение коэффициента производительности при минимальном левом значении КПД аэродинамической схемы вентилятора, [б/р]
     /// </summary>
-    public required double PhiMin { get; set; }
+    public required double PhiMin { get; init; }
 
     /// <summary>
     /// Значение коэффициента производительности при минимальном правом значении КПД аэродинамической схемы вентилятора, [б/р]
     /// </summary>
-    public required double PhiMax { get; set; }
+    public required double PhiMax { get; init; }
 
     /// <summary>
     ///     Коэффициенты полинома n-й степени Psi(Phi) - коэффициента полного давления от коэффициента производительности
@@ -206,20 +206,32 @@ public record FanData : ShortDescriptionOfTheFanData
     /// </summary>
     public required PolynomialType? SpecificSizePhiCoefficients { get; init; }
 
-    //Коэффициент подобия объемного воздуха. Рассчитывается в случае создания экземпляра FanData с другого FanData
-    public double SimilarVolumeFlowCoefficient { get; set; } = 1.0;
+    /// <summary>
+    /// ImpellerRotationSpeedWithSlidingEngineForWorkPoint для OriginalFanData
+    /// </summary>
+    public double OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; init; } =
+        1;
 
-    //Коэффициент подобия полного давления. Рассчитывается в случае создания экземпляра FanData с другого FanData
-    public double SimilarTotalPressureCoefficient { get; set; } = 1.0;
+    /// <summary>
+    /// ConditionalStandardSize для OriginalFanData
+    /// </summary>
+    public double OriginalFanDataConditionalStandardSize { get; init; } = 1;
 
-    //Коэффициент подобия мощности. Рассчитывается в случае создания экземпляра FanData с другого FanData
-    public double SimilarPowerCoefficient { get; set; } = 1.0;
+    /// <summary>
+    /// AirDensity для OriginalFanData
+    /// </summary>
+    public double OriginalFanDataAirDensity { get; init; } = 1;
+
+    /// <summary>
+    /// Коэффициент отображающий эффект масштабности согласно коэффициенту эффективности вентиляторов FEG (ГОСТ 31961-2012, ГОСТ 33660-2015)
+    /// </summary>
+    public double FanEfficiencyGradeCoefficient { get; set; } = 1;
 
     /// <summary>
     /// Площадь диска колеса по концам лопаток [м2]
     /// </summary>
-    public double AreaOfWheelDisc =>
-        DimensionlessData.AreaOfWheelDisc(ConditionalStandardSize / 1000);
+    public double SquareOfWheelDisc =>
+        DimensionlessData.SquareOfWheelDisc(ConditionalStandardSize / 1000);
 
     /// <summary>
     /// Окружная скорость по концам лопаток [м/с]

@@ -13,12 +13,12 @@ public abstract class FanWithoutFrequencyConverter : AbstractFan
     )
         : base(data, userInput, numberOfFans)
     {
+        ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
+            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint;
+
         MinImpellerRotationFrequency = Calculate.ImpellerRotationFrequency(
             Data.MaxImpellerRotationSpeedWithSlidingEngine,
             Data.NominalImpellerRotationSpeedWithoutSlidingEngine
         );
-
-        ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
-            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint;
     }
 }

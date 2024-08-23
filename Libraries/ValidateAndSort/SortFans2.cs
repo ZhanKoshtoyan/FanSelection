@@ -302,7 +302,9 @@ public abstract class SortFans2
             .Where(
                 fan =>
                     Math.Abs(fan.TotalPressureDeviation)
-                    <= userInput.UserInputWorkPoint.TotalPressureDeviation
+                    <= userInput
+                        .UserInputWorkPoint
+                        .VolumeFlowAndTotalPressureDeviation
             )
             .OrderBy(fan => Math.Abs(fan.TotalPressureDeviation))
             .ThenBy(fan => Math.Abs(fan.VolumeFlowDeviation))
@@ -311,7 +313,7 @@ public abstract class SortFans2
         if (listOfFansByTypeAndLogic is null)
         {
             throw new ArgumentException(
-                $"Условие не удовлетворяется: Погрешность подбора по полному давлению воздуха > {userInput.UserInputWorkPoint.TotalPressureDeviation}%. Вентиляторы не могут быть подобраны."
+                $"Условие не удовлетворяется: Погрешность подбора по полному давлению воздуха > {userInput.UserInputWorkPoint.VolumeFlowAndTotalPressureDeviation}%. Вентиляторы не могут быть подобраны."
             );
         }
 

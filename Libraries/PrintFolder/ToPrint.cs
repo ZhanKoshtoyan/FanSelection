@@ -63,7 +63,7 @@ public static class ToPrint
                     {
                         FanLogic.Values.Logic1
                             => $"\nПогрешность подбора по объемному расходу воздуха: {fan.VolumeFlowDeviation: +0.0;-0.0;0} %;"
-                                + $"\nПогрешность подбора по полному давлению воздуха: {fan.TotalPressureDeviation: +0.0;-0.0;0} %;",
+                                + $"\nПогрешность подбора по полному давлению воздуха: {fan.VolumeFlowAndTotalPressureDeviation: +0.0;-0.0;0} %;",
                         FanLogic.Values.Logic2
                             => $"\n\nРасход объемного воздуха на исходной кривой вентилятора: {fan
                         .VolumeFlowOnPolynomial} м3/ч;\nПолное давление воздуха на исходной кривой вентилятора: {fan
@@ -79,7 +79,7 @@ public static class ToPrint
                     + $"\nЧастота вращения крыльчатки: {fan.ImpellerRotationFrequency:0} Гц;"
                     + $"\nРасчетная мощность в рабочей точке: {fan.Power:0.00} кВт;"
                     + $"\nРасчетный полный КПД вентилятора: {fan.TotalEfficiency:0.0} %;"
-                    + $"\nСкорость воздуха: {fan.AirVelocity:0.0} м/с;"
+                    + $"\nСкорость воздуха в выпускной трубе: {fan.AirVelocityOfOutletPipeOpening:0.0} м/с;"
                     + $"\nНоминальная мощность: {fan.Data.NominalPower:0.00} кВт;"
                     + $"\nУровень звуковой мощности Lw5 на входе по октавам: {Calculate.GetOctaveNoiseAString(fan.OctaveNoiseLw5)} [дБ];"
                     + $"\nСуммарный уровень звуковой мощности Lw5 частот: {string.Join("; ", OctaveNoise.Names)} [Гц]  с корректировкой фильтра А на входе: {fan.SumNoiseLwA5:0.0} [дБ(А)];"

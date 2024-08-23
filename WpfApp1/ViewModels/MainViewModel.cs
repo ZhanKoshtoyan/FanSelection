@@ -733,7 +733,7 @@ public class MainViewModel : BaseViewModel
                 ]
             );
 
-            DoIt2(_userInput);
+            ProcessTheRequest(_userInput);
         }
     }
 
@@ -833,7 +833,7 @@ public class MainViewModel : BaseViewModel
         return result;
     }
 
-    private void DoIt2(UserInput userInput)
+    private void ProcessTheRequest(UserInput userInput)
     {
         var validator = new UserInputValidator();
 
@@ -890,6 +890,18 @@ public class MainViewModel : BaseViewModel
                     (List<EuFan>)sortFans
                 );
                 ListOfFansViewModel = newDataEuFan;
+                break;
+            case 2:
+                //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
+                sortFans = CreatingListOfFans.Create<HighPressureFan>(
+                    fansList,
+                    userInput
+                );
+                var newDataHighPressureFanFan =
+                    new ObservableCollection<AbstractFan>(
+                        (List<HighPressureFan>)sortFans
+                    );
+                ListOfFansViewModel = newDataHighPressureFanFan;
                 break;
         }
     }
@@ -979,6 +991,47 @@ public class MainViewModel : BaseViewModel
                 FanParameterByDefault = new FanParameterByDefault
                 {
                     Altitude = FanVersion.Altitude[1]
+                }
+            },
+            new()
+            {
+                FanParameterNamesForComboBoxes =
+                    new FanParameterNamesForComboBoxes
+                    {
+                        FanName = FanVersion.NamesForComboBox[2],
+                        FanOperatingMaxTemperatureList =
+                            FanOperatingMaxTemperatures.NamesForHighPressureFan.ToList(),
+                        FanSizeList = Sizes.NamesForHighPressureFan.ToList(),
+                        FanBodyLengthList =
+                            FanBodyLengths.NamesForHighPressureFan.ToList(),
+                        ImpellerRotationDirectionList =
+                            ImpellerRotationDirections.NamesForHighPressureFan.ToList(),
+                        NominalPowerList = NominalPowers.Names.ToList(),
+                        NominalImpellerRotationSpeedList =
+                            NominalImpellerRotationSpeeds.Names.ToList(),
+                        FanBodyExecutionMaterialList =
+                            CaseExecutionMaterials.Names.ToList()
+                    },
+                FanParameterValuesForProjectId =
+                    new FanParameterValuesForProjectId
+                    {
+                        FanName = FanVersion.ValuesForComboBox[2],
+                        FanOperatingMaxTemperatureList =
+                            FanOperatingMaxTemperatures.ValuesForHighPressureFan.ToList(),
+                        FanSizeList = Sizes.ValuesForHighPressureFan.ToList(),
+                        FanBodyLengthList =
+                            FanBodyLengths.ValuesForHighPressureFan.ToList(),
+                        ImpellerRotationDirectionList =
+                            ImpellerRotationDirections.ValuesForHighPressureFan.ToList(),
+                        NominalPowerList = NominalPowers.Values.ToList(),
+                        NominalImpellerRotationSpeedList =
+                            NominalImpellerRotationSpeeds.Values.ToList(),
+                        FanBodyExecutionMaterialList =
+                            CaseExecutionMaterials.Values.ToList()
+                    },
+                FanParameterByDefault = new FanParameterByDefault
+                {
+                    Altitude = FanVersion.Altitude[2]
                 }
             }
         };

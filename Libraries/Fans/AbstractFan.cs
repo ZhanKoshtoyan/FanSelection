@@ -47,97 +47,191 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// </summary>
     public double MinImpellerRotationFrequency { get; protected init; }
 
+    private double? _maxImpellerRotationFrequency;
+
     /// <summary>
     /// Максимальная частота вращения крыльчатки, [Гц]
     /// </summary>
     public double MaxImpellerRotationFrequency =>
-        Calculate.ImpellerRotationFrequency(
+        _maxImpellerRotationFrequency ??= Calculate.ImpellerRotationFrequency(
             Data.MaxImpellerRotationSpeedWithSlidingEngine,
             NominalImpellerRotationSpeedWithoutSlidingEngine
         );
+
+    private double? _similarVolumeFlowCoefficient;
+
+    /// <summary>
+    /// Коэффициент подобия VolumeFlow с оригинальной FanData
+    /// </summary>
+    private double SimilarVolumeFlowCoefficient =>
+        _similarVolumeFlowCoefficient ??= Similarity.SimilarVolumeFlow(
+            1.0,
+            Data.OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            Data.OriginalFanDataConditionalStandardSize,
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize
+        );
+
+    private double? _similarTotalPressureCoefficient;
+
+    /// <summary>
+    /// Коэффициент подобия TotalPressure с оригинальной FanData
+    /// </summary>
+    private double SimilarTotalPressureCoefficient =>
+        _similarTotalPressureCoefficient ??= Similarity.SimilarPressure(
+            1.0,
+            Data.OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            Data.OriginalFanDataConditionalStandardSize,
+            Data.OriginalFanDataAirDensity,
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize,
+            UserInput.DataAir.Density.KilogramsPerCubicMeter
+        );
+
+    private double? _similarPowerCoefficient;
+
+    /// <summary>
+    /// Коэффициент подобия Power с оригинальной FanData
+    /// </summary>
+    private double SimilarPowerCoefficient =>
+        _similarPowerCoefficient ??=
+            Similarity.SimilarPower(
+                1.0,
+                Data.OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                Data.OriginalFanDataConditionalStandardSize,
+                Data.OriginalFanDataAirDensity,
+                ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                ConditionalStandardSize,
+                UserInput.DataAir.Density.KilogramsPerCubicMeter
+            ) / Data.FanEfficiencyGradeCoefficient;
+
+    private double? _similarNoiseCoefficient;
+
+    /// <summary>
+    /// Коэффициент подобия Noise с оригинальной FanData
+    /// </summary>
+    private double SimilarNoiseCoefficient =>
+        _similarNoiseCoefficient ??= Similarity.SimilarNoise(
+            1.0,
+            Data.OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            Data.OriginalFanDataConditionalStandardSize,
+            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            ConditionalStandardSize
+        );
+
+    private double? _conditionalStandardSize;
 
     /// <summary>
     /// Типоразмер, [мм]
     /// </summary>
     public double ConditionalStandardSize =>
-        (
-            UserInput.UserInputFan.ConditionalStandardSize == 0
-                ? Data.ConditionalStandardSize
-                : UserInput.UserInputFan.ConditionalStandardSize
-        ) / 1000;
+        _conditionalStandardSize ??=
+            (
+                UserInput.UserInputFan.ConditionalStandardSize == 0
+                    ? Data.ConditionalStandardSize
+                    : UserInput.UserInputFan.ConditionalStandardSize
+            ) / 1000;
+
+    private double? _nominalImpellerRotationSpeedWithoutSlidingEngine;
 
     /// <summary>
     /// Номинальная скорость вращения крыльчатки без учета скольжения двигателя, [об/мин]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.NominalImpellerRotationSpeeds
     /// </summary>
     protected double NominalImpellerRotationSpeedWithoutSlidingEngine =>
-        UserInput.UserInputFan.NominalImpellerRotationSpeedWithoutSlidingEngine
-        == 0
-            ? Data.NominalImpellerRotationSpeedWithoutSlidingEngine
-            : Math.Round(
-                UserInput
-                    .UserInputFan
-                    .NominalImpellerRotationSpeedWithoutSlidingEngine,
-                0
-            );
+        _nominalImpellerRotationSpeedWithoutSlidingEngine ??=
+            UserInput
+                .UserInputFan
+                .NominalImpellerRotationSpeedWithoutSlidingEngine == 0
+                ? Data.NominalImpellerRotationSpeedWithoutSlidingEngine
+                : Math.Round(
+                    UserInput
+                        .UserInputFan
+                        .NominalImpellerRotationSpeedWithoutSlidingEngine,
+                    0
+                );
+
+    private double? _nominalPower;
 
     /// <summary>
     /// Номинальная мощность двигателя, [кВт]
     /// </summary>
     // ReSharper disable once MemberCanBeProtected.Global
     public double NominalPower =>
-        UserInput.UserInputFan.NominalPower == 0
-            ? Data.NominalPower
-            : UserInput.UserInputFan.NominalPower;
+        _nominalPower ??=
+            UserInput.UserInputFan.NominalPower == 0
+                ? Data.NominalPower
+                : UserInput.UserInputFan.NominalPower;
+
+    private double? _fanOperatingMaxTemperature;
 
     /// <summary>
     /// Температура перемещаемой среды, [°C]. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanOperatingMaxTemperatures
     /// </summary>
     protected double FanOperatingMaxTemperature =>
-        UserInput.UserInputAir.FanOperatingMaxTemperature == 0
-        && Data.FanOperatingMaxTemperature != null
-            ? Data.FanOperatingMaxTemperature.First()
-            : UserInput.UserInputAir.FanOperatingMaxTemperature;
+        _fanOperatingMaxTemperature ??=
+            UserInput.UserInputAir.FanOperatingMaxTemperature == 0
+            && Data.FanOperatingMaxTemperature != null
+                ? Data.FanOperatingMaxTemperature.First()
+                : UserInput.UserInputAir.FanOperatingMaxTemperature;
+
+    private double? _fanBodyLength;
 
     /// <summary>
     /// Длина корпуса, которое ввел пользователь. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.FanBodyLengths
     /// </summary>
     protected double FanBodyLength =>
-        UserInput.UserInputFan.FanBodyLength == 0 && Data.FanBodyLength != null
-            ? Data.FanBodyLength.First()
-            : UserInput.UserInputFan.FanBodyLength;
+        _fanBodyLength ??=
+            UserInput.UserInputFan.FanBodyLength == 0
+            && Data.FanBodyLength != null
+                ? Data.FanBodyLength.First()
+                : UserInput.UserInputFan.FanBodyLength;
+
+    private string? _impellerRotationDirection;
 
     /// <summary>
     ///     Направление вращения рабочего колеса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.ImpellerRotationDirections
     /// </summary>
     protected string ImpellerRotationDirection =>
-        string.IsNullOrEmpty(UserInput.UserInputFan.ImpellerRotationDirection)
-        && Data.ImpellerRotationDirection != null
-            ? Data.ImpellerRotationDirection.First()
-            : UserInput.UserInputFan.ImpellerRotationDirection!;
+        _impellerRotationDirection ??=
+            string.IsNullOrEmpty(
+                UserInput.UserInputFan.ImpellerRotationDirection
+            )
+            && Data.ImpellerRotationDirection != null
+                ? Data.ImpellerRotationDirection.First()
+                : UserInput.UserInputFan.ImpellerRotationDirection!;
+
+    private string? _fanBodyExecutionMaterial;
 
     /// <summary>
     /// Материал корпуса. Допустимые значения указаны в Libraries.DescriptionOfObjects.Parameters.CaseExecutionMaterials
     /// </summary>
     protected string FanBodyExecutionMaterial =>
-        string.IsNullOrEmpty(UserInput.UserInputFan.FanBodyExecutionMaterial)
-        && Data.FanBodyExecutionMaterial != null
-            ? Data.FanBodyExecutionMaterial.First()
-            : UserInput.UserInputFan.FanBodyExecutionMaterial!;
+        _fanBodyExecutionMaterial ??=
+            string.IsNullOrEmpty(
+                UserInput.UserInputFan.FanBodyExecutionMaterial
+            )
+            && Data.FanBodyExecutionMaterial != null
+                ? Data.FanBodyExecutionMaterial.First()
+                : UserInput.UserInputFan.FanBodyExecutionMaterial!;
+
+    private double? _impellerRotationFrequency;
 
     /// <summary>
     /// Частота вращения крыльчатки, [Гц]
     /// </summary>
     public double ImpellerRotationFrequency =>
-        Calculate.ImpellerRotationFrequency(
+        _impellerRotationFrequency ??= Calculate.ImpellerRotationFrequency(
             ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             NominalImpellerRotationSpeedWithoutSlidingEngine
         );
+
+    private double? _inputTotalNormalPressure;
 
     /// <summary>
     /// Полное давление воздуха, которое ввел пользователь, приведенное к нормальной плотности воздуха
     /// </summary>
     protected double InputTotalNormalPressure =>
-        Similarity.SimilarPressure(
+        _inputTotalNormalPressure ??= Similarity.SimilarPressure(
             UserInput.UserInputWorkPoint.TotalPressure,
             1,
             1,
@@ -147,290 +241,351 @@ public abstract class AbstractFan : INotifyPropertyChanged
             Data.AirDensity
         );
 
+    private double? _volumeFlowOnPolynomial;
+
     /// <summary>
     /// Расход объемного воздуха на исходной кривой вентилятора, [м3/ч]
     /// </summary>
     public double VolumeFlowOnPolynomial =>
-        Calculate.MethodOfHalfDivisionVolumeFlow(
-            Data.MinVolumeFlow,
-            Data.MaxVolumeFlow,
-            Data.TotalPressureQvCoefficients,
+        _volumeFlowOnPolynomial ??= Calculate.MethodOfHalfDivisionVolumeFlow(
+            Data,
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             InputTotalNormalPressure,
-            Data.SimilarVolumeFlowCoefficient,
-            Data.SimilarTotalPressureCoefficient
+            ConditionalStandardSize
         );
+
+    private double? _totalPressureOnPolynomial;
 
     /// <summary>
     /// Полное давление воздуха на исходной кривой вентилятора, [Па]
     /// </summary>
     public double TotalPressureOnPolynomial =>
-        Calculate.Polynomial(
+        _totalPressureOnPolynomial ??= Calculate.Polynomial(
             Data.TotalPressureQvCoefficients,
-            VolumeFlowOnPolynomial / Data.SimilarVolumeFlowCoefficient
-        ) * Data.SimilarTotalPressureCoefficient;
+            VolumeFlowOnPolynomial
+        );
+
+    private double? _volumeFlow;
 
     /// <summary>
     ///     Расход объемного воздуха на кривой вентилятора, эквивалентный зависимости Pv=Q^2 - характеристика сети воздуховода, [м3/ч]
     /// </summary>
     public double VolumeFlow =>
-        Similarity.SimilarVolumeFlow(
-            VolumeFlowOnPolynomial,
-            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            ConditionalStandardSize,
-            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            ConditionalStandardSize
-        );
+        _volumeFlow ??= VolumeFlowOnPolynomial * SimilarVolumeFlowCoefficient;
+
+    private double? _totalPressure;
 
     /// <summary>
     ///     Расчетное полное давление воздуха, [Па]
     /// </summary>
     public double TotalPressure =>
-        Similarity.SimilarPressure(
-            TotalPressureOnPolynomial,
-            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            ConditionalStandardSize,
-            Data.AirDensity,
-            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            ConditionalStandardSize,
-            UserInput.DataAir.Density.KilogramsPerCubicMeter
-        );
+        _totalPressure ??=
+            TotalPressureOnPolynomial * SimilarTotalPressureCoefficient;
+
+    private double? _volumeFlowDeviation;
 
     /// <summary>
     ///     Погрешность подбора по объемному расходу воздуха, [%]
     /// </summary>
     public double VolumeFlowDeviation =>
-        Calculate.Deviation(
+        _volumeFlowDeviation ??= Calculate.Deviation(
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
             VolumeFlow
         );
+
+    private double? _totalPressureDeviation;
 
     /// <summary>
     ///     Погрешность подбора по полному давлению воздуха, [%]
     /// </summary>
     public double TotalPressureDeviation =>
-        Calculate.Deviation(
+        _totalPressureDeviation ??= Calculate.Deviation(
             UserInput.UserInputWorkPoint.TotalPressure,
             TotalPressure
         );
+
+    private double? _power;
 
     /// <summary>
     ///     Расчетная мощность в рабочей точке, [кВт]
     /// </summary>
     public double Power =>
-        Similarity.SimilarPower(
+        _power ??=
             Calculate.Polynomial(
                 Data.PowerQvCoefficients,
-                VolumeFlowOnPolynomial / Data.SimilarVolumeFlowCoefficient
-            ) * Data.SimilarPowerCoefficient,
-            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            ConditionalStandardSize,
-            Data.AirDensity,
-            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            ConditionalStandardSize,
-            UserInput.DataAir.Density.KilogramsPerCubicMeter
-        );
+                VolumeFlowOnPolynomial
+            ) * SimilarPowerCoefficient;
+
+    private double? _staticPressure;
 
     /// <summary>
     ///     Расчетное статическое давление воздуха, [Па]
     /// </summary>
     public double StaticPressure =>
-        Calculate.StaticPressure(TotalPressure, DynamicPressure);
+        _staticPressure ??= Calculate.StaticPressure(
+            TotalPressure,
+            DynamicPressure
+        );
+
+    private double? _dynamicPressure;
 
     /// <summary>
     ///     Расчетное динамическое давление воздуха, [Па]
     /// </summary>
     public double DynamicPressure =>
-        Calculate.DynamicPressure(UserInput.DataAir, AirVelocity);
+        _dynamicPressure ??= Calculate.DynamicPressure(
+            UserInput.DataAir,
+            AirVelocityOfOutletPipeOpening
+        );
 
-    //TODO Динамическое давление слишком велико.
-    //Скорее всего оно не верно считается. Хорошо, что оно больше не используется в дальнейших расчетах.
-    //Из ГОСТ 10616-2015: Динамическое давление потока при выходе из вентилятора, рассчитанное по величине объемной производительности, средней плотности газа на выходе и площади нагнетательного отверстия вентилятора.
-    // Из ГОСТ 10921-2017: Условное давление на выходе из вентилятора, рассчитанное по среднерасходной скорости v.
+    private double? _totalEfficiency;
 
     /// <summary>
     ///     Расчетный полный КПД вентилятора, [%]
     /// </summary>
     public double TotalEfficiency =>
-        Calculate.Efficiency(VolumeFlow, TotalPressure, Power);
+        _totalEfficiency ??= Calculate.Efficiency(
+            VolumeFlow,
+            TotalPressure,
+            Power
+        );
+
+    private double? _airVelocityOfOutletPipeOpening;
 
     /// <summary>
-    ///     Скорость воздуха, [м/с]
+    ///     Скорость воздуха в выпускной трубе, [м/с]
     /// </summary>
-    public double AirVelocity =>
-        Calculate.AirVelocity(VolumeFlow, Data.AreaOfInletPipeOpening);
+    public double AirVelocityOfOutletPipeOpening =>
+        _airVelocityOfOutletPipeOpening ??=
+            Calculate.AirVelocityOfOutletPipeOpening(
+                VolumeFlow,
+                Data.SquareOfOutletPipeOpening
+            );
 
     public int NumberOfFans { get; set; }
 
     //____________________________________________________________________________________________________________________________
     //Уровень шума
 
+    private IEnumerable<(int Frequency, double Value)>? _octaveNoiseLw5;
+
     /// <summary>
     /// Список уровней звуковой мощности Lw5 на входе вентилятора по октавам
     /// </summary>
     public IEnumerable<(int Frequency, double Value)> OctaveNoiseLw5 =>
-        Noise.CalcOctaveNoiseLw(
+        _octaveNoiseLw5 ??= Noise.CalcOctaveNoiseLw(
             "Lw5",
             Data,
             VolumeFlowOnPolynomial,
-            ConditionalStandardSize,
-            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            SimilarNoiseCoefficient,
             NumberOfFans
         );
+
+    private IEnumerable<(int Frequency, double Value)>? _octaveNoiseLw6;
 
     /// <summary>
     /// Список уровней звуковой мощности Lw6 на выходе вентилятора по октавам
     /// </summary>
     public IEnumerable<(int Frequency, double Value)> OctaveNoiseLw6 =>
-        Noise.CalcOctaveNoiseLw(
+        _octaveNoiseLw6 ??= Noise.CalcOctaveNoiseLw(
             "Lw6",
             Data,
             VolumeFlowOnPolynomial,
-            ConditionalStandardSize,
-            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+            SimilarNoiseCoefficient,
             NumberOfFans
         );
 
     //____________________________________________________________________________________________________________________________
     //Уровень шума по А
 
+    private IEnumerable<(int Frequency, double Value)>? _octaveNoiseLwA5;
+
     /// <summary>
     /// Список уровней звуковой мощности Lw5 на входе вентилятора по октавам с поправкой по спектру А
     /// </summary>
     private IEnumerable<(int Frequency, double Value)> OctaveNoiseLwA5 =>
-        Noise.CalcOctaveNoiseLwA(OctaveNoiseLw5);
+        _octaveNoiseLwA5 ??= Noise.CalcOctaveNoiseLwA(OctaveNoiseLw5);
+
+    private IEnumerable<(int Frequency, double Value)>? _octaveNoiseLwA6;
 
     /// <summary>
     /// Список уровней звуковой мощности Lw6 на входе вентилятора по октавам с поправкой по спектру А
     /// </summary>
     private IEnumerable<(int Frequency, double Value)> OctaveNoiseLwA6 =>
-        Noise.CalcOctaveNoiseLwA(OctaveNoiseLw6);
+        _octaveNoiseLwA6 ??= Noise.CalcOctaveNoiseLwA(OctaveNoiseLw6);
+
+    private double? _sumNoiseLwA5;
 
     /// <summary>
     ///     Суммарный уровень звуковой мощности LwA5 частот: 63, 125, 250, 500, 1к, 2к, 4к, 8к [Гц]
     /// </summary>
-    public double SumNoiseLwA5 => Calculate.SumNoise(OctaveNoiseLwA5);
+    public double SumNoiseLwA5 =>
+        _sumNoiseLwA5 ??= Calculate.SumNoise(OctaveNoiseLwA5);
+
+    private double? _sumNoiseLwA6;
 
     /// <summary>
     ///     Суммарный уровень звуковой мощности LwA6 частот: 63, 125, 250, 500, 1к, 2к, 4к, 8к [Гц]
     /// </summary>
-    public double SumNoiseLwA6 => Calculate.SumNoise(OctaveNoiseLwA6);
+    public double SumNoiseLwA6 =>
+        _sumNoiseLwA6 ??= Calculate.SumNoise(OctaveNoiseLwA6);
 
     //____________________________________________________________________________________________________________________________
     //Расчет безразмерных характеристик
+
+    private double? _performanceCoefficientUserInput;
 
     /// <summary>
     /// Коэффициент производительности для расхода и давления, введенных пользователем
     /// </summary>
     private double PerformanceCoefficientUserInput =>
-        DimensionlessData.PhiCoefficient(
+        _performanceCoefficientUserInput ??= DimensionlessData.PhiCoefficient(
             UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
-            Data.AreaOfWheelDisc,
+            Data.SquareOfWheelDisc,
             Data.CircumferentialSpeed
         );
+
+    private double? _totalPressureCoefficientUserInput;
 
     /// <summary>
     /// Коэффициент полного давления для расхода и давления, введенных пользователем
     /// </summary>
     public double TotalPressureCoefficientUserInput =>
-        Calculate.Polynomial(
+        _totalPressureCoefficientUserInput ??= Calculate.Polynomial(
             Data.PsiPhiCoefficients,
             PerformanceCoefficientUserInput
         );
+
+    private double? _staticPressureCoefficientUserInput;
 
     /// <summary>
     /// Коэффициент статического давления для расхода и давления, введенных пользователем
     /// </summary>
     public double StaticPressureCoefficientUserInput =>
-        DimensionlessData.PsiCoefficient(
-            StaticPressure,
-            Data.AirDensity,
-            Data.CircumferentialSpeed
-        );
+        _staticPressureCoefficientUserInput ??=
+            DimensionlessData.PsiCoefficient(
+                StaticPressure,
+                Data.AirDensity,
+                Data.CircumferentialSpeed
+            );
+
+    private double? _powerCoefficientUserInput;
 
     /// <summary>
     /// Коэффициент потребляемой мощности для расхода и давления, введенных пользователем
     /// </summary>
     public double PowerCoefficientUserInput =>
-        DimensionlessData.PowerCoefficient(
+        _powerCoefficientUserInput ??= DimensionlessData.PowerCoefficient(
             Power,
             Data.AirDensity,
             Data.CircumferentialSpeed,
-            Data.AreaOfWheelDisc
+            Data.SquareOfWheelDisc
         );
+
+    private double? _specificSpeedEfficiencyMax;
 
     /// <summary>
     /// Коэффициент быстроходности при максимальном значении полного КПД
     /// </summary>
     public double SpecificSpeedEfficiencyMax =>
-        Calculate.Polynomial(
+        _specificSpeedEfficiencyMax ??= Calculate.Polynomial(
             Data.SpecificSpeedPhiCoefficients,
             Data.PhiEfficiencyMax
         );
+
+    private double? _specificSpeedPhiMin;
 
     /// <summary>
     /// Коэффициент быстроходности при минимальном значении Phi
     /// </summary>
     public double SpecificSpeedPhiMin =>
-        Calculate.Polynomial(Data.SpecificSpeedPhiCoefficients, Data.PhiMin);
+        _specificSpeedPhiMin ??= Calculate.Polynomial(
+            Data.SpecificSpeedPhiCoefficients,
+            Data.PhiMin
+        );
+
+    private double? _specificSpeedPhiMax;
 
     /// <summary>
     /// Коэффициент быстроходности при максимальном значении Phi
     /// </summary>
     public double SpecificSpeedPhiMax =>
-        Calculate.Polynomial(Data.SpecificSpeedPhiCoefficients, Data.PhiMax);
+        _specificSpeedPhiMax ??= Calculate.Polynomial(
+            Data.SpecificSpeedPhiCoefficients,
+            Data.PhiMax
+        );
+
+    private double? _specificSpeedCoefficientWithImpellerRotationSpeed;
 
     /// <summary>
     /// Коэффициент быстроходности для расхода и давления, введенных пользователем
     /// </summary>
     public double SpecificSpeedCoefficientWithImpellerRotationSpeed =>
-        DimensionlessData.SpeedCoefficient(
-            Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
-            InputTotalNormalPressure
-        );
+        _specificSpeedCoefficientWithImpellerRotationSpeed ??=
+            DimensionlessData.SpeedCoefficient(
+                ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
+                InputTotalNormalPressure
+            );
+
+    private double? _specificSizeEfficiencyMax;
 
     /// <summary>
     /// Коэффициент габаритности при максимальном значении полного КПД
     /// </summary>
     public double SpecificSizeEfficiencyMax =>
-        Calculate.Polynomial(
+        _specificSizeEfficiencyMax ??= Calculate.Polynomial(
             Data.SpecificSizePhiCoefficients,
             Data.PhiEfficiencyMax
         );
+
+    private double? _specificSizePhiMin;
 
     /// <summary>
     /// Коэффициент быстроходности при минимальном значении Phi
     /// </summary>
     public double SpecificSizePhiMin =>
-        Calculate.Polynomial(Data.SpecificSizePhiCoefficients, Data.PhiMin);
+        _specificSizePhiMin ??= Calculate.Polynomial(
+            Data.SpecificSizePhiCoefficients,
+            Data.PhiMin
+        );
+
+    private double? _specificSizePhiMax;
 
     /// <summary>
     /// Коэффициент быстроходности при максимальном значении Phi
     /// </summary>
     public double SpecificSizePhiMax =>
-        Calculate.Polynomial(Data.SpecificSizePhiCoefficients, Data.PhiMax);
+        _specificSizePhiMax ??= Calculate.Polynomial(
+            Data.SpecificSizePhiCoefficients,
+            Data.PhiMax
+        );
+
+    private double? _specificSizeCoefficientWithRequiredSize;
 
     /// <summary>
     /// Коэффициент габаритности для расхода и давления, введенных пользователем
     /// </summary>
     public double SpecificSizeCoefficientWithRequiredSize =>
-        DimensionlessData.SizeCoefficient(
-            UserInput.UserInputFan.ConditionalStandardSize / 1000,
-            UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
-            InputTotalNormalPressure
-        );
+        _specificSizeCoefficientWithRequiredSize ??=
+            DimensionlessData.SizeCoefficient(
+                UserInput.UserInputFan.ConditionalStandardSize / 1000,
+                UserInput.UserInputWorkPoint.VolumeFlow / NumberOfFans,
+                InputTotalNormalPressure
+            );
 
     /// <summary>
     /// Количество точек на новой кривой
     /// </summary>
     private const int NumberOfDataCurves = 8;
 
+    private IEnumerable<DataCurve>? _originalCurve;
+
     /// <summary>
     /// Расчет рабочих точек для оригинальной кривой
     /// </summary>
     private IEnumerable<DataCurve> OriginalCurve =>
-        Calculate
+        _originalCurve ??= Calculate
             .CreateDataCurves(
                 Data.MinVolumeFlow,
                 Data.MaxVolumeFlow,
@@ -439,10 +594,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
                 ConditionalStandardSize,
                 ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
                 Data.AirDensity,
-                Data.PowerQvCoefficients,
-                Data.SimilarVolumeFlowCoefficient,
-                Data.SimilarTotalPressureCoefficient,
-                Data.SimilarPowerCoefficient
+                Data.PowerQvCoefficients
             )
             .Select(
                 item =>
@@ -456,32 +608,24 @@ public abstract class AbstractFan : INotifyPropertyChanged
                     }
             );
 
+    private List<DataCurve>? _newCurve;
+
     /// <summary>
     /// Расчет рабочих точек для новой кривой
     /// </summary>
     public List<DataCurve> NewCurve =>
-        OriginalCurve
+        _newCurve ??= OriginalCurve
             .Select(
                 (workPoint, index) =>
                     new DataCurve
                     {
                         DcIndex = index,
-                        DcVolumeFlow = Similarity.SimilarVolumeFlow(
-                            workPoint.DcVolumeFlow,
-                            workPoint.DcImpellerRotationSpeed,
-                            workPoint.DcConditionalStandardSize,
-                            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                            ConditionalStandardSize
-                        ),
-                        DcTotalPressure = Similarity.SimilarPressure(
-                            workPoint.DcTotalPressure,
-                            workPoint.DcImpellerRotationSpeed,
-                            workPoint.DcConditionalStandardSize,
-                            workPoint.DcAir,
-                            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                            ConditionalStandardSize,
-                            UserInput.DataAir.Density.KilogramsPerCubicMeter
-                        ),
+                        DcVolumeFlow =
+                            workPoint.DcVolumeFlow
+                            * SimilarVolumeFlowCoefficient,
+                        DcTotalPressure =
+                            workPoint.DcTotalPressure
+                            * SimilarTotalPressureCoefficient,
                         DcConditionalStandardSize =
                             workPoint.DcConditionalStandardSize,
                         DcImpellerRotationSpeed =
@@ -490,15 +634,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
                             .DataAir
                             .Density
                             .KilogramsPerCubicMeter,
-                        DcPower = Similarity.SimilarPower(
-                            workPoint.DcPower,
-                            workPoint.DcImpellerRotationSpeed,
-                            workPoint.DcConditionalStandardSize,
-                            workPoint.DcAir,
-                            ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                            ConditionalStandardSize,
-                            UserInput.DataAir.Density.KilogramsPerCubicMeter
-                        )
+                        DcPower = workPoint.DcPower * SimilarPowerCoefficient
                     }
             )
             .Select(

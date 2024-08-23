@@ -14,11 +14,26 @@ public class UserInputValidator : AbstractValidator<UserInput>
         RuleFor(input => input.UserInputWorkPoint.TotalPressure)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Полное давление воздуха должно быть >= 0 [Па].");
-        RuleFor(input => input.UserInputWorkPoint.TotalPressureDeviation)
+        RuleFor(
+                input =>
+                    input.UserInputWorkPoint.VolumeFlowAndTotalPressureDeviation
+            )
             .InclusiveBetween(0, 30)
             .When(input => input is not null)
             .WithMessage(
                 "Допустимая погрешность подбора по полному давлению воздуха должна быть: >= 0 и <= 30  [%]."
+            );
+        RuleFor(input => input.UserInputWorkPoint.SpecificDeviationLeft)
+            .InclusiveBetween(0, 100)
+            .When(input => input is not null)
+            .WithMessage(
+                "Значение по умолчанию для погрешности быстроходности/ габаритности слева должна быть: >= 0 и <= 100  [%]."
+            );
+        RuleFor(input => input.UserInputWorkPoint.SpecificDeviationRight)
+            .InclusiveBetween(0, 100)
+            .When(input => input is not null)
+            .WithMessage(
+                "Значение по умолчанию для погрешности быстроходности/ габаритности справа должна быть: >= 0 и <= 100  [%]."
             );
         RuleFor(input => input.UserInputFan.FanVersion)
             .InclusiveBetween(

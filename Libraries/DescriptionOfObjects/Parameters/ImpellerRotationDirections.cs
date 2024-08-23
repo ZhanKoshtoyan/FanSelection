@@ -30,4 +30,18 @@ public static class ImpellerRotationDirections
         "RRO - Правое исполнение",
         "LRO - Левое исполнение"
     };
+
+    /// <summary>
+    ///     Направление движения крыльчатки для HighPressureFan: короткое название
+    /// </summary>
+    public static readonly string[] ValuesForHighPressureFan = { "RRO", "LRO" };
+
+    /// <summary>
+    ///     Направление движения крыльчатки для HighPressureFan: полное название
+    /// </summary>
+    public static readonly string[] NamesForHighPressureFan =
+    {
+        "RRO - Правое исполнение",
+        "LRO - Левое исполнение"
+    };
 }

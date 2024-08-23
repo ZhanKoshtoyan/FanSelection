@@ -18,9 +18,9 @@ public record ShortDescriptionOfTheFanData
     public required double ConditionalStandardSize { get; init; }
 
     /// <summary>
-    ///     Площадь сечения на выходе, [м2]
+    ///     Площадь отверстия выпускной трубы, [м2]
     /// </summary>
-    public required double AreaOfInletPipeOpening { get; init; }
+    public required double SquareOfOutletPipeOpening { get; init; }
 
     /// <summary>
     /// Длина корпуса. Допустимые значения: ("1" - полногабаритный; "2" - короткий)
@@ -51,7 +51,7 @@ public record ShortDescriptionOfTheFanData
     /// <summary>
     ///     Скорость вращения крыльчатки со скольжением двигателя, [об/мин]
     /// </summary>
-    public required double ImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; init; }
+    public required double ImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; set; }
 
     /// <summary>
     ///     Максимальная скорость вращения крыльчатки с учетом загрузки двигателя, [об/мин]

@@ -16,9 +16,9 @@ public abstract class FanWithFrequencyConverter : AbstractFan
         ImpellerRotationSpeedWithSlidingEngineForWorkPoint =
             Similarity.DerivedFromPvImpellerRotationSpeed(
                 TotalPressureOnPolynomial,
-                Data.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-                ConditionalStandardSize,
-                Data.AirDensity,
+                Data.OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint,
+                Data.OriginalFanDataConditionalStandardSize,
+                Data.OriginalFanDataAirDensity,
                 InputTotalNormalPressure,
                 ConditionalStandardSize,
                 Data.AirDensity

@@ -181,15 +181,22 @@ public abstract class CreatingListOfFans
                                 el.Weight,
                                 el.NominalPower,
                                 el.NominalImpellerRotationSpeedWithoutSlidingEngine,
+                                Math.Abs(
+                                    el.ImpellerRotationSpeedWithSlidingEngineForWorkPoint
+                                        - el.MaxImpellerRotationSpeedWithSlidingEngine
+                                ) < 0.05
+                                    ? el.MaxImpellerRotationSpeedWithSlidingEngine
+                                    : fanDataWithVersionAndAerodynamicDesign.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
                                 el.MaxImpellerRotationSpeedWithSlidingEngine,
-                                el.AreaOfInletPipeOpening
+                                el.SquareOfOutletPipeOpening
                             )
                     )
                     .ToList();
             newFanDataList.AddRange(newFanDataListTemporary);
         }
 
-        //10.Создадим список с типом вентилятора OsuDu или EuFan
+        //10.Создадим список с исполнением вентилятора, который выбрал пользователь
+        //Запишем исполнение вентилятора в переменную
         var valueOfFanVersion = Convert.ToInt32(
             (FanVersion.Values)userInput.UserInputFan.FanVersion
         );
@@ -202,7 +209,7 @@ public abstract class CreatingListOfFans
             numberOfFans++
         )
         {
-            var multipleTypedFansListTemporary = newFanDataList
+            var multipleTypedFansListTemporary1 = newFanDataList
                 .Select(
                     elementFanData =>
                         valueOfFanVersion switch
@@ -223,6 +230,14 @@ public abstract class CreatingListOfFans
                                             userInput,
                                             numberOfFans
                                         ),
+                            2
+                                => (T)
+                                    (object)
+                                        new HighPressureFan(
+                                            elementFanData,
+                                            userInput,
+                                            numberOfFans
+                                        ),
                             _
                                 => throw new ArgumentOutOfRangeException(
                                     $"Версии вентилятора с индексом {valueOfFanVersion} не существует!"
@@ -230,7 +245,8 @@ public abstract class CreatingListOfFans
                         }
                 )
                 .ToList();
-            multipleTypedFansList.AddRange(multipleTypedFansListTemporary);
+
+            multipleTypedFansList.AddRange(multipleTypedFansListTemporary1);
         }
 
         //11.Отобрать вентиляторы, которые соответствуют specificSpeedPhiCoefficients или specificSizePhiCoefficients
@@ -372,17 +388,23 @@ public abstract class CreatingListOfFans
             .Where(
                 fan =>
                     Math.Abs(fan.TotalPressureDeviation)
-                    <= userInput.UserInputWorkPoint.TotalPressureDeviation
+                        <= userInput
+                            .UserInputWorkPoint
+                            .VolumeFlowAndTotalPressureDeviation
+                    && Math.Abs(fan.VolumeFlowDeviation)
+                        <= userInput
+                            .UserInputWorkPoint
+                            .VolumeFlowAndTotalPressureDeviation
             )
-            .OrderByDescending(fan => fan.TotalEfficiency)
-            .ThenBy(fan => Math.Abs(fan.TotalPressureDeviation))
+            .OrderBy(fan => Math.Abs(fan.TotalPressureDeviation))
             .ThenBy(fan => Math.Abs(fan.VolumeFlowDeviation))
+            .ThenByDescending(fan => fan.TotalEfficiency)
             .ToList();
 
         if (listOfFansByTypeAndLogic is null)
         {
             throw new ArgumentException(
-                $"Условие не удовлетворяется: Погрешность подбора по полному давлению воздуха > {userInput.UserInputWorkPoint.TotalPressureDeviation}%. Вентиляторы не могут быть подобраны."
+                $"Условие не удовлетворяется: Погрешность подбора по полному давлению воздуха > {userInput.UserInputWorkPoint.VolumeFlowAndTotalPressureDeviation}%. Вентиляторы не могут быть подобраны."
             );
         }
 

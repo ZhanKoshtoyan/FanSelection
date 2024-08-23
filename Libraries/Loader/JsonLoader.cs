@@ -73,7 +73,7 @@ public static class JsonLoader
                         streamJson,
                         options
                     );
-                    Console.WriteLine(restoredFanData);
+                    //Console.WriteLine(restoredFanData);
                 }
             }
             catch (Exception ex)
