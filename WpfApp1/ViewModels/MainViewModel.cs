@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using WpfApp1.Models;
@@ -617,7 +618,7 @@ public class MainViewModel : BaseViewModel
         return true;
     }
 
-    private void SelectFanExecute(object parameter)
+    private async Task SelectFanExecuteAsync(object parameter)
     {
         if (
             SelectedFanLogic == FanLogicList[1]
@@ -733,7 +734,7 @@ public class MainViewModel : BaseViewModel
                 ]
             );
 
-            ProcessTheRequest(_userInput);
+            await ProcessTheRequestAsync(_userInput);
         }
     }
 
@@ -833,11 +834,11 @@ public class MainViewModel : BaseViewModel
         return result;
     }
 
-    private void ProcessTheRequest(UserInput userInput)
+    private async Task ProcessTheRequestAsync(UserInput userInput)
     {
         var validator = new UserInputValidator();
 
-        validator.ValidateAndThrow(userInput);
+        var validateAsyncTask = validator.ValidateAndThrowAsync(userInput);
 
         /*var resultValidation = validator.Validate(userInput);
         var allMessages = resultValidation.ToString();
@@ -847,9 +848,11 @@ public class MainViewModel : BaseViewModel
             throw new ArgumentException(allMessages);
         }*/
 
-        var fansList = JsonLoader.Download<FanData>(
+        var fansListAsyncTask = JsonLoader.DownloadAsync<FanData>(
             UserInput.PathDataOfFansJsonFile
         );
+
+        await Task.WhenAll(validateAsyncTask, fansListAsyncTask);
 
         object? sortFans;
         switch (userInput.UserInputFan.FanVersion)
@@ -857,7 +860,7 @@ public class MainViewModel : BaseViewModel
             case 0:
                 //sortFans = SortFans2.Sort<OsuDu>(fansList, userInput);
                 sortFans = CreatingListOfFans.Create<OsuDu>(
-                    fansList,
+                    fansListAsyncTask.Result,
                     userInput
                 );
                 var newDataOsuDu = new ObservableCollection<AbstractFan>(
@@ -883,7 +886,7 @@ public class MainViewModel : BaseViewModel
             case 1:
                 //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
                 sortFans = CreatingListOfFans.Create<EuFan>(
-                    fansList,
+                    fansListAsyncTask.Result,
                     userInput
                 );
                 var newDataEuFan = new ObservableCollection<AbstractFan>(
@@ -894,7 +897,7 @@ public class MainViewModel : BaseViewModel
             case 2:
                 //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
                 sortFans = CreatingListOfFans.Create<HighPressureFan>(
-                    fansList,
+                    fansListAsyncTask.Result,
                     userInput
                 );
                 var newDataHighPressureFanFan =
@@ -1062,8 +1065,8 @@ public class MainViewModel : BaseViewModel
         RelativeHumidityText = UserInputAir.RelativeHumidityByDefault;
         RelativeHumidityTextWithUnit =
             UserInputAir.RelativeHumidityByDefault + " [°C]";
-        SelectFanCommand = new RelayCommand(
-            SelectFanExecute,
+        SelectFanCommand = new RelayCommandAsync(
+            SelectFanExecuteAsync,
             CanSelectFanExecute
         );
     }

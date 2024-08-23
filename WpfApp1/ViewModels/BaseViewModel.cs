@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace WpfApp1.ViewModels;
@@ -63,6 +64,36 @@ public class BaseViewModel : INotifyPropertyChanged
         public void Execute(object? parameter)
         {
             _execute(parameter ?? "<N/A>");
+        }
+    }
+
+    public class RelayCommandAsync : ICommand
+    {
+        private readonly Func<object, Task> _execute;
+        private readonly Predicate<object>? _canExecute;
+
+        public RelayCommandAsync(
+            Func<object, Task> execute,
+            Predicate<object>? canExecute = null
+        )
+        {
+            _execute =
+                execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object? parameter) =>
+            _canExecute == null || _canExecute(parameter ?? "<N/A>");
+
+        public event EventHandler? CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
+
+        public async void Execute(object? parameter)
+        {
+            await _execute(parameter ?? "<N/A>");
         }
     }
 }

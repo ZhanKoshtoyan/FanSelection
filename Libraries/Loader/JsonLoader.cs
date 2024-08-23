@@ -88,4 +88,47 @@ public static class JsonLoader
 
         return restoredFanData;
     }
+
+    public static async Task<List<T>?> DownloadAsync<T>(string pathJsonFile)
+    {
+        var options = new JsonSerializerOptions
+        {
+            AllowTrailingCommas = true,
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.Create(
+                UnicodeRanges.BasicLatin,
+                UnicodeRanges.Cyrillic
+            )
+        };
+
+        List<T>? restoredFanData = null;
+        if (File.Exists(pathJsonFile))
+        {
+            try
+            {
+                // Используем FileStream для асинхронного чтения файла
+                await using var streamJson = new FileStream(
+                    pathJsonFile,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read,
+                    4096,
+                    FileOptions.Asynchronous
+                );
+                restoredFanData = await JsonSerializer.DeserializeAsync<
+                    List<T>
+                >(streamJson, options);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Произошла ошибка: {ex.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Файл *.json не найден");
+        }
+
+        return restoredFanData;
+    }
 }
