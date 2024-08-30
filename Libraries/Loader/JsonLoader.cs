@@ -1,5 +1,4 @@
-﻿using Libraries.StructureOfObjects;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 
@@ -7,49 +6,6 @@ namespace Libraries.Loader;
 
 public static class JsonLoader
 {
-    public static async Task UploadAsync(
-        List<FanData>? fanCollection,
-        string? pathJsonFile
-    )
-    {
-        if (fanCollection == null)
-        {
-            throw new ArgumentNullException(nameof(fanCollection));
-        }
-
-        if (pathJsonFile == null)
-        {
-            throw new ArgumentNullException(nameof(pathJsonFile));
-        }
-
-        if (File.Exists(pathJsonFile))
-        {
-            Console.WriteLine(
-                "Файл уже существует. Хотите перезаписать его? (Y/N)"
-            );
-            var response = Console.ReadLine()?.ToUpper();
-            if (response != "Y")
-            {
-                return;
-            }
-        }
-
-        var options = new JsonSerializerOptions
-        {
-            AllowTrailingCommas = true,
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.Create(
-                UnicodeRanges.BasicLatin,
-                UnicodeRanges.Cyrillic
-            )
-        };
-        var json = JsonSerializer.Serialize(fanCollection, options);
-        var file = File.CreateText(pathJsonFile);
-        await file.WriteLineAsync(json);
-        Console.WriteLine(json);
-        file.Close();
-    }
-
     public static List<T>? Download<T>(string pathJsonFile)
     {
         var options = new JsonSerializerOptions
@@ -91,6 +47,13 @@ public static class JsonLoader
 
     public static async Task<List<T>?> DownloadAsync<T>(string pathJsonFile)
     {
+        // Проверяем, существует ли файл
+        if (!File.Exists(pathJsonFile))
+        {
+            Console.WriteLine("Файл не найден.");
+            return null;
+        }
+
         var options = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
@@ -101,34 +64,48 @@ public static class JsonLoader
             )
         };
 
-        List<T>? restoredFanData = null;
-        if (File.Exists(pathJsonFile))
+        try
         {
-            try
+            var jsonContent = await File.ReadAllTextAsync(pathJsonFile);
+            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
             {
-                // Используем FileStream для асинхронного чтения файла
-                await using var streamJson = new FileStream(
-                    pathJsonFile,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.Read,
-                    4096,
-                    FileOptions.Asynchronous
-                );
-                restoredFanData = await JsonSerializer.DeserializeAsync<
-                    List<T>
-                >(streamJson, options);
+                if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                {
+                    Console.WriteLine("Корневой элемент не является массивом.");
+                    return null;
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Произошла ошибка: {ex.Message}");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Файл *.json не найден");
-        }
 
-        return restoredFanData;
+            // Используем FileStream для асинхронного чтения файла
+            await using var fileStream = new FileStream(
+                pathJsonFile,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read
+            );
+
+            // Десериализуем данные из файла в список объектов
+            var data = await JsonSerializer.DeserializeAsync<List<T>?>(
+                fileStream,
+                options
+            );
+
+            return data;
+        }
+        catch (JsonException jsonEx)
+        {
+            Console.WriteLine($"Ошибка десериализации: {jsonEx.Message}");
+            return null;
+        }
+        catch (InvalidCastException castEx)
+        {
+            Console.WriteLine($"Ошибка приведения типов: {castEx.Message}");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+            return null;
+        }
     }
 }

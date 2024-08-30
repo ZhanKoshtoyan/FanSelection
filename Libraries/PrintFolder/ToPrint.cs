@@ -86,7 +86,7 @@ public static class ToPrint
                     + $"\nУровень звуковой мощности Lw6 на выходе по октавам: {Calculate.GetOctaveNoiseAString(fan.OctaveNoiseLw6)} [дБ];"
                     + $"\nСуммарный уровень звуковой мощности Lw6 частот: {string.Join("; ", OctaveNoise.Names)} [Гц]  с корректировкой фильтра А на выходе: {fan.SumNoiseLwA6:0.0} [дБ(А)];"
                     + $"\nВес вентилятора {fan.Data.Weight} кг;"
-                    + $"\n\nD = {fan.NewCurve[0].DcConditionalStandardSize * 1000:0} [мм], "
+                    + $"\n\nD = {fan.NewCurve[0].DcDiameterOfTheImpellerAtTheEndsOfTheBlades * 1000:0} [мм], "
                     + $"p = {fan.NewCurve[0].DcAir:0.000} [кг/м3], "
                     + $"n = {fan.NewCurve[0].DcImpellerRotationSpeed:0} [об/мин]:\n"
             );

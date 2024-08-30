@@ -278,20 +278,25 @@
                                 <GridViewColumn DisplayMemberBinding="{Binding
                                 Path=(fans:AbstractFan.ConditionalStandardSize), Converter={StaticResource OutputValueConverter},
                                 ConverterParameter=Size}">Size</GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding
+                                Path=Data.AerodynamicDesign, Converter={StaticResource OutputValueConverter},
+                                ConverterParameter=AerodynamicDesign}">AerodynamicDesign</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=ProjectId}">ProjectId</GridViewColumn>
                                 <!--<GridViewColumn Header="Типоразмер" HeaderContainerStyle="{StaticResource MyHeaderStyle}" DisplayMemberBinding="{Binding Path=(fans:IFan.VolumeFlow), Converter={StaticResource PriceConverter}}">[м3/ч]</GridViewColumn>-->
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.NumberOfFans),
-                                Converter={StaticResource OutputValueConverter}}">NumberOfFans [ед.]</GridViewColumn>
+                                Converter={StaticResource OutputValueConverter},
+                                ConverterParameter=NumberOfFans}">NumberOfFans [ед.]</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.VolumeFlow),
-                                Converter={StaticResource OutputValueConverter}}">VolumeFlow [м3/ч]</GridViewColumn>
+                                Converter={StaticResource OutputValueConverter},
+                                ConverterParameter=VolumeFlow}">VolumeFlow [м3/ч]</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalPressure),
                                 Converter={StaticResource OutputValueConverter}}">TotalPressure [Па]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.VolumeFlowDeviation),
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SpecificSpeedDeviation),
                                 Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=VolumeFlowDeviation}">VolumeFlowDeviation [%]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalPressureDeviation),
+                                ConverterParameter=SpecificSpeedDeviation}">SpecificSpeedDeviation [%]</GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SpecificSizeDeviation),
                                 Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=TotalPressureDeviation}">VolumeFlowAndTotalPressureDeviation [%]</GridViewColumn>
+                                ConverterParameter=SpecificSizeDeviation}">SpecificSizeDeviation [%]</GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.StaticPressure),
                                 Converter={StaticResource OutputValueConverter}
                                 }">StaticPressure [Па]</GridViewColumn>

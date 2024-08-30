@@ -9,25 +9,26 @@ public static class DimensionlessData
     /// <summary>
     /// Расчет окружной скорости по концам лопаток, [м/с]
     /// </summary>
-    /// <param name="conditionalStandardSize">типоразмер, [б/р]</param>
+    /// <param name="diameterOfTheImpellerAtTheEndsOfTheBlades">Диаметр рабочего колеса по концам лопаток, [мм]</param>
     /// <param name="impellerRotationSpeedWithSlidingEngineForWorkPoint">скорость вращения крыльчатки со скольжением двигателя, [об/мин]</param>
     /// <returns>Oкружная скорость по концам лопаток, [м/с]</returns>
     public static double CircumferentialSpeed(
-        double conditionalStandardSize,
+        double diameterOfTheImpellerAtTheEndsOfTheBlades,
         double impellerRotationSpeedWithSlidingEngineForWorkPoint
     ) =>
         Math.PI
-        * conditionalStandardSize
+        * diameterOfTheImpellerAtTheEndsOfTheBlades
         * impellerRotationSpeedWithSlidingEngineForWorkPoint
         / 60;
 
     /// <summary>
     /// Расчет площади диска колеса по концам лопаток, [м2]
     /// </summary>
-    /// <param name="conditionalStandardSize">типоразмер, [б/р]</param>
+    /// <param name="diameterOfTheImpellerAtTheEndsOfTheBlades">Диаметр рабочего колеса по концам лопаток, [мм]</param>
     /// <returns>площадь диска колеса по концам лопаток, [м2]</returns>
-    public static double SquareOfWheelDisc(double conditionalStandardSize) =>
-        Math.PI * Math.Pow(conditionalStandardSize, 2) / 4;
+    public static double SquareOfWheelDisc(
+        double diameterOfTheImpellerAtTheEndsOfTheBlades
+    ) => Math.PI * Math.Pow(diameterOfTheImpellerAtTheEndsOfTheBlades, 2) / 4;
 
     /// <summary>
     /// Расчет коэффициента производительности φ (phi), [б/р]

@@ -215,7 +215,8 @@ public record FanData : ShortDescriptionOfTheFanData
     /// <summary>
     /// ConditionalStandardSize для OriginalFanData
     /// </summary>
-    public double OriginalFanDataConditionalStandardSize { get; init; } = 1;
+    public double OriginalFanDataDiameterOfTheImpellerAtTheEndsOfTheBlades { get; init; } =
+        1;
 
     /// <summary>
     /// AirDensity для OriginalFanData
@@ -231,14 +232,16 @@ public record FanData : ShortDescriptionOfTheFanData
     /// Площадь диска колеса по концам лопаток [м2]
     /// </summary>
     public double SquareOfWheelDisc =>
-        DimensionlessData.SquareOfWheelDisc(ConditionalStandardSize / 1000);
+        DimensionlessData.SquareOfWheelDisc(
+            DiameterOfTheImpellerAtTheEndsOfTheBlades / 1000
+        );
 
     /// <summary>
     /// Окружная скорость по концам лопаток [м/с]
     /// </summary>
     public double CircumferentialSpeed =>
         DimensionlessData.CircumferentialSpeed(
-            ConditionalStandardSize / 1000,
+            DiameterOfTheImpellerAtTheEndsOfTheBlades / 1000,
             ImpellerRotationSpeedWithSlidingEngineForWorkPoint
         );
 }

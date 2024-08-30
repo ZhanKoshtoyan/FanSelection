@@ -29,33 +29,33 @@ public static class Calculate
     public static double MethodOfHalfDivisionVolumeFlow(
         FanData data,
         double inputVolumeFlow,
-        double inputTotalPressure,
-        double newFanDataConditionalStandardSize
+        double inputTotalPressure
+    //double newFanDataConditionalStandardSize
     )
     {
-        var inputVolumeFlowForNewConditionalStandardSize =
+        var inputVolumeFlowForNewDiameterOfTheImpellerAtTheEndsOfTheBlades =
             Similarity.SimilarVolumeFlow(
                 inputVolumeFlow,
                 1.0,
-                newFanDataConditionalStandardSize,
+                data.DiameterOfTheImpellerAtTheEndsOfTheBlades,
                 1.0,
-                data.OriginalFanDataConditionalStandardSize
+                data.OriginalFanDataDiameterOfTheImpellerAtTheEndsOfTheBlades
             );
 
-        var inputTotalPressureForNewConditionalStandardSize =
+        var inputTotalPressureForNewDiameterOfTheImpellerAtTheEndsOfTheBlades =
             Similarity.SimilarPressure(
                 inputTotalPressure,
                 1.0,
-                newFanDataConditionalStandardSize,
+                data.DiameterOfTheImpellerAtTheEndsOfTheBlades,
                 1.0,
                 1.0,
-                data.OriginalFanDataConditionalStandardSize,
+                data.OriginalFanDataDiameterOfTheImpellerAtTheEndsOfTheBlades,
                 1.0
             );
 
         var constDependencePq = FanSystemCharacteristicCoefficient(
-            inputVolumeFlowForNewConditionalStandardSize,
-            inputTotalPressureForNewConditionalStandardSize
+            inputVolumeFlowForNewDiameterOfTheImpellerAtTheEndsOfTheBlades,
+            inputTotalPressureForNewDiameterOfTheImpellerAtTheEndsOfTheBlades
         );
         const double error = 0.001;
 
@@ -250,16 +250,16 @@ public static class Calculate
     ) => totalPressure - dynamicPressure;
 
     public static double Deviation(
-        double userInputValue,
-        double calculatedValue
-    ) => (1 - userInputValue / calculatedValue) * 100;
+        double valueX,
+        double valueOneHundredPercent
+    ) => (1 - valueX / valueOneHundredPercent) * 100;
 
     /// <summary>
     /// Расчет основных параметров воздуха для OriginalCurve
     /// </summary>
     /// <param name="volumeFlow"></param>
     /// <param name="totalPressureCoefficients"></param>
-    /// <param name="conditionalStandardSize"></param>
+    /// <param name="diameterOfTheImpellerAtTheEndsOfTheBlades"></param>
     /// <param name="impellerRotationSpeed"></param>
     /// <param name="oldAirDensity"></param>
     /// <param name="powerQvCoefficients"></param>
@@ -267,7 +267,7 @@ public static class Calculate
     private static DataCurve DataCurveCalculate(
         double volumeFlow,
         PolynomialType? totalPressureCoefficients,
-        double conditionalStandardSize,
+        double diameterOfTheImpellerAtTheEndsOfTheBlades,
         double impellerRotationSpeed,
         double oldAirDensity,
         PolynomialType? powerQvCoefficients
@@ -276,7 +276,8 @@ public static class Calculate
         {
             DcVolumeFlow = volumeFlow,
             DcTotalPressure = Polynomial(totalPressureCoefficients, volumeFlow),
-            DcConditionalStandardSize = conditionalStandardSize,
+            DcDiameterOfTheImpellerAtTheEndsOfTheBlades =
+                diameterOfTheImpellerAtTheEndsOfTheBlades,
             DcImpellerRotationSpeed = impellerRotationSpeed,
             DcAir = oldAirDensity,
             DcPower = Polynomial(powerQvCoefficients, volumeFlow)
@@ -287,7 +288,7 @@ public static class Calculate
         double maxVolumeFlow,
         int numberOfDataCurves,
         PolynomialType? totalPressureCoefficients,
-        double conditionalStandardSize,
+        double diameterOfTheImpellerAtTheEndsOfTheBlades,
         double impellerRotationSpeedWithSlidingEngineForWorkPoint,
         double oldAirDensity,
         PolynomialType? powerQvCoefficients
@@ -303,7 +304,7 @@ public static class Calculate
             yield return DataCurveCalculate(
                 volumeFlow,
                 totalPressureCoefficients,
-                conditionalStandardSize,
+                diameterOfTheImpellerAtTheEndsOfTheBlades,
                 impellerRotationSpeedWithSlidingEngineForWorkPoint,
                 oldAirDensity,
                 powerQvCoefficients
@@ -313,7 +314,9 @@ public static class Calculate
 
     public static FanData CreateFanData(
         FanData oldFanData,
+        FanEfficiencyGradeCollection fanEfficiencyGradeList,
         double conditionalStandardSize,
+        double diameterOfTheImpellerAtTheEndsOfTheBlades,
         double weight,
         double nominalPower,
         double nominalImpellerRotationSpeedWithoutSlidingEngine,
@@ -367,6 +370,8 @@ public static class Calculate
             Version = oldFanData.Version,
             AerodynamicDesign = oldFanData.AerodynamicDesign,
             ConditionalStandardSize = conditionalStandardSize, //указываю
+            DiameterOfTheImpellerAtTheEndsOfTheBlades =
+                diameterOfTheImpellerAtTheEndsOfTheBlades / 1000, //указываю
             Weight = weight, //указываю
             NominalPower = nominalPower, //указываю
             NominalImpellerRotationSpeedWithoutSlidingEngine =
@@ -450,12 +455,13 @@ public static class Calculate
                 oldFanData.SpecificSizePhiCoefficients, // Неизменны для одной АСВ
             OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint =
                 oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
-            OriginalFanDataConditionalStandardSize =
-                oldFanData.ConditionalStandardSize / 1000,
+            OriginalFanDataDiameterOfTheImpellerAtTheEndsOfTheBlades =
+                oldFanData.DiameterOfTheImpellerAtTheEndsOfTheBlades / 1000,
             OriginalFanDataAirDensity = oldFanData.AirDensity
         };
 
-        newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffect(
+        newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffectAsync(
+            fanEfficiencyGradeList,
             oldFanData.EfficiencyMax,
             oldFanData.ConditionalStandardSize,
             newFanData.ConditionalStandardSize
@@ -469,35 +475,31 @@ public static class Calculate
         return newFanData;
     }
 
-    private static double PowerScaleEffect(
+    private static double PowerScaleEffectAsync(
+        FanEfficiencyGradeCollection fanEfficiencyGradeList,
         double existingFanDataEfficiencyMax,
         double existingFanDataConditionalStandardSize,
         double newFanDataConditionalStandardSize
     )
     {
-        var fanEfficiencyGradeList = new FanEfficiencyGradeCollection
+        // Находим fanEfficiencyGrade.Name для fanData
+        double fanEfficiencyGradeValueForExistingFanData;
+        if (existingFanDataEfficiencyMax * 100 < 50)
         {
-            FanEfficiencyGrades = JsonLoader.Download<FanEfficiencyGrade>(
-                UserInput.PathFanEfficiencyGradeJsonFile
-            )
-        };
-
-        if (fanEfficiencyGradeList.FanEfficiencyGrades == null)
+            fanEfficiencyGradeValueForExistingFanData = 0;
+        }
+        else
         {
-            throw new Exception(
-                "Список fanEfficiencyGradeList.FanEfficiencyGrades == null"
-            );
+            fanEfficiencyGradeValueForExistingFanData =
+                fanEfficiencyGradeList.FanEfficiencyGrades!
+                    .Select(i => Convert.ToDouble(i.Name[3..]))
+                    .Where(
+                        efficiencyMax =>
+                            efficiencyMax / 100 >= existingFanDataEfficiencyMax
+                    )
+                    .MinBy(d => d);
         }
 
-        // Находим fanEfficiencyGrade.Name для fanData
-        var fanEfficiencyGradeValueForExistingFanData =
-            fanEfficiencyGradeList.FanEfficiencyGrades
-                .Select(i => Convert.ToDouble(i.Name[3..]))
-                .Where(
-                    efficiencyMax =>
-                        efficiencyMax / 100 >= existingFanDataEfficiencyMax
-                )
-                .MinBy(d => d);
         var fanEfficiencyGradeNameForExistingFanData = string.Concat(
             "FEG",
             fanEfficiencyGradeValueForExistingFanData
@@ -505,7 +507,7 @@ public static class Calculate
 
         // Находим объект fanEfficiencyGrade из fanEfficiencyGradeList для fanData
         var fanEfficiencyGradeObjectForExistingFanData =
-            fanEfficiencyGradeList.FanEfficiencyGrades.FirstOrDefault(
+            fanEfficiencyGradeList.FanEfficiencyGrades!.FirstOrDefault(
                 grade => grade.Name == fanEfficiencyGradeNameForExistingFanData
             )
             ?? throw new Exception(
@@ -719,12 +721,25 @@ public static class Calculate
 
         if (!string.IsNullOrEmpty(selectedNumberOfFans))
         {
-            userInput.UserInputFan.NumberOfFans = ParseToInt(
+            userInput.UserInputFan.NumberOfFans = ReturnCorrectOrDefaultIndex(
+                NumberOfFans.Names,
                 selectedNumberOfFans
             );
         }
 
         return userInput;
+    }
+
+    public static int ReturnCorrectOrDefaultIndex(
+        IEnumerable<string> comboBoxArr,
+        string selectedValue
+    )
+    {
+        var selectedIndex = comboBoxArr
+            .ToList()
+            .FindIndex(i => Equals(i, selectedValue));
+        var result = selectedIndex == -1 ? 0 : selectedIndex;
+        return result;
     }
 
     private static int ParseToInt(string? strValue)

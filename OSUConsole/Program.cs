@@ -158,7 +158,7 @@ var userInput = Calculate.ProcessUserInput(
     inputNumberOfFans
 );
 
-FanSelector.ProcessTheRequest(userInput);
+await FanSelector.ProcessTheRequest(userInput);
 
 // Console.WriteLine("Нажмите любую клавишу чтобы закрыть программу.");
 // Console.ReadLine();

@@ -149,14 +149,13 @@ public class MainViewModel : BaseViewModel
     #endregion fanLogicList
 
     #region NumberOfFansList
-    private readonly List<string> _numberOfFansList = new();
+    private readonly List<string> _numberOfFansList = null!;
     public List<string> NumberOfFansList
     {
         get => _numberOfFansList;
         private init
         {
-            _numberOfFansList.Add("");
-            _numberOfFansList.AddRange(value);
+            _numberOfFansList = value;
             OnPropertyChanged();
         }
     }
@@ -638,76 +637,78 @@ public class MainViewModel : BaseViewModel
                 VolumeFlowText,
                 TotalPressureText,
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .FanOperatingMaxTemperatureList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .FanOperatingMaxTemperatureList,
                     SelectedFanOperatingMaxTemperature
                 ),
-                ReturnCorrectOrDefaultIndex(
+                Calculate
+                    .ReturnCorrectOrDefaultIndex(
                         FanVersion.NamesForComboBox,
                         SelectedFanVersion
                             .FanParameterNamesForComboBoxes
                             .FanName
                     )
                     .ToString(),
-                ReturnCorrectOrDefaultIndex(
+                Calculate
+                    .ReturnCorrectOrDefaultIndex(
                         FanLogic.NamesForComboBox,
                         SelectedFanLogic
                     )
                     .ToString(),
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .FanSizeList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .FanSizeList,
                     SelectedFanSize
                 ),
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .FanBodyLengthList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .FanBodyLengthList,
                     SelectedFanBodyLength
                 ),
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .ImpellerRotationDirectionList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .ImpellerRotationDirectionList,
                     SelectedImpellerRotationDirection
                 ),
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .NominalPowerList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .NominalPowerList,
                     SelectedNominalPower
                 ),
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .NominalImpellerRotationSpeedList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .NominalImpellerRotationSpeedList,
                     SelectedNominalImpellerRotationSpeed
                 ),
                 CheckArgumentOutOfRangeException(
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterValuesForProjectId
                         .FanBodyExecutionMaterialList,
-                    _selectedFanVersion
+                    SelectedFanVersion
                         .FanParameterNamesForComboBoxes
                         .FanBodyExecutionMaterialList,
                     SelectedFanBodyExecutionMaterial
@@ -727,9 +728,9 @@ public class MainViewModel : BaseViewModel
                     CultureInfo.InvariantCulture
                 ),
                 NumberOfFansList[
-                    ReturnCorrectOrDefaultIndex(
+                    Calculate.ReturnCorrectOrDefaultIndex(
                         NumberOfFans.Names,
-                        _selectedNumberOfFans
+                        SelectedNumberOfFans
                     )
                 ]
             );
@@ -741,34 +742,34 @@ public class MainViewModel : BaseViewModel
     private void UpdateText()
     {
         ProjectIdText =
-            $"{_selectedFanVersion.FanParameterValuesForProjectId.FanName}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+            $"{SelectedFanVersion.FanParameterValuesForProjectId.FanName}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                 .FanParameterValuesForProjectId
-                .FanOperatingMaxTemperatureList, _selectedFanVersion.FanParameterNamesForComboBoxes.FanOperatingMaxTemperatureList,
-                _selectedFanOperatingMaxTemperature, IdProjectDefaultValue, 3)}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+                .FanOperatingMaxTemperatureList, SelectedFanVersion.FanParameterNamesForComboBoxes.FanOperatingMaxTemperatureList,
+                SelectedFanOperatingMaxTemperature, IdProjectDefaultValue, 3)}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                 .FanParameterValuesForProjectId
-                .FanSizeList, _selectedFanVersion.FanParameterNamesForComboBoxes.FanSizeList, _selectedFanSize, IdProjectDefaultValue, 3, 0.1)}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+                .FanSizeList, SelectedFanVersion.FanParameterNamesForComboBoxes.FanSizeList, SelectedFanSize, IdProjectDefaultValue, 3, 0.1)}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                     .FanParameterValuesForProjectId
-                    .FanBodyLengthList, _selectedFanVersion.FanParameterNamesForComboBoxes.FanBodyLengthList,
-                _selectedFanBodyLength, IdProjectDefaultValue)}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+                    .FanBodyLengthList, SelectedFanVersion.FanParameterNamesForComboBoxes.FanBodyLengthList,
+                SelectedFanBodyLength, IdProjectDefaultValue)}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                     .FanParameterValuesForProjectId
-                    .ImpellerRotationDirectionList, _selectedFanVersion.FanParameterNamesForComboBoxes.ImpellerRotationDirectionList,
-                _selectedImpellerRotationDirection, IdProjectDefaultValue)}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+                    .ImpellerRotationDirectionList, SelectedFanVersion.FanParameterNamesForComboBoxes.ImpellerRotationDirectionList,
+                SelectedImpellerRotationDirection, IdProjectDefaultValue)}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                     .FanParameterValuesForProjectId
-                    .NominalPowerList, _selectedFanVersion.FanParameterNamesForComboBoxes.NominalPowerList,
-                _selectedNominalPower, IdProjectDefaultValue, 4, 100)}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+                    .NominalPowerList, SelectedFanVersion.FanParameterNamesForComboBoxes.NominalPowerList,
+                SelectedNominalPower, IdProjectDefaultValue, 4, 100)}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                     .FanParameterValuesForProjectId
-                    .NominalImpellerRotationSpeedList, _selectedFanVersion.FanParameterNamesForComboBoxes.NominalImpellerRotationSpeedList,
-                _selectedNominalImpellerRotationSpeed, IdProjectDefaultValue, 4)}."
-            + $"{CheckArgumentOutOfRangeException(_selectedFanVersion
+                    .NominalImpellerRotationSpeedList, SelectedFanVersion.FanParameterNamesForComboBoxes.NominalImpellerRotationSpeedList,
+                SelectedNominalImpellerRotationSpeed, IdProjectDefaultValue, 4)}."
+            + $"{CheckArgumentOutOfRangeException(SelectedFanVersion
                     .FanParameterValuesForProjectId
-                    .FanBodyExecutionMaterialList, _selectedFanVersion.FanParameterNamesForComboBoxes.FanBodyExecutionMaterialList,
-                _selectedFanBodyExecutionMaterial, IdProjectDefaultValue)}."
+                    .FanBodyExecutionMaterialList, SelectedFanVersion.FanParameterNamesForComboBoxes.FanBodyExecutionMaterialList,
+                SelectedFanBodyExecutionMaterial, IdProjectDefaultValue)}."
             + "Y2";
     }
 
@@ -822,18 +823,6 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    private static int ReturnCorrectOrDefaultIndex(
-        IEnumerable<string> comboBoxArr,
-        string selectedValue
-    )
-    {
-        var selectedIndex = comboBoxArr
-            .ToList()
-            .FindIndex(i => Equals(i, selectedValue));
-        var result = selectedIndex == -1 ? 0 : selectedIndex;
-        return result;
-    }
-
     private async Task ProcessTheRequestAsync(UserInput userInput)
     {
         var validator = new UserInputValidator();
@@ -859,7 +848,7 @@ public class MainViewModel : BaseViewModel
         {
             case 0:
                 //sortFans = SortFans2.Sort<OsuDu>(fansList, userInput);
-                sortFans = CreatingListOfFans.Create<OsuDu>(
+                sortFans = await CreatingListOfFans.CreateAsync<OsuDu>(
                     fansListAsyncTask.Result,
                     userInput
                 );
@@ -885,7 +874,7 @@ public class MainViewModel : BaseViewModel
                 break;
             case 1:
                 //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
-                sortFans = CreatingListOfFans.Create<EuFan>(
+                sortFans = await CreatingListOfFans.CreateAsync<EuFan>(
                     fansListAsyncTask.Result,
                     userInput
                 );
@@ -896,10 +885,11 @@ public class MainViewModel : BaseViewModel
                 break;
             case 2:
                 //sortFans = SortFans2.Sort<EuFan>(fansList, userInput);
-                sortFans = CreatingListOfFans.Create<HighPressureFan>(
-                    fansListAsyncTask.Result,
-                    userInput
-                );
+                sortFans =
+                    await CreatingListOfFans.CreateAsync<HighPressureFan>(
+                        fansListAsyncTask.Result,
+                        userInput
+                    );
                 var newDataHighPressureFanFan =
                     new ObservableCollection<AbstractFan>(
                         (List<HighPressureFan>)sortFans

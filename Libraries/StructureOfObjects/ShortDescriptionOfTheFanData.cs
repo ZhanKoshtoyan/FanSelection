@@ -3,7 +3,7 @@
 public record ShortDescriptionOfTheFanData
 {
     /// <summary>
-    ///     Исполнение вентилятора
+    /// Исполнение вентилятора
     /// </summary>
     public required string Version { get; init; }
 
@@ -13,12 +13,17 @@ public record ShortDescriptionOfTheFanData
     public required int AerodynamicDesign { get; init; }
 
     /// <summary>
-    ///     Типоразмер
+    /// Типоразмер
     /// </summary>
     public required double ConditionalStandardSize { get; init; }
 
     /// <summary>
-    ///     Площадь отверстия выпускной трубы, [м2]
+    /// Диаметр рабочего колеса по концам лопаток, [мм]
+    /// </summary>
+    public required double DiameterOfTheImpellerAtTheEndsOfTheBlades { get; init; }
+
+    /// <summary>
+    /// Площадь отверстия выпускной трубы, [м2]
     /// </summary>
     public required double SquareOfOutletPipeOpening { get; init; }
 
@@ -51,7 +56,7 @@ public record ShortDescriptionOfTheFanData
     /// <summary>
     ///     Скорость вращения крыльчатки со скольжением двигателя, [об/мин]
     /// </summary>
-    public required double ImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; set; }
+    public required double ImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; init; }
 
     /// <summary>
     ///     Максимальная скорость вращения крыльчатки с учетом загрузки двигателя, [об/мин]

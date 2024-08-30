@@ -8,6 +8,8 @@ namespace WpfApp1.ViewModels;
 
 public class OutputValueConverter : IValueConverter
 {
+    private int _numberOfFansValue;
+
     public object Convert(
         object value,
         Type targetType,
@@ -15,6 +17,15 @@ public class OutputValueConverter : IValueConverter
         CultureInfo culture
     )
     {
+        if (
+            value is int intValue
+            && parameter != null
+            && parameter.ToString() == "NumberOfFans"
+        )
+        {
+            _numberOfFansValue = intValue;
+        }
+
         if (value is double doubleValue)
         {
             if (parameter != null)
@@ -29,7 +40,55 @@ public class OutputValueConverter : IValueConverter
                     return formattedValue.ToString("000");
                 }
 
+                if (parameter.ToString() == "VolumeFlow")
+                {
+                    var formattedValue = Math.Round(
+                        doubleValue,
+                        0,
+                        MidpointRounding.ToEven
+                    );
+
+                    var formattedValueToString = formattedValue.ToString(
+                        CultureInfo.InvariantCulture
+                    );
+
+                    if (_numberOfFansValue > 1)
+                    {
+                        formattedValueToString = string.Concat(
+                            formattedValueToString,
+                            " *",
+                            _numberOfFansValue
+                        );
+                    }
+
+                    return formattedValueToString;
+                }
+
                 if (parameter.ToString()!.Contains("Power"))
+                {
+                    var formattedValue = Math.Round(
+                        doubleValue,
+                        2,
+                        MidpointRounding.ToEven
+                    );
+
+                    var formattedValueToString = formattedValue.ToString(
+                        CultureInfo.InvariantCulture
+                    );
+
+                    if (_numberOfFansValue > 1)
+                    {
+                        formattedValueToString = string.Concat(
+                            formattedValueToString,
+                            " *",
+                            _numberOfFansValue
+                        );
+                    }
+
+                    return formattedValueToString;
+                }
+
+                if (parameter.ToString()!.Contains("Deviation"))
                 {
                     var formattedValue = Math.Round(
                         doubleValue,
@@ -39,18 +98,33 @@ public class OutputValueConverter : IValueConverter
                     return formattedValue;
                 }
 
-                if (parameter.ToString()!.Contains("Deviation"))
+                if (parameter.ToString()!.Contains("Weight"))
                 {
-                    var formattedValue = Math.Abs(
-                        Math.Round(doubleValue, 2, MidpointRounding.ToEven)
+                    var formattedValue = Math.Round(
+                        doubleValue,
+                        1,
+                        MidpointRounding.ToEven
                     );
-                    return formattedValue;
+
+                    var formattedValueToString = formattedValue.ToString(
+                        CultureInfo.InvariantCulture
+                    );
+
+                    if (_numberOfFansValue > 1)
+                    {
+                        formattedValueToString = string.Concat(
+                            formattedValueToString,
+                            " *",
+                            _numberOfFansValue
+                        );
+                    }
+
+                    return formattedValueToString;
                 }
 
                 if (
                     parameter.ToString() == "TotalEfficiency"
                     || parameter.ToString() == "AirVelocityOfOutletPipeOpening"
-                    || parameter.ToString() == "Weight"
                 )
                 {
                     var formattedValue = Math.Round(
