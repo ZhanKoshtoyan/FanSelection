@@ -54,7 +54,49 @@ public abstract class CreatingListOfFans
         //     $"Время выполнения SomeMethod: {stopwatch.ElapsedMilliseconds} мс"
         // );
 
-        //2.Выбрать вентилятор с исполнением impellerRotationDirection
+
+        sortedShortDescriptionOfTheFanDataList =
+            sortedShortDescriptionOfTheFanDataList
+                //2.Выбрать вентилятор с исполнением impellerRotationDirection
+                .Where(!string.IsNullOrEmpty(userInput.UserInputFan.ImpellerRotationDirection),
+                    f => f.ImpellerRotationDirection?.Contains(
+                        userInput.UserInputFan.ImpellerRotationDirection ?? string.Empty
+                    ) == true
+                )
+                //3.Выбрать вентилятор с длиной корпуса fanBodyLength
+                .Where(userInput.UserInputFan.FanBodyLength != 0,
+                    f =>
+                        f.FanBodyLength?.Contains(userInput.UserInputFan.FanBodyLength) == true)
+                //4.Выбрать вентилятор с типоразмером ConditionalStandardSize
+                .Where(userInput.UserInputFan.ConditionalStandardSize != 0,
+                    f =>
+                        Math.Abs(
+                            f.ConditionalStandardSize
+                            - userInput
+                                .UserInputFan
+                                .ConditionalStandardSize
+                        ) < 0.05)
+                //5.Выбрать вентилятор со скоростью вращения крыльчатки nominalImpellerRotationSpeedWithoutSlidingEngine
+                .Where(userInput
+                        .UserInputFan
+                        .NominalImpellerRotationSpeedWithoutSlidingEngine != 0,
+                    f =>
+                        Math.Abs(
+                            userInput
+                                .UserInputFan
+                                .NominalImpellerRotationSpeedWithoutSlidingEngine
+                            - f.NominalImpellerRotationSpeedWithoutSlidingEngine
+                        ) < 0.05)
+                //6.Выбрать вентилятор с номинальной мощностью nominalPower
+                .Where(userInput.UserInputFan.NominalPower != 0,
+                    f =>
+                        Math.Abs(
+                            userInput.UserInputFan.NominalPower
+                            - f.NominalPower
+                        ) < 0.05)
+                .ToList();
+
+        /*//2.Выбрать вентилятор с исполнением impellerRotationDirection
         if (
             !string.IsNullOrEmpty(
                 userInput.UserInputFan.ImpellerRotationDirection
@@ -71,6 +113,8 @@ public abstract class CreatingListOfFans
                     )
                     .ToList();
         }
+
+
         //3.Выбрать вентилятор с длиной корпуса fanBodyLength
         if (userInput.UserInputFan.FanBodyLength != 0)
         {
@@ -136,7 +180,7 @@ public abstract class CreatingListOfFans
                             ) < 0.05
                     )
                     .ToList();
-        }
+        }*/
 
         //7. Выбрать максимальное значение NumberOfFans, для которого будут созданы сочетания одновременно работающих вентиляторов
 
