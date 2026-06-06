@@ -21,31 +21,47 @@
                     <VisualStateGroup Name="CommonStates">
                         <VisualState Name="Normal">
                             <Storyboard>
-                                <ColorAnimation Storyboard.TargetName="backgroundElement"
-                                                Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                <ColorAnimation Storyboard.TargetName="border"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                 To="{TemplateBinding Background}"
-                                                Duration="0:0:0:3"/>
+                                                Duration="0:0:0.2"/>
                             </Storyboard>
                         </VisualState>
                         <VisualState Name="MouseOver">
                             <Storyboard>
-                                <ColorAnimation Storyboard.TargetName="backgroundElement"
-                                                Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
-                                                To="Navy"
-                                                Duration="0:0:0:3"/>
+                                <ColorAnimation Storyboard.TargetName="border"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                To="DarkGray"
+                                                Duration="0:0:0.1"/>
+                            </Storyboard>
+                        </VisualState>
+                        <VisualState Name="Pressed">
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="border"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                To="DimGray"
+                                                Duration="0:0:0.05"/>
+                            </Storyboard>
+                        </VisualState>
+                        <VisualState Name="Disabled">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="border"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="0.5"
+                                                 Duration="0:0:0.1"/>
                             </Storyboard>
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
-                <Ellipse x:Name="backgroundElement" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding
-                           Foreground}" Width="150" Height="30"/>
-                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="Black"
+                        BorderThickness="1"
+                        CornerRadius="15"
+                        Padding="20,8">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
             </Grid>
-            <!--<ControlTemplate.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Fill" TargetName="backgroundElement" Value="AliceBlue"></Setter>
-                </Trigger>
-            </ControlTemplate.Triggers>-->
         </ControlTemplate>
         <ControlTemplate TargetType="TextBlock" x:Key="TbTemplate">
             <Grid>
@@ -203,13 +219,6 @@
                         <TextBlock x:Name="UnitAltitudeTextBlock" Grid.Row="11" Grid.Column="2" Text="[м]"/>
                         <TextBox x:Name="AltitudeTextBox" Grid.Row="11" Grid.Column="3" Text="{Binding
                         Path=AltitudeText, Mode=TwoWay}"/>
-                        <!--<TextBox x:Name="AltitudeTextBox" Grid.Row="11" Grid.Column="3" >
-                            <TextBox.Text>
-                                <Binding Path="AltitudeText">
-
-                                </Binding>
-                            </TextBox.Text>
-                        </TextBox>-->
                         <TextBlock x:Name="AltitudeByDefaultTextBlock" Grid.Row="11" Grid.Column="4" Text="{Binding
                         Path=AltitudeTextWithUnit, Mode=OneWay}"/>
                         <!-- FanBodyLength -->
@@ -267,8 +276,11 @@
                         <!--<ListView  Grid.Row="18" Grid.Column="0" x:Name="resultListView"></ListView>-->
                     </Grid>
 
-                    <Button Content="Подобрать вентилятор" Margin="0 20" Template="{StaticResource RoundedButton}"
-                    Command="{Binding SelectFanCommand}"></Button>
+                    <Button Content="Подобрать вентилятор" 
+                            HorizontalAlignment="Center"
+                            Margin="0 20" 
+                            Template="{StaticResource RoundedButton}"
+                            Command="{Binding SelectFanCommand}"/>
                 </StackPanel>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <ListView x:Name="ResultListView" ItemsSource="{Binding ListOfFansViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

@@ -9,5 +9,5 @@ public record DataCurve
     public required double DcImpellerRotationSpeed { get; init; }
     public required double DcAir { get; init; }
     public required double DcPower { get; init; }
-    public double DcEfficiency { get; init; }
+    public double DcTotalEfficiency { get; init; }
 }

@@ -100,7 +100,7 @@ public static class ToPrint
                                 + $"Q = {(fan.NumberOfFans > 1 ? $"{fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcVolumeFlow} [м3/ч],"
                                 + $"Pv = {f.DcTotalPressure} [Па],"
                                 + $"N = {(fan.NumberOfFans > 1 ? $"{fan.NumberOfFans.ToString(CultureInfo.InvariantCulture)} * " : "")}{f.DcPower:0.00} [кВт],"
-                                + $"Total Efficiency = {f.DcEfficiency:0.0} [%]"
+                                + $"Total Efficiency = {f.DcTotalEfficiency:0.0} [%]"
                         )
                 );
         }

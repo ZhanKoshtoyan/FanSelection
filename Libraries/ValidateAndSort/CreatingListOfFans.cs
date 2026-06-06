@@ -286,6 +286,8 @@ public abstract class CreatingListOfFans
                                         new OsuDu(
                                             elementFanData,
                                             userInput,
+                                            BladeType.Axial,
+                                            BladeOrientation.Axial,
                                             numberOfFans
                                         ),
                             1
@@ -294,6 +296,8 @@ public abstract class CreatingListOfFans
                                         new EuFan(
                                             elementFanData,
                                             userInput,
+                                            BladeType.Radial,
+                                            BladeOrientation.BackwardCurvedBlades,
                                             numberOfFans
                                         ),
                             2
@@ -302,6 +306,8 @@ public abstract class CreatingListOfFans
                                         new HighPressureFan(
                                             elementFanData,
                                             userInput,
+                                            BladeType.Radial,
+                                            BladeOrientation.BackwardCurvedBlades,
                                             numberOfFans
                                         ),
                             _

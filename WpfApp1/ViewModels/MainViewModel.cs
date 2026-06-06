@@ -207,8 +207,8 @@ public class MainViewModel : BaseViewModel
         get => _volumeFlowText;
         set
         {
-            _volumeFlowText = value;
-            OnPropertyChanged();
+            if (SetField(ref _volumeFlowText, value))
+                _selectFanCommand.RaiseCanExecuteChanged();
         }
     }
     #endregion VolumeFlowText
@@ -220,8 +220,8 @@ public class MainViewModel : BaseViewModel
         get => _totalPressureText;
         set
         {
-            _totalPressureText = value;
-            OnPropertyChanged();
+            if (SetField(ref _totalPressureText, value))
+                _selectFanCommand.RaiseCanExecuteChanged();
         }
     }
     #endregion TotalPressureText
@@ -393,9 +393,8 @@ public class MainViewModel : BaseViewModel
         get => _selectedFanVersion;
         set
         {
-            _selectedFanVersion = value;
-
-            OnPropertyChanged();
+            if (SetField(ref _selectedFanVersion, value))
+                _selectFanCommand.RaiseCanExecuteChanged();
 
             #region Binding FanOperatingMaxTemperatureList
             FanOperatingMaxTemperatureList = _selectedFanVersion
@@ -605,19 +604,43 @@ public class MainViewModel : BaseViewModel
 
     #endregion SelectedContainers
 
-    public ICommand SelectFanCommand { get; }
+    public ICommand SelectFanCommand => _selectFanCommand;
+    
+    private RelayCommandAsync _selectFanCommand;
 
     private UserInput _userInput = null!;
-
-    private bool CanSelectFanExecute(object parameter)
+    
+    private bool _isBusy;
+    public bool IsBusy
     {
-        // Добавьте здесь логику проверки возможности выполнения команды
-
-
-        return true;
+        get => _isBusy;
+        set
+        {
+            _isBusy = value;
+            OnPropertyChanged();
+            // Перепроверяем, может ли команда выполняться
+            (SelectFanCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        }
     }
 
-    private async Task SelectFanExecuteAsync(object parameter)
+// Вспомогательные методы для проверки полей
+    private bool IsVolumeFlowValid => 
+        double.TryParse(VolumeFlowText, out double v) && v > 0;
+    private bool IsTotalPressureValid => 
+        double.TryParse(TotalPressureText, out double p) && p > 0;
+    private bool IsFanVersionSelected => SelectedFanVersion != null;
+
+    private bool CanExecuteSelectFan()
+    {
+        // Проверка числовых значений
+        bool isVolumeFlowValid = double.TryParse(VolumeFlowText, out double v) && v > 0;
+        bool isTotalPressureValid = double.TryParse(TotalPressureText, out double p) && p > 0;
+        bool isFanVersionSelected = SelectedFanVersion != null;
+
+        return isVolumeFlowValid && isTotalPressureValid && isFanVersionSelected;
+    }
+
+    private async Task ExecuteSelectFanAsync()
     {
         if (
             SelectedFanLogic == FanLogicList[1]
@@ -1055,9 +1078,9 @@ public class MainViewModel : BaseViewModel
         RelativeHumidityText = UserInputAir.RelativeHumidityByDefault;
         RelativeHumidityTextWithUnit =
             UserInputAir.RelativeHumidityByDefault + " [°C]";
-        SelectFanCommand = new RelayCommandAsync(
-            SelectFanExecuteAsync,
-            CanSelectFanExecute
+        _selectFanCommand = new RelayCommandAsync(
+            ExecuteSelectFanAsync, 
+            CanExecuteSelectFan
         );
     }
 }

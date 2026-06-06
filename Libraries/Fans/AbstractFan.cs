@@ -10,11 +10,18 @@ namespace Libraries.Fans;
 public abstract class AbstractFan : INotifyPropertyChanged
 {
     // Конструктор для инициализации свойств
-    protected AbstractFan(FanData data, UserInput userInput, int numberOfFans)
+    protected AbstractFan(
+        FanData data,
+        UserInput userInput,
+        BladeType bladeType,
+        BladeOrientation bladeOrientation,
+        int numberOfFans)
     {
         Data = data ?? throw new ArgumentNullException(nameof(data)); // Проверка на null
         UserInput =
             userInput ?? throw new ArgumentNullException(nameof(userInput)); // Проверка на null
+        BladeType = bladeType;
+        BladeOrientation = bladeOrientation;
         NumberOfFans = numberOfFans;
     }
 
@@ -31,21 +38,33 @@ public abstract class AbstractFan : INotifyPropertyChanged
     /// <summary>
     ///     Проектное наименование вентилятора
     /// </summary>
-    public string? ProjectId { get; protected init; }
+    public virtual string? ProjectId { get; init; }
 
     /// <summary>
     ///     Скорость вращения крыльчатки, [об/мин]
     /// </summary>
-    public double ImpellerRotationSpeedWithSlidingEngineForWorkPoint
-    {
-        get;
-        protected init;
-    }
+    public virtual double ImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; init; }
 
     /// <summary>
     /// Минимальная частота вращения крыльчатки, [Гц]
     /// </summary>
-    public double MinImpellerRotationFrequency { get; protected init; }
+    public virtual double MinImpellerRotationFrequency { get; protected init; }
+
+    /// <summary>
+    ///     Расчетный полный КПД вентилятора, [%]
+    /// </summary>
+    public virtual double TotalEfficiency { get; init; }
+
+    private double EfficiencyGradeCoefficient => Calculate.PowerScaleEffectByFanMotorEfficiencyGrade(
+        Data.OriginalFanDataPowerByEfficiencyMax,
+        Data.OriginalFanDataEfficiencyMax,
+        Data.OriginalFanDataPowerByEfficiencyMax,
+        BladeType,
+        BladeOrientation);
+
+    private BladeType BladeType { get; }
+
+    private BladeOrientation BladeOrientation { get; }
 
     /// <summary>
     /// Максимальная частота вращения крыльчатки, [Гц]
@@ -94,7 +113,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
             ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             Data.DiameterOfTheImpellerAtTheEndsOfTheBlades,
             UserInput.DataAir.Density.KilogramsPerCubicMeter
-        ) / Data.FanEfficiencyGradeCoefficient;
+        ) / EfficiencyGradeCoefficient;
 
     /// <summary>
     /// Коэффициент подобия Noise с оригинальной FanData
@@ -107,6 +126,10 @@ public abstract class AbstractFan : INotifyPropertyChanged
             ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             Data.DiameterOfTheImpellerAtTheEndsOfTheBlades
         );
+
+    public double EfficiencyMaxWithEfficiencyGradeCoefficient =>
+
+    Data.EfficiencyMax * EfficiencyGradeCoefficient;
 
     /// <summary>
     /// Типоразмер, [мм]
@@ -288,12 +311,6 @@ public abstract class AbstractFan : INotifyPropertyChanged
             UserInput.DataAir,
             AirVelocityOfOutletPipeOpening
         );
-
-    /// <summary>
-    ///     Расчетный полный КПД вентилятора, [%]
-    /// </summary>
-    public double TotalEfficiency =>
-        Calculate.Efficiency(VolumeFlow, TotalPressure, Power);
 
     /// <summary>
     ///     Скорость воздуха в выпускной трубе, [м/с]
@@ -491,7 +508,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
                 item =>
                     item with
                     {
-                        DcEfficiency = Calculate.Efficiency(
+                        DcTotalEfficiency = Calculate.Efficiency(
                             item.DcVolumeFlow,
                             item.DcTotalPressure,
                             item.DcPower
@@ -530,7 +547,7 @@ public abstract class AbstractFan : INotifyPropertyChanged
                 item =>
                     item with
                     {
-                        DcEfficiency = Calculate.Efficiency(
+                        DcTotalEfficiency = Calculate.Efficiency(
                             item.DcVolumeFlow,
                             item.DcTotalPressure,
                             item.DcPower

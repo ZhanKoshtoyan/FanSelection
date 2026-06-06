@@ -226,7 +226,32 @@ public static class Calculate
         double power
     ) => volumeFlow * pressure / (3600 * 1000 * power) * 100;
 
+    public static double CompensationFactorForFanWithWithFrequencyConverter(double driveOrControlElectricalInputPower)
+    {
+        if (driveOrControlElectricalInputPower < 5000)
+        {
+            return -0.03 * Math.Log(driveOrControlElectricalInputPower) + 1.088;
+        }
+
+        return 1.04;
+    }
+
     //TODO КПД для вентиляторов с частотником 33660-2015: вместо FEG д/б FMEG
+    /*Вентилятор с открытым валом - Вентилятор без привода, оборудования и аксессуаров (принадлежностей).
+     Показатель эффективности вентилятора FEG (fan efficiency grade)*/
+
+    /*Вентилятор с приводом - Вентилятор с одним или несколькими рабочими колесами,
+     оснащенный двигателем или подключенный к нему, с или без приводного механизма,
+     с корпусом и средством изменения частоты вращения.
+     Показатель энергоэффективности вентилятора с двигателем, FMEG (fan motor efficiency grade)
+     Пример: "Свободное колесо"
+     Алгоритм корректировки КПД для подобных колес:
+     1. Зная КПД базового колеса, находим Ng - класс эффективности FMEG (целое число)
+     из формул №12 и 14 (ГОСТ 33660-2015, пункт 6.3.3, формула №12, 14). Т.о. мы найдем Ng для всей серии геом.подобн.вентиляторов;
+     2. Используя формулы №12, 14 и Ng для всей серии геом.подобн.вентиляторов мы сможем узнать минимальный критерий КПД
+     для каждой входной мощности. */
+
+
 
     public static double AirVelocityOfOutletPipeOpening(
         double volumeFlow,
@@ -441,7 +466,7 @@ public static class Calculate
             OctaveNoiseLw6QvCoefficients8000 =
                 oldFanData.OctaveNoiseLw6QvCoefficients8000, // старые значения
             EfficiencyPhiCoefficients = null, // ??? не используется
-            EfficiencyMax = 0, // расчет ниже
+            EfficiencyMax = 0, // расчет в  абстрактном классе вентилятора
             EfficiencyMinLeft = oldFanData.EfficiencyMinLeft, // Неизменны для одной АСВ
             EfficiencyMinRight = oldFanData.EfficiencyMinRight, // Неизменны для одной АСВ
             PhiEfficiencyMax = oldFanData.PhiEfficiencyMax, // Неизменны для одной АСВ
@@ -457,25 +482,74 @@ public static class Calculate
                 oldFanData.ImpellerRotationSpeedWithSlidingEngineForWorkPoint,
             OriginalFanDataDiameterOfTheImpellerAtTheEndsOfTheBlades =
                 oldFanData.DiameterOfTheImpellerAtTheEndsOfTheBlades / 1000,
-            OriginalFanDataAirDensity = oldFanData.AirDensity
+            OriginalFanDataAirDensity = oldFanData.AirDensity,
+            OriginalFanDataEfficiencyMax = oldFanData.OriginalFanDataEfficiencyMax,
+            OriginalFanDataPowerByEfficiencyMax = oldFanData.OriginalFanDataPowerByEfficiencyMax,
+            OriginalFanDataConditionalStandardSize = oldFanData.OriginalFanDataConditionalStandardSize,
+            FanEfficiencyGradeList = fanEfficiencyGradeList
         };
 
-        newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffectAsync(
-            fanEfficiencyGradeList,
-            oldFanData.EfficiencyMax,
-            oldFanData.ConditionalStandardSize,
-            newFanData.ConditionalStandardSize
-        );
+    if (Equals(oldFanData.Version, FanVersion.Values.EuFan.ToString()))
+        {
+            /*var powerByEfficiencyMax = oldFanData.OriginalFanDataPowerByEfficiencyMax * oldFanData.SimilarPowerCoefficient;
+            newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffectByFanMotorEfficiencyGradeAsync(
+                oldFanData.OriginalFanDataPowerByEfficiencyMax,
+                oldFanData.EfficiencyMax,
+                newFanData.OriginalFanDataPowerByEfficiencyMax);*/
+        }
+        else
+        {
+            /*newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffectByFanEfficiencyGradeAsync(
+                fanEfficiencyGradeList,
+                oldFanData.EfficiencyMax,
+                oldFanData.ConditionalStandardSize,
+                newFanData.ConditionalStandardSize
+            );*/
+        }
 
-        newFanData.EfficiencyMax =
-            oldFanData.EfficiencyMax * newFanData.FanEfficiencyGradeCoefficient;
+        // newFanData.EfficiencyMax =
+        //     oldFanData.EfficiencyMax * newFanData.FanEfficiencyGradeCoefficient;
         /*newFanData.SimilarPowerCoefficient /=
             newFanData.FanEfficiencyGradeCoefficient;*/
 
         return newFanData;
     }
 
-    private static double PowerScaleEffectAsync(
+    public static double PowerScaleEffectByFanMotorEfficiencyGrade(
+        double inputPowerOfTheBaseFanEngineInMaximumEfficiency,
+        double maximumEfficiencyOfTheBaseFan,
+        double inputPowerOfTheNewFanEngineInMaximumEfficiency,
+        BladeType bladeType,
+        BladeOrientation bladeOrientation
+        )
+    {
+        var efficiencyGradeOfTheBaseFan = EfficiencyGradeCalculator.GetEfficiencyGradeOfBaseFan(
+            inputPowerOfTheBaseFanEngineInMaximumEfficiency,
+            maximumEfficiencyOfTheBaseFan,
+            bladeType,
+            bladeOrientation);
+
+        var minEfficiencyBaseFanByFanMotorEfficiencyGrade =
+            FanCompensationCalculator.GetMinEfficiencyFanByFanMotorEfficiencyGrade(
+                inputPowerOfTheBaseFanEngineInMaximumEfficiency,
+                efficiencyGradeOfTheBaseFan,
+                bladeType,
+                bladeOrientation
+            );
+
+        var minEfficiencyNewFanByFanMotorEfficiencyGrade =
+            FanCompensationCalculator.GetMinEfficiencyFanByFanMotorEfficiencyGrade(
+            inputPowerOfTheNewFanEngineInMaximumEfficiency,
+            efficiencyGradeOfTheBaseFan,
+            bladeType,
+            bladeOrientation
+        );
+
+        return minEfficiencyNewFanByFanMotorEfficiencyGrade
+            / minEfficiencyBaseFanByFanMotorEfficiencyGrade;
+    }
+
+    public static double PowerScaleEffectByFanEfficiencyGradeAsync(
         FanEfficiencyGradeCollection fanEfficiencyGradeList,
         double existingFanDataEfficiencyMax,
         double existingFanDataConditionalStandardSize,

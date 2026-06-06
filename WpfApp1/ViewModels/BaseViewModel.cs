@@ -37,23 +37,20 @@ public class BaseViewModel : INotifyPropertyChanged
         return true;
     }
 
-    protected class RelayCommand : ICommand
+    public class RelayCommand : ICommand
     {
-        private readonly Action<object> _execute;
-        private readonly Predicate<object>? _canExecute;
+        private readonly Action _execute;
+        private readonly Func<bool>? _canExecute; 
 
-        public RelayCommand(
-            Action<object> execute,
-            Predicate<object>? canExecute = null
-        )
+        public RelayCommand(Action execute, Func<bool>? canExecute = null) 
         {
-            _execute =
-                execute ?? throw new ArgumentNullException(nameof(execute));
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
-        public bool CanExecute(object? parameter) =>
-            _canExecute == null || _canExecute(parameter ?? "<N/A>");
+        public bool CanExecute(object? parameter) => _canExecute == null || _canExecute();
+
+        public void Execute(object? parameter) => _execute();
 
         public event EventHandler? CanExecuteChanged
         {
@@ -61,29 +58,56 @@ public class BaseViewModel : INotifyPropertyChanged
             remove => CommandManager.RequerySuggested -= value;
         }
 
-        public void Execute(object? parameter)
-        {
-            _execute(parameter ?? "<N/A>");
-        }
+        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
 
     public class RelayCommandAsync : ICommand
     {
-        private readonly Func<object, Task> _execute;
-        private readonly Predicate<object>? _canExecute;
+        private readonly Func<Task> _execute;
+        private readonly Func<bool>? _canExecute;
+        private readonly Action<Exception>? _onError;
+        private bool _isExecuting;
 
-        public RelayCommandAsync(
-            Func<object, Task> execute,
-            Predicate<object>? canExecute = null
-        )
+        public RelayCommandAsync(Func<Task> execute, 
+            Func<bool>? canExecute = null,
+            Action<Exception>? onError = null)
         {
-            _execute =
-                execute ?? throw new ArgumentNullException(nameof(execute));
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
+            _onError = onError;
         }
 
-        public bool CanExecute(object? parameter) =>
-            _canExecute == null || _canExecute(parameter ?? "<N/A>");
+        public bool CanExecute(object? parameter)
+        {
+            if (_isExecuting)
+                return false;
+            return _canExecute == null || _canExecute();
+        }
+
+        public async void Execute(object? parameter)
+        {
+            if (!CanExecute(parameter))
+                return;
+
+            _isExecuting = true;
+            RaiseCanExecuteChanged();
+
+            try
+            {
+                await _execute();
+            }
+            catch (Exception ex)
+            {
+                _onError?.Invoke(ex);
+                // Если обработчик не задан, можно просто выбросить исключение (но оно потеряется в async void)
+                // Поэтому лучше всегда передавать хотя бы логгер
+            }
+            finally
+            {
+                _isExecuting = false;
+                RaiseCanExecuteChanged();
+            }
+        }
 
         public event EventHandler? CanExecuteChanged
         {
@@ -91,9 +115,6 @@ public class BaseViewModel : INotifyPropertyChanged
             remove => CommandManager.RequerySuggested -= value;
         }
 
-        public async void Execute(object? parameter)
-        {
-            await _execute(parameter ?? "<N/A>");
-        }
+        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
 }

@@ -157,9 +157,9 @@ public record FanData : ShortDescriptionOfTheFanData
     public required PolynomialType? EfficiencyPhiCoefficients { get; init; }
 
     /// <summary>
-    /// Максимальное значение КПД аэродинамической схемы вентилятора, [%]
+    /// Максимальное значение КПД текущего вентилятора, [%]
     /// </summary>
-    public required double EfficiencyMax { get; set; }
+    public double EfficiencyMax { get; set; }
 
     /// <summary>
     /// Минимальное левое значение КПД аэродинамической схемы вентилятора, [%]
@@ -207,6 +207,21 @@ public record FanData : ShortDescriptionOfTheFanData
     public required PolynomialType? SpecificSizePhiCoefficients { get; init; }
 
     /// <summary>
+    /// Максимальное значение КПД базового вентилятора, [%]
+    /// </summary>
+    public required double OriginalFanDataEfficiencyMax { get; init; }
+
+    /// <summary>
+    /// Электрическая мощность при максимальном КПД базового вентилятора, [кВт]
+    /// </summary>
+    public required double OriginalFanDataPowerByEfficiencyMax { get; init; }
+
+    /// <summary>
+    /// Условный типоразмер
+    /// </summary>
+    public required double OriginalFanDataConditionalStandardSize { get; init; }
+
+    /// <summary>
     /// ImpellerRotationSpeedWithSlidingEngineForWorkPoint для OriginalFanData
     /// </summary>
     public double OriginalFanDataImpellerRotationSpeedWithSlidingEngineForWorkPoint { get; init; } =
@@ -226,7 +241,14 @@ public record FanData : ShortDescriptionOfTheFanData
     /// <summary>
     /// Коэффициент отображающий эффект масштабности согласно коэффициенту эффективности вентиляторов FEG (ГОСТ 31961-2012, ГОСТ 33660-2015)
     /// </summary>
-    public double FanEfficiencyGradeCoefficient { get; set; } = 1;
+    //public double FanEfficiencyGradeCoefficient { get; set; } = 1;
+
+    /// <summary>
+    /// Коэффициент отображающий эффект масштабности согласно коэффициенту эффективности вентиляторов FMEG (ГОСТ 33660-2015)
+    /// </summary>
+    public double FanMotorEfficiencyGradeCoefficient { get; set; } = 1;
+
+    public FanEfficiencyGradeCollection FanEfficiencyGradeList { get; set; }
 
     /// <summary>
     /// Площадь диска колеса по концам лопаток [м2]
