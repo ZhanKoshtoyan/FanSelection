@@ -8,7 +8,7 @@
         xmlns:fans="clr-namespace:Libraries.Fans;assembly=Libraries"
         xmlns:models="clr-namespace:WpfApp1.Models"
         mc:Ignorable="d"
-        Title="Подбор вентилятора" Height="1000" Width="1600">
+        Title="Подбор вентилятора" Height="800" Width="1400" MinHeight="800" MinWidth="1400">
     <Window.DataContext>
         <viewModels:MainViewModel></viewModels:MainViewModel>
     </Window.DataContext>
@@ -69,18 +69,16 @@
             </Grid>
         </ControlTemplate>
         <Style TargetType="{x:Type TextBlock}" x:Key="CenteredTextBlockStyle">
-            <Setter Property="MinHeight" Value="30"/>
-            <Setter Property="Padding" Value="1 5"/>
+            <Setter Property="MinHeight" Value="25"/>
+            <Setter Property="Padding" Value="1 2"/>
             <Setter Property="TextAlignment" Value="Center"/>
-            <!--<Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TextBlock}">
-                        <Border MinHeight="30" Padding="1 5">
-                            <ContentControl HorizontalContentAlignment="Center" VerticalContentAlignment="Center"></ContentControl>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>-->
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
+        <Style TargetType="{x:Type TextBlock}" x:Key="CompactTextBlockStyle">
+            <Setter Property="MinHeight" Value="25"/>
+            <Setter Property="Padding" Value="1 2"/>
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
         </Style>
         <Style TargetType="{x:Type TextBlock}" x:Key="RotatedTextBlockStyle">
             <Setter Property="LayoutTransform">
@@ -96,13 +94,12 @@
         </Style>
         <viewModels:OutputValueConverter x:Key="OutputValueConverter"></viewModels:OutputValueConverter>
         <Style x:Key="MyHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="LayoutTransform">
-                <Setter.Value>
-                    <RotateTransform Angle="270"/>
-                </Setter.Value>
-            </Setter>
-            <!--<Setter Property="Height" Value="100"></Setter>
-            <Setter Property="Width" Value="20"></Setter>-->
+            <Setter Property="Height" Value="75"></Setter>
+            <Setter Property="MinWidth" Value="60"></Setter>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"></Setter>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"></Setter>
+            <Setter Property="Padding" Value="2"></Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
         </Style>
     </Window.Resources>
     <Grid x:Name="WpfMainGrid" Background="#EEFCD7">
@@ -111,47 +108,51 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0" />
             </Border.Effect>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel x:Name="LeftStackPanel"  Width="420">
-                    <TextBlock Text="Давай подберем вентилятор!" FontSize="25" FontWeight="bold" Margin="0 0 0 20" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Подбор вентилятора" FontSize="25" FontWeight="bold" Margin="0 0 0 20" TextWrapping="WrapWithOverflow" HorizontalAlignment="Center"></TextBlock>
                     <Grid x:Name="WpfSecondGrid" Margin="0 0 0 20">
                         <Grid.Resources>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource CenteredTextBlockStyle}"></Style>
                         </Grid.Resources>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="30"/>
+                            <RowDefinition MinHeight="30"/>
+                            <RowDefinition MinHeight="30"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
+                            <RowDefinition MinHeight="25"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="20"/>
-                            <ColumnDefinition Width="155"/>
-                            <ColumnDefinition Width="40"/>
-                            <ColumnDefinition Width="85"/>
-                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition MinWidth="30" Width="Auto"/>
+                            <ColumnDefinition MinWidth="140" Width="2*"/>
+                            <ColumnDefinition MinWidth="40" Width="Auto"/>
+                            <ColumnDefinition MinWidth="100" Width="120"/>
+                            <ColumnDefinition MinWidth="100" Width="120"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Grid.RowSpan="3" Style="{StaticResource
                         SolidBorder}" BorderThickness="1,1,1,0"/>
                         <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="4" Grid.RowSpan="13" Style="{StaticResource SolidBorder}"/>
                         <TextBlock x:Name="ProjectIdTextBlock" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
-                        Background="Coral" Text="{Binding Path=ProjectIdText, Mode=OneWay}"></TextBlock>
+                        Background="Coral" Text="{Binding Path=ProjectIdText, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
                         <TextBlock x:Name="NameUnitsColumn" Grid.Row="1" Grid.Column="2" Text="ед."/>
                         <TextBlock x:Name="NameDefaultsColumn" Grid.Row="1" Grid.Column="4" Text="По умолчанию"/>
                         <TextBlock x:Name="NameNecessary" Grid.Row="2" Grid.Column="0" Text="Обязательно"
@@ -159,15 +160,15 @@
                         <TextBlock x:Name="NameOptional" Grid.Row="5" Grid.Column="0" Text="Опционально"
                                    Grid.RowSpan="15" Style="{StaticResource RotatedTextBlockStyle}"/>
                         <!--VolumeFlow-->
-                        <TextBlock x:Name="VolumeFlowTextBlock" Grid.Row="2" Grid.Column="1" Text="Расход воздуха:"/>
+                        <TextBlock x:Name="VolumeFlowTextBlock" Grid.Row="2" Grid.Column="1" Text="Расход:"/>
                         <TextBlock x:Name="UnitVolumeFlowTextBlock" Grid.Row="2" Grid.Column="2" Text="[м3/ч]"/>
                         <TextBox x:Name="VolumeFlowTextBox" Grid.Row="2" Grid.Column="3" Text="{Binding
-                        Path=VolumeFlowText, Mode=TwoWay}"/>
+                        Path=VolumeFlowText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <!--TotalPressure-->
-                        <TextBlock x:Name="TotalPressureTextBlock" Grid.Row="3" Grid.Column="1" Text="Полное давление:"/>
+                        <TextBlock x:Name="TotalPressureTextBlock" Grid.Row="3" Grid.Column="1" Text="Полн. давление:"/>
                         <TextBlock x:Name="UnitTotalPressureTextBlock" Grid.Row="3" Grid.Column="2" Text="[Па]"/>
                         <TextBox x:Name="TotalPressureTextBox" Grid.Row="3" Grid.Column="3" Text="{Binding
-                        Path=TotalPressureText, Mode=TwoWay}"/>
+                        Path=TotalPressureText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <!--FanVersion-->
                         <TextBlock x:Name="FanVersionTextBlock" Grid.Row="4" Grid.Column="1" Text="Тип:"/>
                         <ComboBox x:Name="FanVersionComboBox" Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2"
@@ -175,10 +176,10 @@
                                   DisplayMemberPath="FanParameterNamesForComboBoxes.FanName"
                                   SelectedItem="{Binding SelectedFanVersion, Mode=TwoWay}"/>
                         <!--TotalPressureDeviation-->
-                        <TextBlock x:Name="TotalPressureDeviationTextBlock" Grid.Row="5" Grid.Column="1" Text="Допустимая погрешность подбора по полному давлению воздуха:"/>
+                        <TextBlock x:Name="TotalPressureDeviationTextBlock" Grid.Row="5" Grid.Column="1" Text="Погрешность давления:"/>
                         <TextBlock x:Name="UnitTotalPressureDeviationTextBlock" Grid.Row="5" Grid.Column="2" Text="[%]"/>
                         <TextBox x:Name="TotalPressureDeviationTextBox" Grid.Row="5" Grid.Column="3" Text="{Binding
-                        Path=TotalPressureDeviationText, Mode=TwoWay}"/>
+                        Path=TotalPressureDeviationText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <TextBlock x:Name="TotalPressureDeviationByDefaultTextBlock" Grid.Row="5" Grid.Column="4"
                                    Text="{Binding Path=TotalPressureDeviationTextWithUnit, Mode=OneWay}"/>
                         <!-- FanLogic -->
@@ -188,85 +189,85 @@
                                   SelectedItem="{Binding SelectedFanLogic, Mode=TwoWay}"
                                   SelectedIndex="0"/>
                         <!-- NumberOfFans -->
-                        <TextBlock x:Name="NumberOfFansTextBlock" Grid.Row="7" Grid.Column="1" Text="Количество вентиляторов:"/>
+                        <TextBlock x:Name="NumberOfFansTextBlock" Grid.Row="7" Grid.Column="1" Text="Кол-во вентиляторов:"/>
                         <TextBlock x:Name="UnitNumberOfFansTextBlock" Grid.Row="7" Grid.Column="2" Text="[шт.]"/>
                         <ComboBox x:Name="NumberOfFansComboBox" Grid.Row="7" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding NumberOfFansList}"
                                   SelectedItem="{Binding SelectedNumberOfFans, Mode=TwoWay}"
                                   SelectedIndex="0"/>
                         <!-- FanSizes -->
-                        <TextBlock x:Name="FanSizesTextBlock" Grid.Row="8" Grid.Column="1" Text="Условный типоразмер крыльчатки:"/>
+                        <TextBlock x:Name="FanSizesTextBlock" Grid.Row="8" Grid.Column="1" Text="Типоразмер:"/>
                         <ComboBox x:Name="FanSizesComboBox" Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.FanSizeList}"
                                   SelectedItem="{Binding SelectedFanSize, Mode=TwoWay}"/>
                         <!--FanOperatingMinTemperature-->
-                        <TextBlock x:Name="FanOperatingCurrentTemperatureTextBlock" Grid.Row="9" Grid.Column="1" Text="Температура ежедневной эксплуатации:"/>
+                        <TextBlock x:Name="FanOperatingCurrentTemperatureTextBlock" Grid.Row="9" Grid.Column="1" Text="Темп. эксплуатации:"/>
                         <TextBlock x:Name="UnitFanOperatingCurrentTemperatureTextBlock" Grid.Row="9" Grid.Column="2"
                         Text="[°C]"/>
                         <TextBox x:Name="FanOperatingCurrentTemperatureTextBox" Grid.Row="9" Grid.Column="3" Text="{Binding
-                        Path=FanOperatingCurrentTemperatureText, Mode=TwoWay}"/>
+                        Path=FanOperatingCurrentTemperatureText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <TextBlock x:Name="FanOperatingCurrentTemperatureByDefaultTextBlock" Grid.Row="9" Grid.Column="4"
                                    Text="{Binding Path=FanOperatingCurrentTemperatureTextWithUnit, Mode=OneWay}"/>
                         <!--RelativeHumidity-->
-                        <TextBlock x:Name="RelativeHumidityTextBlock" Grid.Row="10" Grid.Column="1" Text="Относительная влажность этой температуры:"/>
+                        <TextBlock x:Name="RelativeHumidityTextBlock" Grid.Row="10" Grid.Column="1" Text="Отн. влажность:"/>
                         <TextBlock x:Name="UnitRelativeHumidityTextBlock" Grid.Row="10" Grid.Column="2" Text="[%]"/>
                         <TextBox x:Name="RelativeHumidityTextBox" Grid.Row="10" Grid.Column="3" Text="{Binding
-                        Path=RelativeHumidityText, Mode=TwoWay}"/>
+                        Path=RelativeHumidityText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <TextBlock x:Name="RelativeHumidityByDefaultTextBlock" Grid.Row="10" Grid.Column="4"
                         Text="{Binding Path=RelativeHumidityTextWithUnit, Mode=OneWay}"/>
                         <!--Altitude-->
-                        <TextBlock x:Name="AltitudeTextBlock" Grid.Row="11" Grid.Column="1" Text="Высота над уровнем моря:"/>
+                        <TextBlock x:Name="AltitudeTextBlock" Grid.Row="11" Grid.Column="1" Text="Высота (м над у.м.):"/>
                         <TextBlock x:Name="UnitAltitudeTextBlock" Grid.Row="11" Grid.Column="2" Text="[м]"/>
                         <TextBox x:Name="AltitudeTextBox" Grid.Row="11" Grid.Column="3" Text="{Binding
-                        Path=AltitudeText, Mode=TwoWay}"/>
+                        Path=AltitudeText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <TextBlock x:Name="AltitudeByDefaultTextBlock" Grid.Row="11" Grid.Column="4" Text="{Binding
                         Path=AltitudeTextWithUnit, Mode=OneWay}"/>
                         <!-- FanBodyLength -->
-                        <TextBlock x:Name="FanBodyLengthTextBlock" Grid.Row="12" Grid.Column="1" Text="Длина корпуса функциональной сборки:"/>
+                        <TextBlock x:Name="FanBodyLengthTextBlock" Grid.Row="12" Grid.Column="1" Text="Длина корпуса:"/>
                         <ComboBox x:Name="FanBodyLengthComboBox" Grid.Row="12" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.FanBodyLengthList}"
                                   SelectedItem="{Binding SelectedFanBodyLength, Mode=TwoWay}"/>
                         <!-- FanOperatingMaxTemperature -->
-                        <TextBlock x:Name="FanOperatingMaxTemperatureTextBlock" Grid.Row="13" Grid.Column="1" Text="Температура перемещаемой среды:"/>
+                        <TextBlock x:Name="FanOperatingMaxTemperatureTextBlock" Grid.Row="13" Grid.Column="1" Text="Температура среды:"/>
                         <TextBlock x:Name="UnitFanOperatingMaxTemperatureTextBlock" Grid.Row="13" Grid.Column="2" Text="[°C]"/>
                         <ComboBox x:Name="FanOperatingMaxTemperatureComboBox" Grid.Row="13" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.FanOperatingMaxTemperatureList}"
                                   SelectedItem="{Binding SelectedFanOperatingMaxTemperature, Mode=TwoWay}"/>
                         <!-- ImpellerRotationDirection -->
-                        <TextBlock x:Name="ImpellerRotationDirectionTextBlock" Grid.Row="14" Grid.Column="1" Text="Направление вращения крыльчатки:"/>
+                        <TextBlock x:Name="ImpellerRotationDirectionTextBlock" Grid.Row="14" Grid.Column="1" Text="Направление вращения:"/>
                         <ComboBox x:Name="ImpellerRotationDirectionComboBox" Grid.Row="14" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.ImpellerRotationDirectionList}"
                                   SelectedItem="{Binding SelectedImpellerRotationDirection, Mode=TwoWay}"/>
                         <!-- NominalPower -->
-                        <TextBlock x:Name="NominalPowerTextBlock" Grid.Row="15" Grid.Column="1" Text="Номинальная мощность двигателя:"/>
+                        <TextBlock x:Name="NominalPowerTextBlock" Grid.Row="15" Grid.Column="1" Text="Ном. мощность:"/>
                         <TextBlock x:Name="UnitNominalPowerTextBlock" Grid.Row="15" Grid.Column="2" Text="[кВт]"/>
                         <ComboBox x:Name="NominalPowerComboBox" Grid.Row="15" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.NominalPowerList}"
                                   SelectedItem="{Binding SelectedNominalPower, Mode=TwoWay}"/>
                         <!-- NominalImpellerRotationSpeed -->
-                        <TextBlock x:Name="NominalImpellerRotationSpeedTextBlock" Grid.Row="16" Grid.Column="1" Text="Условное число оборотов двигателя:"/>
+                        <TextBlock x:Name="NominalImpellerRotationSpeedTextBlock" Grid.Row="16" Grid.Column="1" Text="Обороты:"/>
                         <TextBlock x:Name="UnitNominalImpellerRotationSpeedTextBlock" Grid.Row="16" Grid.Column="2" Text="[об/м]"/>
                         <ComboBox x:Name="NominalImpellerRotationSpeedComboBox" Grid.Row="16" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.NominalImpellerRotationSpeedList}"
                                   SelectedItem="{Binding SelectedNominalImpellerRotationSpeed, Mode=TwoWay}"/>
                         <!-- FanBodyExecutionMaterial -->
-                        <TextBlock x:Name="FanBodyExecutionMaterialTextBlock" Grid.Row="17" Grid.Column="1" Text="Направление вращения крыльчатки:"/>
+                        <TextBlock x:Name="FanBodyExecutionMaterialTextBlock" Grid.Row="17" Grid.Column="1" Text="Материал корпуса:"/>
                         <ComboBox x:Name="FanBodyExecutionMaterialComboBox" Grid.Row="17" Grid.Column="3" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding SelectedFanVersion.FanParameterNamesForComboBoxes.FanBodyExecutionMaterialList}"
                                   SelectedItem="{Binding SelectedFanBodyExecutionMaterial, Mode=TwoWay}"/>
 
                         <!--SpecificDeviationLeft-->
-                        <TextBlock x:Name="SpecificDeviationLeftTextBlock" Grid.Row="18" Grid.Column="1" Text="Погрешность быстроходности/ габаритности слева:"/>
+                        <TextBlock x:Name="SpecificDeviationLeftTextBlock" Grid.Row="18" Grid.Column="1" Text="Погрешность слева:"/>
                         <TextBlock x:Name="UnitSpecificDeviationLeftTextBlock" Grid.Row="18" Grid.Column="2" Text="[%]"/>
                         <TextBox x:Name="SpecificDeviationLeftTextBox" Grid.Row="18" Grid.Column="3" Text="{Binding
-                        Path=SpecificDeviationLeftText, Mode=TwoWay}"/>
+                        Path=SpecificDeviationLeftText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <TextBlock x:Name="SpecificDeviationLeftByDefaultTextBlock" Grid.Row="18" Grid.Column="4" Text="{Binding
                         Path=SpecificDeviationLeftTextWithUnit, Mode=OneWay}"/>
                         <!--SpecificDeviationRight-->
-                        <TextBlock x:Name="SpecificDeviationRightTextBlock" Grid.Row="19" Grid.Column="1" Text="Погрешность быстроходности/ габаритности справа:"/>
+                        <TextBlock x:Name="SpecificDeviationRightTextBlock" Grid.Row="19" Grid.Column="1" Text="Погрешность справа:"/>
                         <TextBlock x:Name="UnitSpecificDeviationRightTextBlock" Grid.Row="19" Grid.Column="2" Text="[%]"/>
                         <TextBox x:Name="SpecificDeviationRightTextBox" Grid.Row="19" Grid.Column="3" Text="{Binding
-                        Path=SpecificDeviationRightText, Mode=TwoWay}"/>
+                        Path=SpecificDeviationRightText, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <TextBlock x:Name="SpecificDeviationRightByDefaultTextBlock" Grid.Row="19" Grid.Column="4" Text="{Binding
                         Path=SpecificDeviationRightTextWithUnit, Mode=OneWay}"/>
 
@@ -276,80 +277,196 @@
                         <!--<ListView  Grid.Row="18" Grid.Column="0" x:Name="resultListView"></ListView>-->
                     </Grid>
 
-                    <Button Content="Подобрать вентилятор" 
-                            HorizontalAlignment="Center"
-                            Margin="0 20" 
-                            Template="{StaticResource RoundedButton}"
-                            Command="{Binding SelectFanCommand}"/>
+                    <Grid Margin="0 15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="1" Content="Подобрать вентилятор" 
+                                HorizontalAlignment="Center"
+                                Template="{StaticResource RoundedButton}"
+                                Command="{Binding SelectFanCommand}"/>
+                        <Button Grid.Column="3" Content="Сбросить" 
+                                HorizontalAlignment="Center"
+                                Template="{StaticResource RoundedButton}"
+                                Command="{Binding ResetCommand}"/>
+                    </Grid>
                 </StackPanel>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <ListView x:Name="ResultListView" ItemsSource="{Binding ListOfFansViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    MinWidth="800" Width="1000" MaxWidth="1200" Height="600" SelectionMode="Extended">
+                    SelectionMode="Extended" MaxHeight="600">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn DisplayMemberBinding="{Binding
+                                <GridViewColumn Width="40">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource MyHeaderStyle}">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="#" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <Binding Path="RowNumber" />
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="60" DisplayMemberBinding="{Binding
                                 Path=(fans:AbstractFan.ConditionalStandardSize), Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=Size}">Size</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding
+                                ConverterParameter=Size}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Размер" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="80" DisplayMemberBinding="{Binding
                                 Path=Data.AerodynamicDesign, Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=AerodynamicDesign}">AerodynamicDesign</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=ProjectId}">ProjectId</GridViewColumn>
+                                ConverterParameter=AerodynamicDesign}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Аэродин. дизайн" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="210" DisplayMemberBinding="{Binding Path=ProjectId}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Номер проекта" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
                                 <!--<GridViewColumn Header="Типоразмер" HeaderContainerStyle="{StaticResource MyHeaderStyle}" DisplayMemberBinding="{Binding Path=(fans:IFan.VolumeFlow), Converter={StaticResource PriceConverter}}">[м3/ч]</GridViewColumn>-->
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.NumberOfFans),
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="90" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.NumberOfFans),
                                 Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=NumberOfFans}">NumberOfFans [ед.]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.VolumeFlow),
+                                ConverterParameter=NumberOfFans}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Количество
+                                        вентиляторов" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="100" DisplayMemberBinding="{Binding
+                                Path=(fans:AbstractFan.VolumeFlow), Converter={StaticResource OutputValueConverter},
+                                ConverterParameter=VolumeFlow}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Расход" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="70" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalPressure),
+                                Converter={StaticResource OutputValueConverter}}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Полное
+                                        давление" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="110" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SpecificSpeedDeviation),
                                 Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=VolumeFlow}">VolumeFlow [м3/ч]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalPressure),
-                                Converter={StaticResource OutputValueConverter}}">TotalPressure [Па]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SpecificSpeedDeviation),
+                                ConverterParameter=SpecificSpeedDeviation}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Отклонение по
+                                        быстроходности" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="110" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SpecificSizeDeviation),
                                 Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=SpecificSpeedDeviation}">SpecificSpeedDeviation [%]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SpecificSizeDeviation),
-                                Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=SpecificSizeDeviation}">SpecificSizeDeviation [%]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.StaticPressure),
+                                ConverterParameter=SpecificSizeDeviation}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Отклонение по
+                                        габаритности" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="80" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.StaticPressure),
                                 Converter={StaticResource OutputValueConverter}
-                                }">StaticPressure [Па]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.DynamicPressure),
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Стат.
+                                        давление" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="80" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.DynamicPressure),
                                 Converter={StaticResource OutputValueConverter}
-                                }">DynamicPressure [Па]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.ImpellerRotationSpeedWithSlidingEngineForWorkPoint),
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Дин.
+                                        давление" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="90" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.ImpellerRotationSpeedWithSlidingEngineForWorkPoint),
                                 Converter={StaticResource OutputValueConverter}
-                                }">ImpellerRotationSpeed [об/мин]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.ImpellerRotationFrequency),
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Частота
+                                        вращения" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="90" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.ImpellerRotationFrequency),
                                 Converter={StaticResource OutputValueConverter}
-                                }">ImpellerRotationFrequency [Гц]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.Power)
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Частота
+                                        вращения" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="70" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.Power)
                                 , Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=Power}">Power [кВт]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalEfficiency),
+                                ConverterParameter=Power}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Расч. мощность" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="45" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.TotalEfficiency),
                                 Converter={StaticResource OutputValueConverter}, ConverterParameter=TotalEfficiency
-                                }">TotalEfficiency [%]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.AirVelocityOfOutletPipeOpening),
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="КПД" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="90" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.AirVelocityOfOutletPipeOpening),
                                 Converter={StaticResource OutputValueConverter}, ConverterParameter=AirVelocityOfOutletPipeOpening
-                                }">AirVelocityOfOutletPipeOpening [м/с]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.NominalPower)
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Скорость
+                                        воздуха" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="90" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.NominalPower)
                                 , Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=NominalPower}">NominalPower [кВт]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=Data.Weight,
+                                ConverterParameter=NominalPower}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Ном.
+                                        мощность" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="80" DisplayMemberBinding="{Binding Path=Data.Weight,
                                 Converter={StaticResource OutputValueConverter}, ConverterParameter=Weight
-                                }">Weight [кг]</GridViewColumn>
+                                }">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Вес" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
 
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.OctaveNoiseLw5)
-                                , Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=ListNoiseLw5}">Lw5(63, ..., 8k) [дБ]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SumNoiseLwA5)
-                                , Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=SumNoiseLwA5}">LwA5(sum) [дБ(А)]</GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="270" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.OctaveNoiseLw5), Converter={StaticResource OutputValueConverter}, ConverterParameter=ListNoiseLw5}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Шум Lw5" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="50" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SumNoiseLwA5), Converter={StaticResource OutputValueConverter}, ConverterParameter=SumNoiseLwA5}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Шум LwA5" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
 
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.OctaveNoiseLw6)
-                                , Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=ListNoiseLw6}">Lw6(63, ..., 8k) [дБ]</GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SumNoiseLwA6)
-                                , Converter={StaticResource OutputValueConverter},
-                                ConverterParameter=SumNoiseLwA6}">LwA6(sum) [дБ(А)]</GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="270" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.OctaveNoiseLw6), Converter={StaticResource OutputValueConverter}, ConverterParameter=ListNoiseLw6}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Шум Lw6" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn HeaderContainerStyle="{StaticResource MyHeaderStyle}" Width="50" DisplayMemberBinding="{Binding Path=(fans:AbstractFan.SumNoiseLwA6), Converter={StaticResource OutputValueConverter}, ConverterParameter=SumNoiseLwA6}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock Text="Шум LwA6" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
 
                             </GridView>
                         </ListView.View>
@@ -368,7 +485,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>-->
-            </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>

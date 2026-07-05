@@ -369,20 +369,6 @@ public class MainViewModel : BaseViewModel
         }
     }
     #endregion ListOfFansViewModel
-
-    #region Phones
-    private List<Phone> _phones = null!;
-    public List<Phone> Phones
-    {
-        get => _phones;
-        set
-        {
-            _phones = value;
-            OnPropertyChanged();
-        }
-    }
-    #endregion SortedListOfFans
-
     #endregion PropertyContainers
 
     #region SelectedContainers
@@ -605,8 +591,10 @@ public class MainViewModel : BaseViewModel
     #endregion SelectedContainers
 
     public ICommand SelectFanCommand => _selectFanCommand;
+    public ICommand ResetCommand => _resetCommand;
     
-    private RelayCommandAsync _selectFanCommand;
+    private readonly RelayCommandAsync _selectFanCommand;
+    private readonly RelayCommand _resetCommand;
 
     private UserInput _userInput = null!;
     
@@ -651,114 +639,81 @@ public class MainViewModel : BaseViewModel
         )
         {
             MessageBox.Show(
-                "Пожалуйста, выберите 'условный типоразмер крыльчатки'!"
+                "Не выбран условный типоразмер крыльчатки. Заполните поле 'Типоразмер'"
             ); // Сообщение пользователю
         }
         else
         {
-            _userInput = Calculate.ProcessUserInput(
-                VolumeFlowText,
-                TotalPressureText,
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .FanOperatingMaxTemperatureList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .FanOperatingMaxTemperatureList,
-                    SelectedFanOperatingMaxTemperature
-                ),
-                Calculate
-                    .ReturnCorrectOrDefaultIndex(
+            try
+            {
+                // Создаем DTO с данными из UI
+                var formData = new UserInputFormData
+                {
+                    VolumeFlow = VolumeFlowText,
+                    TotalPressure = TotalPressureText,
+                    FanOperatingMaxTemperature = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.FanOperatingMaxTemperatureList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.FanOperatingMaxTemperatureList,
+                        SelectedFanOperatingMaxTemperature),
+                    FanVersion = Calculate.ReturnCorrectOrDefaultIndex(
                         FanVersion.NamesForComboBox,
-                        SelectedFanVersion
-                            .FanParameterNamesForComboBoxes
-                            .FanName
-                    )
-                    .ToString(),
-                Calculate
-                    .ReturnCorrectOrDefaultIndex(
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.FanName).ToString(),
+                    FanLogic = Calculate.ReturnCorrectOrDefaultIndex(
                         FanLogic.NamesForComboBox,
-                        SelectedFanLogic
-                    )
-                    .ToString(),
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .FanSizeList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .FanSizeList,
-                    SelectedFanSize
-                ),
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .FanBodyLengthList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .FanBodyLengthList,
-                    SelectedFanBodyLength
-                ),
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .ImpellerRotationDirectionList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .ImpellerRotationDirectionList,
-                    SelectedImpellerRotationDirection
-                ),
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .NominalPowerList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .NominalPowerList,
-                    SelectedNominalPower
-                ),
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .NominalImpellerRotationSpeedList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .NominalImpellerRotationSpeedList,
-                    SelectedNominalImpellerRotationSpeed
-                ),
-                CheckArgumentOutOfRangeException(
-                    SelectedFanVersion
-                        .FanParameterValuesForProjectId
-                        .FanBodyExecutionMaterialList,
-                    SelectedFanVersion
-                        .FanParameterNamesForComboBoxes
-                        .FanBodyExecutionMaterialList,
-                    SelectedFanBodyExecutionMaterial
-                ),
-                TotalPressureDeviationText.ToString(
-                    CultureInfo.InvariantCulture
-                ),
-                SpecificDeviationLeftText.ToString(
-                    CultureInfo.InvariantCulture
-                ),
-                SpecificDeviationRightText.ToString(
-                    CultureInfo.InvariantCulture
-                ),
-                RelativeHumidityText.ToString(CultureInfo.InvariantCulture),
-                AltitudeText,
-                FanOperatingCurrentTemperatureText.ToString(
-                    CultureInfo.InvariantCulture
-                ),
-                NumberOfFansList[
-                    Calculate.ReturnCorrectOrDefaultIndex(
-                        NumberOfFans.Names,
-                        SelectedNumberOfFans
-                    )
-                ]
-            );
+                        SelectedFanLogic).ToString(),
+                    Size = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.FanSizeList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.FanSizeList,
+                        SelectedFanSize),
+                    FanBodyLength = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.FanBodyLengthList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.FanBodyLengthList,
+                        SelectedFanBodyLength),
+                    ImpellerRotationDirection = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.ImpellerRotationDirectionList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.ImpellerRotationDirectionList,
+                        SelectedImpellerRotationDirection),
+                    NominalPower = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.NominalPowerList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.NominalPowerList,
+                        SelectedNominalPower),
+                    NominalImpellerRotationSpeed = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.NominalImpellerRotationSpeedList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.NominalImpellerRotationSpeedList,
+                        SelectedNominalImpellerRotationSpeed),
+                    FanBodyExecutionMaterial = CheckArgumentOutOfRangeException(
+                        SelectedFanVersion.FanParameterValuesForProjectId.FanBodyExecutionMaterialList,
+                        SelectedFanVersion.FanParameterNamesForComboBoxes.FanBodyExecutionMaterialList,
+                        SelectedFanBodyExecutionMaterial),
+                    TotalPressureDeviation = TotalPressureDeviationText.ToString(CultureInfo.InvariantCulture),
+                    SpecificDeviationLeft = SpecificDeviationLeftText.ToString(CultureInfo.InvariantCulture),
+                    SpecificDeviationRight = SpecificDeviationRightText.ToString(CultureInfo.InvariantCulture),
+                    RelativeHumidity = RelativeHumidityText.ToString(CultureInfo.InvariantCulture),
+                    Altitude = AltitudeText,
+                    FanOperatingCurrentTemperature = FanOperatingCurrentTemperatureText.ToString(CultureInfo.InvariantCulture),
+                    NumberOfFans = NumberOfFansList[
+                        Calculate.ReturnCorrectOrDefaultIndex(
+                            NumberOfFans.Names,
+                            SelectedNumberOfFans)]
+                };
 
-            await ProcessTheRequestAsync(_userInput);
+                // Преобразуем DTO в объект UserInput через маппер
+                _userInput = Calculate.ProcessUserInput(formData);
+
+                await ProcessTheRequestAsync(_userInput);
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show($"Ошибка валидации: {ex.Message}", "Ошибка ввода");
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show($"Ошибка формата данных: {ex.Message}", "Ошибка ввода");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Непредвиденная ошибка: {ex.Message}", "Ошибка");
+            }
         }
     }
 
@@ -878,6 +833,12 @@ public class MainViewModel : BaseViewModel
                 var newDataOsuDu = new ObservableCollection<AbstractFan>(
                     (List<OsuDu>)sortFans
                 );
+                // Устанавливаем номера строк
+                int index = 1;
+                foreach (var fan in newDataOsuDu)
+                {
+                    fan.RowNumber = index++;
+                }
                 ListOfFansViewModel = newDataOsuDu;
                 /*Phones = new List<Phone>()
                 {
@@ -904,6 +865,12 @@ public class MainViewModel : BaseViewModel
                 var newDataEuFan = new ObservableCollection<AbstractFan>(
                     (List<EuFan>)sortFans
                 );
+                // Устанавливаем номера строк
+                index = 1;
+                foreach (var fan in newDataEuFan)
+                {
+                    fan.RowNumber = index++;
+                }
                 ListOfFansViewModel = newDataEuFan;
                 break;
             case 2:
@@ -917,6 +884,12 @@ public class MainViewModel : BaseViewModel
                     new ObservableCollection<AbstractFan>(
                         (List<HighPressureFan>)sortFans
                     );
+                // Устанавливаем номера строк
+                index = 1;
+                foreach (var fan in newDataHighPressureFanFan)
+                {
+                    fan.RowNumber = index++;
+                }
                 ListOfFansViewModel = newDataHighPressureFanFan;
                 break;
         }
@@ -1082,5 +1055,36 @@ public class MainViewModel : BaseViewModel
             ExecuteSelectFanAsync, 
             CanExecuteSelectFan
         );
+        _resetCommand = new RelayCommand(ExecuteReset);
+    }
+
+    private void ExecuteReset()
+    {
+        // Reset text boxes to default values
+        VolumeFlowText = "";
+        TotalPressureText = "";
+        TotalPressureDeviationText = UserInputWorkPoint.TotalPressureDeviationByDefault;
+        FanOperatingCurrentTemperatureText = UserInputAir.FanOperatingCurrentTemperatureByDefault;
+        RelativeHumidityText = UserInputAir.RelativeHumidityByDefault;
+        AltitudeText = "";
+        SpecificDeviationLeftText = UserInputWorkPoint.SpecificDeviationLeftByDefault;
+        SpecificDeviationRightText = UserInputWorkPoint.SpecificDeviationRightByDefault;
+
+        // Reset combo boxes to first items
+        if (FanVersionList.Count > 0)
+        {
+            SelectedFanVersion = FanVersionList[0];
+        }
+        if (FanLogicList.Length > 0)
+        {
+            SelectedFanLogic = FanLogicList[0];
+        }
+        if (NumberOfFansList.Count > 0)
+        {
+            SelectedNumberOfFans = NumberOfFansList[0];
+        }
+
+        // Reset results list
+        ListOfFansViewModel = new ObservableCollection<AbstractFan>();
     }
 }

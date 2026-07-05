@@ -489,7 +489,7 @@ public static class Calculate
             FanEfficiencyGradeList = fanEfficiencyGradeList
         };
 
-    if (Equals(oldFanData.Version, FanVersion.Values.EuFan.ToString()))
+    if (Equals(oldFanData.Version, nameof(FanVersion.Values.EuFan)))
         {
             /*var powerByEfficiencyMax = oldFanData.OriginalFanDataPowerByEfficiencyMax * oldFanData.SimilarPowerCoefficient;
             newFanData.FanEfficiencyGradeCoefficient = PowerScaleEffectByFanMotorEfficiencyGradeAsync(
@@ -514,7 +514,16 @@ public static class Calculate
 
         return newFanData;
     }
-
+ 
+    /// <summary>
+    /// Расчет коэффициента, на который показатель мощности нового вентилятора отличается от базового (в пределах класса эффективности FMEG базового вентилятора)
+    /// </summary>
+    /// <param name="inputPowerOfTheBaseFanEngineInMaximumEfficiency"></param>
+    /// <param name="maximumEfficiencyOfTheBaseFan"></param>
+    /// <param name="inputPowerOfTheNewFanEngineInMaximumEfficiency"></param>
+    /// <param name="bladeType"></param>
+    /// <param name="bladeOrientation"></param>
+    /// <returns></returns>
     public static double PowerScaleEffectByFanMotorEfficiencyGrade(
         double inputPowerOfTheBaseFanEngineInMaximumEfficiency,
         double maximumEfficiencyOfTheBaseFan,
@@ -523,13 +532,15 @@ public static class Calculate
         BladeOrientation bladeOrientation
         )
     {
+        //Класс эффективности (FMEG) базового вентилятора (целое число)
         var efficiencyGradeOfTheBaseFan = EfficiencyGradeCalculator.GetEfficiencyGradeOfBaseFan(
             inputPowerOfTheBaseFanEngineInMaximumEfficiency,
             maximumEfficiencyOfTheBaseFan,
             bladeType,
             bladeOrientation);
 
-        var minEfficiencyBaseFanByFanMotorEfficiencyGrade =
+        //Расчет "оптимального (максимального) КПД" по ГОСТ 33660-2015 исходя из мощности и FMEG для базового вентилятора (по целым значениям FMEG).
+        var maxEfficiencyBaseFanByFanMotorEfficiencyGrade =
             FanCompensationCalculator.GetMinEfficiencyFanByFanMotorEfficiencyGrade(
                 inputPowerOfTheBaseFanEngineInMaximumEfficiency,
                 efficiencyGradeOfTheBaseFan,
@@ -537,7 +548,8 @@ public static class Calculate
                 bladeOrientation
             );
 
-        var minEfficiencyNewFanByFanMotorEfficiencyGrade =
+        //Расчет "оптимального (максимального) КПД" по ГОСТ 33660-2015 исходя из мощности и FMEG (базового вентилятора) для нового вентилятора
+        var maxEfficiencyNewFanByFanMotorEfficiencyGrade =
             FanCompensationCalculator.GetMinEfficiencyFanByFanMotorEfficiencyGrade(
             inputPowerOfTheNewFanEngineInMaximumEfficiency,
             efficiencyGradeOfTheBaseFan,
@@ -545,8 +557,8 @@ public static class Calculate
             bladeOrientation
         );
 
-        return minEfficiencyNewFanByFanMotorEfficiencyGrade
-            / minEfficiencyBaseFanByFanMotorEfficiencyGrade;
+        return maxEfficiencyNewFanByFanMotorEfficiencyGrade
+            / maxEfficiencyBaseFanByFanMotorEfficiencyGrade;
     }
 
     public static double PowerScaleEffectByFanEfficiencyGradeAsync(
@@ -703,106 +715,23 @@ public static class Calculate
         double totalPressure
     ) => totalPressure / Math.Pow(volumeFlow, 2);
 
-    public static UserInput ProcessUserInput(
-        string? volumeFlowTextBox,
-        string? totalPressureTextBox,
-        string? selectedFanOperatingMaxTemperature,
-        string? selectedFanVersion,
-        string? selectedFanLogic,
-        string? selectedSize,
-        string? selectedFanBodyLength,
-        string? selectedImpellerRotationDirection,
-        string? selectedNominalPower,
-        string? selectedNominalImpellerRotationSpeed,
-        string? selectedFanBodyExecutionMaterial,
-        string? totalPressureDeviationTextBox,
-        string? specificDeviationLeftTextBox,
-        string? specificDeviationRightTextBox,
-        string? relativeHumidityTextBox,
-        string? altitudeTextBox,
-        string? fanOperatingCurrentTemperatureTextBox,
-        string? selectedNumberOfFans
-    )
+    /// <summary>
+    /// Преобразует данные формы (DTO) в объект UserInput.
+    /// Использует маппер для парсинга строк в типизированные значения.
+    /// </summary>
+    /// <param name="formData">DTO с данными с UI формы</param>
+    /// <returns>Объект UserInput готовый для обработки</returns>
+    /// <exception cref="ArgumentException">Если обязательный параметр отсутствует</exception>
+    /// <exception cref="FormatException">Если не удалось распарсить значение</exception>
+    public static UserInput ProcessUserInput(UserInputFormData formData)
     {
-        var userInput = new UserInput
-        {
-            UserInputWorkPoint = new UserInputWorkPoint
-            {
-                VolumeFlow = ParseToDouble(volumeFlowTextBox),
-                TotalPressure = ParseToDouble(totalPressureTextBox)
-            },
-            UserInputAir = new UserInputAir
-            {
-                FanOperatingMaxTemperature = ParseToDouble(
-                    selectedFanOperatingMaxTemperature
-                )
-            },
-            UserInputFan = new UserInputFan
-            {
-                FanVersion = ParseToInt(selectedFanVersion),
-                FanLogic = ParseToInt(selectedFanLogic),
-                ConditionalStandardSize = ParseToDouble(selectedSize),
-                FanBodyLength = ParseToInt(selectedFanBodyLength),
-                ImpellerRotationDirection = selectedImpellerRotationDirection,
-                NominalPower = ParseToDouble(selectedNominalPower),
-                NominalImpellerRotationSpeedWithoutSlidingEngine =
-                    ParseToDouble(selectedNominalImpellerRotationSpeed),
-                FanBodyExecutionMaterial = selectedFanBodyExecutionMaterial
-            }
-        };
-
-        if (!string.IsNullOrEmpty(totalPressureDeviationTextBox))
-        {
-            userInput.UserInputWorkPoint.VolumeFlowAndTotalPressureDeviation =
-                Convert.ToDouble(totalPressureDeviationTextBox);
-        }
-
-        if (!string.IsNullOrEmpty(specificDeviationLeftTextBox))
-        {
-            userInput.UserInputWorkPoint.SpecificDeviationLeft =
-                Convert.ToDouble(specificDeviationLeftTextBox);
-        }
-
-        if (!string.IsNullOrEmpty(specificDeviationRightTextBox))
-        {
-            userInput.UserInputWorkPoint.SpecificDeviationRight =
-                Convert.ToDouble(specificDeviationRightTextBox);
-        }
-
-        if (!string.IsNullOrEmpty(relativeHumidityTextBox))
-        {
-            userInput.UserInputAir.RelativeHumidity = ParseToDouble(
-                relativeHumidityTextBox
-            );
-        }
-
-        if (!string.IsNullOrEmpty(altitudeTextBox))
-        {
-            userInput.UserInputAir.Altitude = ParseToDouble(altitudeTextBox);
-        }
-
-        if (!string.IsNullOrEmpty(fanOperatingCurrentTemperatureTextBox))
-        {
-            userInput.UserInputAir.FanOperatingCurrentTemperature =
-                ParseToDouble(fanOperatingCurrentTemperatureTextBox);
-        }
-
-        if (!string.IsNullOrEmpty(selectedImpellerRotationDirection))
-        {
-            userInput.UserInputFan.ImpellerRotationDirection =
-                selectedImpellerRotationDirection;
-        }
-
-        if (!string.IsNullOrEmpty(selectedNumberOfFans))
-        {
-            userInput.UserInputFan.NumberOfFans = ReturnCorrectOrDefaultIndex(
-                NumberOfFans.Names,
-                selectedNumberOfFans
-            );
-        }
-
-        return userInput;
+        var mapper = new UserInputMapper();
+        return mapper.Map(formData);
     }
+
+    // ❌ СТАРЫЙ МЕТОД - УДАЛЕН (использовать вместо него ProcessUserInput(UserInputFormData))
+    // Был: public static UserInput ProcessUserInput(string? volumeFlowTextBox, ... 18 параметров)
+    // Причина: Нарушал принцип Single Responsibility, был сложен для тестирования и поддержки
 
     public static int ReturnCorrectOrDefaultIndex(
         IEnumerable<string> comboBoxArr,

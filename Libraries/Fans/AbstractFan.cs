@@ -323,6 +323,11 @@ public abstract class AbstractFan : INotifyPropertyChanged
 
     public int NumberOfFans { get; }
 
+    /// <summary>
+    /// Номер строки в списке результатов
+    /// </summary>
+    public int RowNumber { get; set; }
+
     //____________________________________________________________________________________________________________________________
     //Уровень шума
 

@@ -12,6 +12,15 @@ public static class FanCompensationCalculator
         [(BladeType.Diagonal, BladeOrientation.Diagonal)] = CalcMinEfficiencyForDiagonalOrRadialFanWithBackwardCurvedBlades
     };
 
+    /// <summary>
+    /// В ГОСТ 33660-2015 рассчитывается показатель эффективности для вентиляторов с приводом на основе класса эффективности FMEG (в том числе с ПЧ) (стр.18-21 из 41, п.6.3.2 - 6.3.3).
+    /// </summary>
+    /// <param name="inputPowerOfTheBaseFanEngineInMaximumEfficiency"></param>
+    /// <param name="efficiencyGradeOfTheBaseFan"></param>
+    /// <param name="bladeType"></param>
+    /// <param name="bladeOrientation"></param>
+    /// <returns>Показатель эффективности в пределах выбранного класса эффективности (FMEG)</returns>
+    /// <exception cref="ArgumentException"></exception>
     public static double GetMinEfficiencyFanByFanMotorEfficiencyGrade(
         double inputPowerOfTheBaseFanEngineInMaximumEfficiency,
         double efficiencyGradeOfTheBaseFan,

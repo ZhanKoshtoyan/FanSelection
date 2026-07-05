@@ -1,164 +1,130 @@
 ﻿using Libraries;
 using Libraries.DescriptionOfObjects.Parameters;
+using Libraries.DescriptionOfObjects.UserInput;
 using Libraries.Methods;
 
-string? inputImpellerRotationDirection = default;
-string? inputFanBodyExecutionMaterial = default;
-string? inputRelativeHumidity = default;
-string? inputAltitude = default;
-string? inputSize = default;
-string? inputBodyLength = default;
-string? inputFanOperatingMaxTemperature = default;
-string? inputNominalPower = default;
-string? inputNominalImpellerRotationSpeed = default;
+// ============================================================================
+// ПРОЦЕСС СБОРА ДАННЫХ ОТ ПОЛЬЗОВАТЕЛЯ
+// Данные собираются в объект UserInputFormData (DTO), который затем
+// преобразуется в объект UserInput через UserInputMapper
+// ============================================================================
 
+var formData = new UserInputFormData();
+
+// ОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ
 Console.WriteLine("Введите объемный расход воздуха, [м3/ч]: ");
+formData.VolumeFlow = Console.ReadLine();
 
-var inputVolumeFlow = Console.ReadLine();
-
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine("Введите полное давление воздуха, [Па]: ");
+formData.TotalPressure = Console.ReadLine();
 
-var inputTotalPressure = Console.ReadLine();
-
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine(
     $"Введите номер исполнения вентилятора:\n({string.Join(", \n", FanVersion.Names)}): "
 );
-var inputFanVersion = Console.ReadLine();
+formData.FanVersion = Console.ReadLine();
 
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine(
     $"Введите номер логики подбора вентилятора:\n({string.Join(", \n", FanLogic.Names)}): "
 );
-var inputFanLogic = Console.ReadLine();
+formData.FanLogic = Console.ReadLine();
 
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine(
     $"Введите количество вентиляторов:\n({string.Join(", \n", NumberOfFans.Names)}): "
 );
-var inputNumberOfFans = Console.ReadLine();
+formData.NumberOfFans = Console.ReadLine();
 
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine(
     "Введите допустимую погрешность подбора по полному давлению воздуха (<=30; по умолчанию = 30), [%]: "
 );
+formData.TotalPressureDeviation = Console.ReadLine();
 
-var inputTotalPressureDeviation = Console.ReadLine();
-
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine(
     "Введите погрешность быстроходности/ габаритности слева, [%]: "
 );
+formData.SpecificDeviationLeft = Console.ReadLine();
 
-var inputSpecificDeviationLeft = Console.ReadLine();
-
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine(
     "Введите погрешность быстроходности/ габаритности справа, [%]: "
 );
+formData.SpecificDeviationRight = Console.ReadLine();
 
-var inputSpecificDeviationRight = Console.ReadLine();
-
-//-----------------------------------------------------------------------------------------------------------
 Console.WriteLine("Введите температуру ежедневной эксплуатации, [°C]: ");
+formData.FanOperatingCurrentTemperature = Console.ReadLine();
 
-var inputFanOperatingCurrentTemperature = Console.ReadLine();
-
-//==========================================================================================================
+// ОПЦИОНАЛЬНЫЕ ПАРАМЕТРЫ
 Console.WriteLine(
     "Хотите ли Вы ввести дополнительные параметры? ['y' == 'yes']"
 );
 var inputAddParameters = Console.ReadLine();
+
 if (inputAddParameters == "y")
 {
-    //==========================================================================================================
     Console.WriteLine(
         "Введите относительную влажность этой температуры, [%]: "
     );
-
-    inputRelativeHumidity = Console.ReadLine();
-
-    //==========================================================================================================
+    formData.RelativeHumidity = Console.ReadLine();
 
     Console.WriteLine("Введите высоту над уровнем моря, [м]: ");
+    formData.Altitude = Console.ReadLine();
 
-    inputAltitude = Console.ReadLine();
-
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите условный типоразмер крыльчатки ({string.Join("; ", Sizes.NamesForOsuDu)}): "
     );
+    formData.Size = Console.ReadLine();
 
-    inputSize = Console.ReadLine();
-
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите длину корпуса функциональной сборки ({string.Join(", ", FanBodyLengths.NamesForOsuDu)}): "
     );
+    formData.FanBodyLength = Console.ReadLine();
 
-    inputBodyLength = Console.ReadLine();
-
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите температуру перемещаемой среды ({string.Join(", ", FanOperatingMaxTemperatures.NamesForOsuDu)} [°C]): "
     );
+    formData.FanOperatingMaxTemperature = Console.ReadLine();
 
-    inputFanOperatingMaxTemperature = Console.ReadLine();
-
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите направление вращения крыльчатки ({string.Join(", ", ImpellerRotationDirections.NamesForOsuDu)}): "
     );
-    inputImpellerRotationDirection = Console.ReadLine();
+    formData.ImpellerRotationDirection = Console.ReadLine();
 
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите номинальную мощность двигателя, [кВт] ({string.Join("; ", NominalPowers.Names)}): "
     );
+    formData.NominalPower = Console.ReadLine();
 
-    inputNominalPower = Console.ReadLine();
-
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите условное число оборотов двигателя, [об/мин] ({string.Join(", ", NominalImpellerRotationSpeeds.Names)}): "
     );
+    formData.NominalImpellerRotationSpeed = Console.ReadLine();
 
-    inputNominalImpellerRotationSpeed = Console.ReadLine();
-
-    //==========================================================================================================
     Console.WriteLine(
         $"Введите материал корпуса функциональной сборки ({string.Join(", ", CaseExecutionMaterials.Names)}): "
     );
-
-    inputFanBodyExecutionMaterial = Console.ReadLine();
+    formData.FanBodyExecutionMaterial = Console.ReadLine();
 }
 
-//==========================================================================================================
+// ============================================================================
+// ПРЕОБРАЗОВАНИЕ ДАННЫХ
+// UserInputFormData (DTO со строками) -> UserInput (доменный объект)
+// ============================================================================
 
-
-var userInput = Calculate.ProcessUserInput(
-    inputVolumeFlow,
-    inputTotalPressure,
-    inputFanOperatingMaxTemperature,
-    inputFanVersion,
-    inputFanLogic,
-    inputSize,
-    inputBodyLength,
-    inputImpellerRotationDirection,
-    inputNominalPower,
-    inputNominalImpellerRotationSpeed,
-    inputFanBodyExecutionMaterial,
-    inputTotalPressureDeviation,
-    inputSpecificDeviationLeft,
-    inputSpecificDeviationRight,
-    inputRelativeHumidity,
-    inputAltitude,
-    inputFanOperatingCurrentTemperature,
-    inputNumberOfFans
-);
-
-await FanSelector.ProcessTheRequest(userInput);
-
-// Console.WriteLine("Нажмите любую клавишу чтобы закрыть программу.");
-// Console.ReadLine();
+try
+{
+    var userInput = Calculate.ProcessUserInput(formData);
+    await FanSelector.ProcessTheRequest(userInput);
+}
+catch (ArgumentException ex)
+{
+    Console.WriteLine($"Ошибка валидации: {ex.Message}");
+    Environment.Exit(1);
+}
+catch (FormatException ex)
+{
+    Console.WriteLine($"Ошибка ввода: {ex.Message}");
+    Environment.Exit(1);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Непредвиденная ошибка: {ex.Message}");
+    Environment.Exit(1);
+}

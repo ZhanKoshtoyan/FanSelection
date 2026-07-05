@@ -248,7 +248,7 @@ public record FanData : ShortDescriptionOfTheFanData
     /// </summary>
     public double FanMotorEfficiencyGradeCoefficient { get; set; } = 1;
 
-    public FanEfficiencyGradeCollection FanEfficiencyGradeList { get; set; }
+    public FanEfficiencyGradeCollection FanEfficiencyGradeList { get; set; } = new();
 
     /// <summary>
     /// Площадь диска колеса по концам лопаток [м2]
